@@ -1,0 +1,11 @@
+
+-Before running the Ops Server installer you need to uninstall the
+following software products if they are already installed:
+
+ArcGIS for Server, Portal, IIS, ArcGIS GeoEvent Server, 
+  PostgreSQL, ArcGIS for Desktop and Chat Server
+
+-Before running the Ops Server installer you need to set the variables
+in the "Set Variables" section in InstallOpsServer.bat file
+
+

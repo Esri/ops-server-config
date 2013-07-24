@@ -1,3 +1,8 @@
+*_previous
+*_old
+*.previous
+*.old
+
 *.py[cod]
 
 # C extensions
