@@ -7,7 +7,6 @@ import logging
 import os
 import shutil
 import tempfile
-import urlparse #EL
 
 from portalpy import TEXT_BASED_ITEM_TYPES, FILE_BASED_ITEM_TYPES, PortalError,\
                      unicode_to_ascii
@@ -689,50 +688,6 @@ def load_items_based_on_tags(portal, path, tags, f='json', cls=None, **kw):
                 source_ids.append(source_id)
 
     return items, source_ids
-
-def update_url_netloc_port(old_url,old_hostname,new_hostname,new_port):
-    #MF and EL
-    
-    new_url = None
-    
-    ####MF method 1: string split & replace
-    ###sp = old_url.split("/")
-    ###sp[2] = new_hostname + ":" + new_port
-    ###new_url = '/'.join(sp) if sp else ''
-    
-    #EL: http protocol may not be the same as the source. I think
-    # portal may just handle this; i.e. at the time of call to URLs
-    # in item portal may switch the protocol as appropriate for the site
-    # TODO: determine if we need to handle this ourselves.
-    
-    #EL: this code assumes that the webadaptor is named "arcgis".
-    # TODO: handle webadaptor name correctly
-    
-    p = urlparse.urlparse(old_url)
-    
-    # There are cases where publishers have created items that point to
-    # other servers other then the staging server, such as services.arcgisonlinle.com.
-    # In this cases we don't want to change the URLs in these items to
-    # point to the new server; we just want to leave the URLs unmodified, so
-    # send back the original "old" url.
-    
-    #NOTE: this code expects the old_hostname and the URL (p.hostname) values
-    # to match in terms of having fully qualified domain names; for example,
-    # if old_hostname was set as "afmcomstaging" and the hostname in the
-    # old url was afmcomstaging.esri.com, while the servers are equivalent,
-    # the code below would not evaluate these as equivalent.
-    if old_hostname.lower() == str(p.hostname).lower():
-        new_url = p.scheme + "://" + new_hostname
-        if new_port is not None and new_port <> '':
-            new_url = new_url + ":" + str(new_port)
-        new_url = new_url + p.path
-    else:
-        new_url = old_url
-        
-    #MF #TODO: Test URL to make sure it is valid and exists?
-    
-    return new_url
-
 
 def save_groups(portal, groups, path, f='json', cls=None, **kw):
     """ Save groups in the portal to disk. """
