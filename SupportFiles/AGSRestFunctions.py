@@ -477,7 +477,7 @@ def getServerDirectory(server, port, adminUser, adminPass, directoryType, token=
     '''
     # Created: Eric L
     
-    serverDirectories = getServerDirectories(serverName, serverPort, username, password)
+    serverDirectories = getServerDirectories(server, port, adminUser, adminPass)
     
     for serverDirectory in serverDirectories["directories"]:
         if serverDirectory["directoryType"] == directoryType.upper():
