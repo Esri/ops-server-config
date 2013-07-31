@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import os, sys, traceback, fnmatch, fileinput
-#import fileinput
 import httplib, urllib, json
 from Utilities import makePath
 from Utilities import editFiles
@@ -11,27 +10,20 @@ import json
 is_debug = False
 is_edit = True
 
-# ------------------------------------------------------------------------------------
-# Set variables
-# ------------------------------------------------------------------------------------
-#root_path = r'C:\BackupNo\Testing\Me\wwwroot_replace'
-#id_map_file = r'C:\BackupNo\Testing\Me\oldID_newID.json'
-#old_hostname = 'afmcomstaging.esri.com'
-#new_hostname = 'afmblueleaf01.esri.com'
-
 scriptName = sys.argv[0]
 
 # ---------------------------------------------------------------------
 # Check arguments
 # ---------------------------------------------------------------------   
-if len(sys.argv) <> 5:
-    print '\n' + scriptName + ' <RootFolderToSearch> <OldServerName> <NewServerName> <IDJsonFile>'
+if len(sys.argv) <> 4:
+    print '\n' + scriptName + ' <RootFolderToSearch> <OldServerName> <NewServerName> {IDJsonFile}'
     print '\nWhere:'
-    print '\n\t<RootFolderToSearch> (required parameter): the path of the root folder to search for web file to edit.'
+    print '\n\t<RootFolderToSearch> (required parameter): the path of the root folder to search for web files to edit.'
     print '\n\t<OldServerName> (required parameter): the old server name, for example afmcomstaging.esri.com'
     print '\n\t<NewServerName> (required parameter): the new server name where web apps will running on, for example afmblueleaf01.esri.com'
-    print '\n\t<IDJsonFile> (required parameter): the file path to the .json file containing the old and new ids'
-    print '\nNOTE: script only edits index.html and briefingbook_config.js files'
+    print '\n\t{IDJsonFile} (optional parameter): the file path to the .json file containing the old and new ids'
+    print '\nNOTE: script only edits index.html, briefingbook_config.js, Config.js, and *.csv files;'
+    print '\tSearch functionality is case-sensitive.'
     sys.exit(1)
     
     
@@ -39,7 +31,9 @@ if len(sys.argv) <> 5:
 root_path = sys.argv[1]
 old_hostname =  sys.argv[2]
 new_hostname = sys.argv[3]
-id_map_file = sys.argv[4]
+id_map_file = None
+if len(sys.argv) == 5:
+    id_map_file = sys.argv[4]
 
 # ------------------------------------------------------------------------------------
 # Find all briefingbook_config.js and index.html files
@@ -48,36 +42,39 @@ files_to_update = []
 config_files = findFilePath(root_path, 'briefingbook_config.js', returnFirst=False)
 config2_files = findFilePath(root_path, 'Config.js', returnFirst=False)
 index_files = findFilePath(root_path, 'index.html', returnFirst=False)
+csv_files = findFilePath(root_path, '*.csv', returnFirst=False)
 
 files_to_update.extend(config_files)
 files_to_update.extend(config2_files)
 files_to_update.extend(index_files)
+files_to_update.extend(csv_files)
 
 # ------------------------------------------------------------------------------------
 # Create dictionary of search/replace values
 # ------------------------------------------------------------------------------------
 search_replace_map = {}
 
-# Load json file containing old/new ids
-os.chdir(os.path.dirname(id_map_file))
-id_map = json.load(open(os.path.basename(id_map_file)))
-if is_debug:
-    print str(id_map)
-
 # Add old/new hostnames
 search_replace_map[old_hostname] = new_hostname
 
-# Add the old/new IDs
-for orig_id, item_info in id_map.iteritems():
-    search_replace_map[orig_id] = item_info['id']
+# Load json file containing old/new ids
+if id_map_file:
+    os.chdir(os.path.dirname(id_map_file))
+    id_map = json.load(open(os.path.basename(id_map_file)))
+    if is_debug:
+        print str(id_map)
+
+    # Add the old/new IDs
+    for orig_id, item_info in id_map.iteritems():
+        search_replace_map[orig_id] = item_info['id']
 
 if is_debug:
     print '\n\n' + str(search_replace_map)
     
 # ------------------------------------------------------------------------------------
-# Replace URLs and IDs in each file
+# Replace values in each file
 # ------------------------------------------------------------------------------------
-section_break = '------------------------------------------------------------------------------------'
+section_break = '-' * 120
 
 if is_edit:
     for myfile in files_to_update:
@@ -94,7 +91,7 @@ if is_edit:
             print line
         print '\tDone.' 
 
-print '\n\nDone updating URLs and IDs in files.'
+print '\n\nDone updating values in files.'
 
 
 
