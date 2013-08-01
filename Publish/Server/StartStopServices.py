@@ -7,8 +7,8 @@ from datetime import datetime
 sys.path.append(os.path.join(os.path.dirname(
     os.path.dirname(os.path.dirname(sys.argv[0]))), "SupportFiles"))
 
-from AllFunctions import getServiceList
-from AllFunctions import stopStartServices
+from AGSRestFunctions import getServiceList
+from AGSRestFunctions import stopStartServices
 
 scriptName = os.path.basename(sys.argv[0])
 
@@ -19,7 +19,7 @@ if len(sys.argv) <> 6:
     print "\n" + scriptName + " <Server_Name> <Server_Port> <User_Name> <Password> <Start|Stop>"
     print "\nWhere:"
     print "\n\t<Server_Name> (required parameter) server name."
-    print "\n\t<Server_Port> (required parameter) server port."
+    print "\n\t<Server_Port> (required parameter) server port; if not using server port enter '#'"
     print "\n\t<User_Name> (required parameter) user that admin or publisher permission."
     print "\n\t<Password> (required parameter) user password."
     print "\n\t<Start|Stop> (required parameter) action to perform."
@@ -32,6 +32,9 @@ userName = sys.argv[3]
 passWord = sys.argv[4]
 serviceAction = sys.argv[5]
 
+if serverPort.strip() == '#':
+    serverPort = None
+            
 validActionList = ["stop", "start"]
 isActionValid = False
 
