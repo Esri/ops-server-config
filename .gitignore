@@ -2,6 +2,7 @@
 *_old
 *.previous
 *.old
+Test*.py
 
 *.py[cod]
 
