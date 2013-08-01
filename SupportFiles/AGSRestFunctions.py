@@ -149,7 +149,7 @@ def getFolders(server, port):
     '''        
     
     foldersURL = "https://{}/arcgis/rest/services/?f=pjson".format(server)    
-    status = json.loads(urllib2.urlopen(folders, '').read())
+    status = json.loads(urllib2.urlopen(foldersURL, '').read())
         
     folders = status["folders"]
     
@@ -502,34 +502,3 @@ def getDataItemInfo(server, port, adminUser,  adminPass, dataItemPath, token=Non
     dataItemInfo = json.loads(urllib2.urlopen(URL).read())
     
     return dataItemInfo
-
-# Eric L. commented out 7/6/2012
-###### EXAMPLE CALLS TO ABOVE FUNCTIONS #####
-#
-## Register an SOE:
-#upload("prodSrv", 6080, "admin", "admin", r"c:\development\SOES\querySOE.soe")
-#
-## Stop 3 services from a list:
-#serviceList = ["CitizenMapping.MapServer","CitizenInput.GPServer","basemap.MapServer"]
-#stopStartServices("prodSrv", 6080, "admin", "admin", "Stop", serviceList)
-#
-## Get all services on a server and start them all:
-#server = "prodSrv"
-#port = 6080
-#admin = "admin"
-#apass = "admin"
-#serviceList = getServiceList(server, port, admin, apass)
-#stopStartServices(server, port, admin, apass, "Start", serviceList)
-#
-## Clear log files and change to Debug:
-#modifyLogs("prodSrv", 6080, "admin", "admin", True, "DEBUG")
-#
-## Create a folder:
-#createFolder("prodSrv", 6080, "admin", "admin", "testServices", "Folder for test services")
-#
-## Get a list of folders and assign to a variable:
-#serverFolders = getFolders("prodSrv", 6080)
-#print serverFolders
-#
-## Print out information about a server
-#getServerInfo("gizmo", 6080, "admin", "admin")

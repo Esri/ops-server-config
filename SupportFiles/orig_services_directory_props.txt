@@ -1,0 +1,34 @@
+
+
+
+
+
+"jsapi.arcgis": 	http://serverapi.arcgisonline.com/jsapi/arcgis/?v=3.3
+			https://afmmosc.esri.com/arcgis/jsapi/jsapi/
+
+"jsapi.arcgis.css": 	http://serverapi.arcgisonline.com/jsapi/arcgis/3.3/js/dojo/dijit/themes/tundra/tundra.css
+			https://afmmosc.esri.com/arcgis/home/js/dojo/dijit/themes/tundra/tundra.css
+
+
+"jsapi.arcgis.css2": 	http://serverapi.arcgisonline.com/jsapi/arcgis/3.3/js/esri/css/esri.css
+			https://afmmosc.esri.com/arcgis/home/js/esri/css/esri.css
+
+"arcgis.com.map.text": "ArcGIS.com Map"
+
+
+"arcgis.com.map": 	http://www.arcgis.com/home/webmap/viewer.html
+			https://afmmosc.esri.com/arcgis/home/webmap/viewer.html
+
+Original:
+{
+  "jsapi.arcgis.sdk": "http://help.arcgis.com/en/webapi/javascript/arcgis/",
+  "enabled": "true",
+  "jsapi.arcgis.css2": "http://serverapi.arcgisonline.com/jsapi/arcgis/3.3/js/esri/css/esri.css",
+  "allowedOrigins": "*",
+  "logLevel": "SEVERE",
+  "arcgis.com.map": "http://www.arcgis.com/home/webmap/viewer.html",
+  "jsapi.arcgis": "http://serverapi.arcgisonline.com/jsapi/arcgis/?v=3.3",
+  "jsapi.arcgis.css": "http://serverapi.arcgisonline.com/jsapi/arcgis/3.3/js/dojo/dijit/themes/tundra/tundra.css",
+  "consoleLogging": "false",
+  "arcgis.com.map.text": "ArcGIS.com Map"
+}
