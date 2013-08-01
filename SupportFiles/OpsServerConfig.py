@@ -71,11 +71,7 @@ publishingDBServer = "disldb"
 publishingFolder = r"\\disldb\development\Commercial\OPSServer\LandOps\Server\Staging\Data"
 
 
-installOnlyPublishingFolders = {
-"OpsEnv_AirOps_InstallOnly": r"\\disldb\development\Commercial\OPSServer\AirOps\Server\Staging\Data",
-"OpsEnv_Intel_InstallOnly": r"\\disldb\development\Commercial\OPSServer\Intel\Server\Staging\Data",
-"OpsEnv_LandOps_InstallOnly": r"\\disldb\development\Commercial\OPSServer\LandOps\Server\Staging\Data",
-"OpsEnv_MaritimeOps_InstallOnly": r"\\disldb\development\Commercial\OPSServer\MaritimeOps\Server\Staging\Data"}
+installOnlyPublishingFolders = {"OpsEnv_InstallOnly": r"\\afmcomstaging\data"}
 
 # ----------------------------------------------------------------------------
 # Set root path variables/root path functions
