@@ -67,11 +67,14 @@ sharedDataStoreConfig = True
 # Set following variable to which server containing the
 # publisher database. Variable only used when
 # variable "sharedDBConfigForPublishing" = False
-publishingDBServer = "disldb"
+publishingDBServer = "afmcomstaging"
 publishingFolder = r"\\disldb\development\Commercial\OPSServer\LandOps\Server\Staging\Data"
 
-
-installOnlyPublishingFolders = {"OpsEnv_InstallOnly": r"\\afmcomstaging\data"}
+# Make sure the dictionary key value matches the registered data store path value
+# minus the '/fileShares/' part of the path. The publishing scripts use this
+# key to find the existing registered folder data store to extract the
+# server path.
+installOnlyPublishingFolders = {"OpsEnvironment": r"\\afmcomstaging\data"}
 
 # ----------------------------------------------------------------------------
 # Set root path variables/root path functions

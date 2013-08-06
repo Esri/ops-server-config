@@ -501,4 +501,85 @@ def getDataItemInfo(server, port, adminUser,  adminPass, dataItemPath, token=Non
 
     dataItemInfo = json.loads(urllib2.urlopen(URL).read())
     
-    return dataItemInfo
+    if dataItemInfo.get('status'):
+        # The 'status' key only exists if there is an error.
+        success = False
+    else:
+        success = True
+        
+    return success, dataItemInfo
+
+def registerDataItem(server, port, adminUser, adminPass, item, token=None):
+    ''' Function to register a data store item
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    Requires item containing necessary json structure for data item.
+    If a token exists, you can pass one in for use.  
+    '''    
+    # Created: Eric L
+    
+    # Get and set the token
+    if token is None:    
+        token = gentoken(server, port, adminUser, adminPass)    
+    
+    item_encode = urllib.urlencode(item)            
+    URL = "https://{}/arcgis/admin/data/registerItem?token={}&f=json".format(server, token)    
+    status = json.loads(urllib2.urlopen(URL, item_encode).read())
+    
+    if status.get('status') == 'error':
+        success = False
+    elif status.get('success') == False:
+        success = False
+    elif status.get('success') == True:
+        success = True
+    else:
+        success = False
+        
+    return success, status
+
+def unregisterDataItem(server, port, adminUser, adminPass, itemPath, token=None):
+    ''' Function to unregister a data store item
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    If a token exists, you can pass one in for use.  
+    '''    
+    # Created: Eric L
+    
+    # Get and set the token
+    if token is None:    
+        token = gentoken(server, port, adminUser, adminPass)    
+    
+    item_encode = urllib.urlencode(itemPath)            
+    URL = "https://{}/arcgis/admin/data/unregisterItem?token={}&f=json".format(server, token)    
+    status = json.loads(urllib2.urlopen(URL, item_encode).read())
+
+    if status.get('status') == 'error':
+        success = False
+    elif status.get('success') == False:
+        success = False
+    elif status.get('success') == True:
+        success = True
+    else:
+        success = False
+
+    return success, status
+
+def validateDataItem(server, port, adminUser, adminPass, item, token=None):
+    ''' Function to validate a data store item
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    If a token exists, you can pass one in for use.  
+    '''
+    # Created: Eric L
+
+    # Get and set the token
+    if token is None:    
+        token = gentoken(server, port, adminUser, adminPass)    
+    
+    item_encode = urllib.urlencode(item)            
+    URL = "https://{}/arcgis/admin/data/validateDataItem?token={}&f=json".format(server, token)    
+    status = json.loads(urllib2.urlopen(URL, item_encode).read())
+    
+    if status.get('status') == 'success':
+        success = True
+    else:
+        success = False
+        
+    return success, status

@@ -129,7 +129,7 @@ def repairMosaicDatasetPaths(mosaicDatasetPath, pathsList):
         return [success, pymsg]
 
 def createAGSConnectionFile(agsConnFolderPath, agsConnFile, serverName,
-                            userName, passWord, port=6080,
+                            userName, passWord, port=6080, useSSL=False,
                             connectionType="ADMINISTER_GIS_SERVICES",
                             serverType="ARCGIS_SERVER",
                             saveUserNamePassWord="SAVE_USERNAME"):
@@ -144,8 +144,18 @@ def createAGSConnectionFile(agsConnFolderPath, agsConnFile, serverName,
         if os.path.exists(agsConnFilePath):
             os.remove(agsConnFilePath)
         
-        # Set URL
-        targetAGSURL = "http://{}:{}/arcgis/admin".format(serverName, port)
+        # Build URL
+        if useSSL:
+            targetAGSURL = "https"
+        else:
+            targetAGSURL = "http"
+        
+        targetAGSURL = "{}://{}".format(targetAGSURL, serverName)
+        
+        if port:
+            targetAGSURL = "{}:{}".format(targetAGSURL, port)
+        
+        targetAGSURL = "{}/arcgis/admin".format(targetAGSURL)
         
         # Create connection file
         arcpy.mapping.CreateGISServerConnectionFile(
