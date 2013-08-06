@@ -3,6 +3,7 @@
 *.previous
 *.old
 Test*.py
+*.ags
 
 *.py[cod]
 
