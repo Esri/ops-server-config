@@ -794,6 +794,20 @@ def update_webmaps(portal, hostname_map, id_map):
                 is_update = True
             else:
                 print "***ERROR: can't map item id '" + item_id + "' to new id."
+        
+        # Replace any other references to host names that may exist in the
+        # webmap. Examples are feature collections; for example, you can have
+        # renderers which have a URL to a portal symbol image or the author
+        # of the webmap may have added fields which store URLs to resources.
+        #
+        # NOTE: this code block won't handle cases where the port number
+        # is included in the URL; this is due to the fact that URLs can be
+        # stored in any user defined keys so we can't explicitly 'pull' the
+        # values for these keys.
+        for host in hostname_map:
+            if host in webmap.data:
+                is_update = True
+                webmap.data = webmap.data.replace(host, hostname_map[host])
                 
         # If changes were made to URLs or item ids update the webmap
         if is_update:
