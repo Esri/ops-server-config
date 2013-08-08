@@ -58,3 +58,17 @@ rem echo Commented call to "%~dp0Portal\ConfigurePortalFiles.py"
 REM Call "%~dp0Portal\ConfigurePortalFiles.py" %FQDN%
 REM PING 127.0.0.1 -n 3 > nul
 rem echo.
+
+REM ---------------------------------------------------------------------
+REM Configure ArcGIS Server Services Directory properties to point to
+REM locally hosted ArcGIS for JavaScript API
+REM ---------------------------------------------------------------------
+echo.
+echo %sectionBreak%
+echo Configure ArcGIS Server Services Directory to point to
+echo locally hosted ArcGIS for JavaScript API...
+echo.
+Call "%~dp0..\..\SupportFiles\SetServicesDirectoryProps.py" ^
+ %FQDN% # %ops_userName% %ops_passWord%
+echo.
+ 

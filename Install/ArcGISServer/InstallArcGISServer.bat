@@ -65,24 +65,33 @@ REM ---------------------------------------------------------------------
 REM Shutdown ArcGIS Server service
 REM ---------------------------------------------------------------------
 
+REM 2013/080/08: No longer need to edit the rest-config.properties
+REM Commented out the code to edit the file and start the
+REM AGS windows service.
+REM -----------
 REM Stop ArcGIS Server service so we edit the rest file.
-echo %sectionBreak%
-set winServicename="ArcGIS Server"
-echo.
-echo Stopping the ArcGIS Server service so we can edit the REST file...
-echo.
-net stop %winServicename%
-PING 127.0.0.1 -n 10 > nul
+rem echo %sectionBreak%
+rem set winServicename="ArcGIS Server"
+rem echo.
+rem echo Stopping the ArcGIS Server service so we can edit the REST file...
+rem echo.
+rem net stop %winServicename%
+rem PING 127.0.0.1 -n 10 > nul
 
 
 
 REM ---------------------------------------------------------------------
 REM Install/configure JavaScript API and Configure REST Properties
 REM ---------------------------------------------------------------------
-echo.
-echo %sectionBreak%
-echo Configure ArcGIS Server files...
-echo.
+
+REM 2013/080/08: No longer need to edit the rest-config.properties
+REM Commented out the code to edit the file and start the
+REM AGS windows service.
+REM -----------
+rem echo.
+rem echo %sectionBreak%
+rem echo Configure ArcGIS Server files...
+rem echo.
 
 REM Shouldn't need to install the JavaScript API since one is installed
 REM with 10.2 portal
@@ -91,19 +100,26 @@ REM Call "%~dp0..\..\..\SupportFiles\InstallJavaScriptAPIs.py" ^
 REM  "C:\inetpub\wwwroot" %ops_softwareRoot%\JavaScriptAPI
 REM PING 127.0.0.1 -n 3 > nul
 
+REM 2013/080/08: No longer need to edit the rest-config.properties;
+REM these properties are set through the AGS Admin REST API
+REM -----------
 REM Modify ArcGIS Server REST properties file
-Call "%~dp0SupportFiles\ConfigureAGSFiles.py"
-PING 127.0.0.1 -n 3 > nul
+REM Call "%~dp0SupportFiles\ConfigureAGSFiles.py"
+REM PING 127.0.0.1 -n 3 > nul
 
+REM 2013/080/08: No longer need to restart the ArcGIS Server
+REM service since we don't need to edit the rest-config.properties
+REM file.
+REM -----------
 REM Restart ArcGIS Service to refresh the rest-properties file which
 REM was editing in the call to the ConfigureAGSFiles.py script.
-set winServicename="ArcGIS Server"
-echo.
-echo %sectionBreak%
-echo Start ArcGIS Server service...
-echo.
-net start %winServicename%
-PING 127.0.0.1 -n 20 > nul
+rem set winServicename="ArcGIS Server"
+rem echo.
+rem echo %sectionBreak%
+rem echo Start ArcGIS Server service...
+rem echo.
+rem net start %winServicename%
+rem PING 127.0.0.1 -n 20 > nul
     
 REM ---------------------------------------------------------------------
 REM Create ArcGIS Server site, create data stores, register data stores

@@ -583,3 +583,103 @@ def validateDataItem(server, port, adminUser, adminPass, item, token=None):
         success = False
         
     return success, status
+
+def getServicesDirectory(server, port, adminUser,  adminPass, token=None):
+    ''' Function to get properties related to the HTML view of the ArcGIS REST API.
+        Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+        If a token exists, you can pass one in for use.
+    '''
+    # Created E.L. 7/31/2013.
+    
+    # Get and set the token
+    if token is None:    
+        token = gentoken(server, port, adminUser, adminPass)
+
+    URL = "https://{}/arcgis/admin/system/handlers/rest/servicesdirectory?token={}&f=json".format(server, token)    
+    status = json.loads(urllib2.urlopen(URL, '').read())
+    
+    # If successful, the json won't contain a 'status' or 'success' key/values;
+    # so test success by whether the json contains one of the services
+    # directory keys that is expected
+    if status.get('allowedOrigins'):
+        success = True
+    else:
+        success = False
+        
+    return success, status
+
+def editServicesDirectory(server, port, adminUser, adminPass,
+                          allowed_origins, arcgis_com_map, arcgis_com_map_text,
+                          jsapi_arcgis, jsapi_arcgis_css, jsapi_arcgis_css2,
+                          jsapi_arcgis_sdk, services_dir_enabled, token=None):
+    '''
+    Function to edit the properties related to the HTML view of the ArcGIS REST API.
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    If a token exists, you can pass one in for use.
+    '''
+    # Created E.L. 7/31/2013.
+    
+    # Get and set the token
+    if token is None:    
+        token = gentoken(server, port, adminUser, adminPass)    
+
+    # The following are not required to be set to avoid the null pointer error:
+    # consoleLogging, 'servicesDirEnabled'
+    #
+    # if 'servicesDirEnabled' is not in json, the script does not fail, but the property is set to false.
+    #
+    # if the following are not set then receive the error ["java.lang.NullPointerException"]
+    #'allowedOrigins', 'jsapi.arcgis.css', 'arcgis.com.map.text', 'jsapi.arcgis.sdk',
+    # 'arcgis.com.map', 'jsapi.arcgis', 'jsapi.arcgis.css2'
+
+    prop_dict = dict()
+    
+    # Comma-separated list of URLs of domains allowed to make requests. * can be used to denote all domains.
+    if allowed_origins:
+        prop_dict['allowedOrigins'] = allowed_origins
+    
+    # URL of the map viewer application used for service previews.
+    if arcgis_com_map:
+        prop_dict['arcgis.com.map'] = arcgis_com_map
+    
+    # The text to use for the preview link that opens the map viewer.
+    if arcgis_com_map_text:
+        prop_dict['arcgis.com.map.text'] = arcgis_com_map_text
+    
+    # The URL of the JavaScript API to use for service previews.
+    if jsapi_arcgis:
+        prop_dict['jsapi.arcgis'] = jsapi_arcgis
+    
+    # CSS file associated with the ArcGIS API for JavaScript.
+    if jsapi_arcgis_css:
+        prop_dict['jsapi.arcgis.css'] = jsapi_arcgis_css
+    
+    # Additional CSS file associated with the ArcGIS API for JavaScript.
+    if jsapi_arcgis_css2:
+        prop_dict['jsapi.arcgis.css2'] = jsapi_arcgis_css2
+    
+    # URL of the ArcGIS API for JavaScript help.
+    if jsapi_arcgis_sdk:
+        prop_dict['jsapi.arcgis.sdk'] = jsapi_arcgis_sdk
+    
+    # Flag to enable/disable the HTML view of the services directory.
+    # Note: using json.loads as a helper function to determine
+    # if passed in value evaluates to boolean no matter if function
+    # is passed in a string (ie. 'true' or 'false') or Python booleans
+    # (i.e. True or False); string must be in lowercase for json.loads()
+    # to evaluate.
+    if json.loads(str(services_dir_enabled).lower()):
+        prop_dict['servicesDirEnabled'] = 'true'
+    else:
+        prop_dict['servicesDirEnabled'] = 'false'
+    
+    prop_encode = urllib.urlencode(prop_dict)            
+    URL = "https://{}/arcgis/admin/system/handlers/rest/servicesdirectory/edit?token={}&f=json".format(server, token)    
+    status = json.loads(urllib2.urlopen(URL, prop_encode).read())
+
+    if status.get('status') == 'success':
+        success = True
+    else:
+        success = False
+        
+    return success, status
