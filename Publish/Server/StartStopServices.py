@@ -2,7 +2,7 @@
 import sys, os, time, traceback
 from datetime import datetime
 
-# Add ConfigureOpsServer\SupportFiles subfolder to sys path inorder to import
+# Add "Root folder"\SupportFiles to sys path inorder to import
 #   modules in subfolder
 sys.path.append(os.path.join(os.path.dirname(
     os.path.dirname(os.path.dirname(sys.argv[0]))), "SupportFiles"))

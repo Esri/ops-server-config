@@ -11,7 +11,7 @@
 import arcpy
 import sys, traceback, time, os
 
-# Add ConfigureOpsServer\SupportFiles subfolder to sys path inorder to import
+# Add "Root folder"\SupportFiles to sys path inorder to import
 #   modules in subfolder
 supportFilePath = os.path.join(os.path.dirname(
     os.path.dirname(os.path.dirname(sys.argv[0]))), "SupportFiles")

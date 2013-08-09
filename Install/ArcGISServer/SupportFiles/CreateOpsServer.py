@@ -11,7 +11,7 @@
 #==============================================================================
 import sys, os, time, traceback, platform
 
-# Add ConfigureOpsServer\SupportFiles to sys path inorder to import
+# Add "Root folder"\SupportFiles to sys path inorder to import
 #   modules in subfolder
 supportFilesPath = os.path.join(
     os.path.dirname(os.path.dirname(

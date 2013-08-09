@@ -109,12 +109,12 @@ cls
 
 REM ---------------------------------------------------------------------
 REM Check if user "installed" configuration script in correct location
-REM (i.e. C:\ConfigureOpsServer)
 REM ---------------------------------------------------------------------
 echo.
 echo --Checking if installation scripts are installed in the correct location...
 
-set ops_ScriptRoot=C:\ConfigureOpsServer\
+set ops_ScriptRootName=ops-server-config
+set ops_ScriptRoot=C:\%ops_ScriptRootName%\
 
 echo %~dp0 | find /I "%ops_ScriptRoot%"
 
@@ -122,7 +122,7 @@ if "%ERRORLEVEL%"=="1" (
     echo.
     echo **********************************************************
     echo **  ERROR:
-    echo **  The 'ConfigureOpsServer' folder is not installed in
+    echo **  The '%ops_ScriptRootName%' folder is not installed in
     echo **  the correct location. It should be located at:
     echo **  %ops_ScriptRoot%
     echo **  Exiting InstallOpsServer.bat.
