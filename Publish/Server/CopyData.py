@@ -44,9 +44,9 @@ if len(sys.argv) <> 7:
     print "\n\t<SourceDatabaseFolder> (required parameter): path to the source 'DistributionEntGDBs' folder."
     print "\n\t<AGSServiceAccount> (required parameter): ArcGIS Server service account."
     print "\n\t<DataDriveLetter> (required parameter): the drive letter where the"
-    print "\n\t\t\tdestination OpsServer\Environment\Data folder is located."
+    print "\n\t\t\tdestination 'Data' folder is located."
     print "\n\t<CacheDriveLetter> (required parameter): the drive letter where the"
-    print "\n\t\t\tdestination arcgisserver\arcgiscache folder is located."
+    print "\n\t\t\tdestination 'arcgiscache' folder is located."
     print
     sys.exit(1)
 

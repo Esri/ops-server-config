@@ -35,6 +35,7 @@ def registerDataStores(sharedDataStoreConfig, forInstallPurposeOnly, username, p
 	environmentData = OpsServerConfig.getEnvDataRootPath(dataDrive)
         clientServerName = OpsServerConfig.publishingDBServer
         clientFolderPath = OpsServerConfig.publishingFolder
+	clientFolderDSName = OpsServerConfig.dataFolderDStoreName
         installOnlyClientFolders = OpsServerConfig.installOnlyPublishingFolders
         dbsToRegister = OpsServerConfig.databasesToCreate
         
@@ -50,7 +51,7 @@ def registerDataStores(sharedDataStoreConfig, forInstallPurposeOnly, username, p
             if forInstallPurposeOnly:
                 clientFolderPaths = installOnlyClientFolders
             else:
-                clientFolderPaths = {"OpsEnvironment": clientFolderPath}
+                clientFolderPaths = {clientFolderDSName: clientFolderPath}
             
             for registrationName, clientFolderPath in clientFolderPaths.items():
                 

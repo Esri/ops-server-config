@@ -70,11 +70,14 @@ sharedDataStoreConfig = True
 publishingDBServer = "afmcomstaging"
 publishingFolder = r"\\disldb\development\Commercial\OPSServer\LandOps\Server\Staging\Data"
 
+# 'Registration Name' for data folder data store
+dataFolderDStoreName = "OpsServerData"
+
 # Make sure the dictionary key value matches the registered data store path value
 # minus the '/fileShares/' part of the path. The publishing scripts use this
 # key to find the existing registered folder data store to extract the
 # server path.
-installOnlyPublishingFolders = {"OpsEnvironment": r"\\afmcomstaging\data"}
+installOnlyPublishingFolders = {dataFolderDStoreName: r"\\afmcomstaging\data"}
 
 # ----------------------------------------------------------------------------
 # Set root path variables/root path functions
@@ -86,11 +89,11 @@ def getOpsServerRootPath(dataDrive):
 
 def getEnvDataRootPath(dataDrive):
     opsServerRootPath = getOpsServerRootPath(dataDrive)
-    return os.path.join(opsServerRootPath, *["Environment", "Data"])
+    return os.path.join(opsServerRootPath, *["Data"])
 
 def getDBConnFileRootPath(dataDrive):
     opsServerRootPath = getOpsServerRootPath(dataDrive)
-    return os.path.join(opsServerRootPath, *["Environment", "DBConnections"])
+    return os.path.join(opsServerRootPath, *["DBConnections"])
 
 def getCacheRootPath(cacheDrive):
     return makePath(cacheDrive, ["arcgisserver", "arcgiscache"])
