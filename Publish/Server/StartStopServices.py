@@ -12,7 +12,7 @@ from AGSRestFunctions import stopStartServices
 
 validTypes = ["MapServer", "ImageServer", "GeometryServer", "GeocodeServer", "GPServer"]
 userServiceStr = None
-
+serviceList = None
 scriptName = os.path.basename(sys.argv[0])
 
 # ---------------------------------------------------------------------
