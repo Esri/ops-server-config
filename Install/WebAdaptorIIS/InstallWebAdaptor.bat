@@ -15,6 +15,11 @@ echo --Installing...
 Call %~dp0\InstallWebAdaptorPrerequisites.bat
 PING 127.0.0.1 -n 3 > nul
 
+REM ---------------------------------------------------------------------
+REM Modify IIS as needed for Ops Server
+REM ---------------------------------------------------------------------
+Call %~dp0SupportFiles\AddIISMimeTypes.bat
+PING 127.0.0.1 -n 3 > nul
 
 REM ---------------------------------------------------------------------
 REM Install ArcGIS Web Adaptor for IIS
