@@ -15,7 +15,7 @@ scriptName = sys.argv[0]
 # ---------------------------------------------------------------------
 # Check arguments
 # ---------------------------------------------------------------------   
-if len(sys.argv) <> 4:
+if len(sys.argv) < 4:
     print '\n' + scriptName + ' <RootFolderToSearch> <OldServerName> <NewServerName> {IDJsonFile}'
     print '\nWhere:'
     print '\n\t<RootFolderToSearch> (required parameter): the path of the root folder to search for web files to edit.'
