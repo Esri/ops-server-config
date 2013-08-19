@@ -11,9 +11,17 @@
 # - 12/11/2012 - MF - Copy and modify from BC portalcontent.py.
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
+import os, sys
+
+# Add "Root folder"\SupportFiles to sys path inorder to import
+#   modules in subfolder
+supportFilesPath = os.path.join(
+    os.path.dirname(
+    os.path.dirname(os.path.dirname(sys.argv[0]))), "SupportFiles")
+print supportFilesPath
+sys.path.append(supportFilesPath)
 
 import portalpy
-import os, sys
 import json
 import urlparse
 import types
@@ -21,6 +29,7 @@ import shutil
 from datetime import datetime, timedelta
 from portalpy import Portal, parse_hostname, portal_time, WebMap, normalize_url, unpack
 from portalpy.provision import load_items, load_items_based_on_tags
+from Utilities import findInFile, editFiles
 import logging
 
 logging.basicConfig()
@@ -297,6 +306,11 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     print "\n" + sectionBreak
     print "Update the item ids in web app URLs and data...\n"
     update_webapps(portaladmin, origIDToNewID)   
+    
+    # Update the URLs in any CSV portal items
+    print "\n" + sectionBreak
+    print "Update the URLs in CSV portal items...\n"
+    update_csv_items(portaladmin, hostname_map)
     
     #----------------------------------------------------------------
     # EL, 6/11/2013 - don't update the portal properties
@@ -907,7 +921,44 @@ def update_webapps(portal, id_map):
                     
             if is_update_url or is_update_data:
                 portal.update_item(item.get('id'), item)    
+
+def update_csv_items(portal, hostname_map):
+    ''' Update URLs in CSV portal items '''
     
+    count = 0
+    filePaths = []
+    
+    # Set query string for item search
+    q = 'type:csv'
+    
+    # Perform search
+    items = portal.search(['id','type','url','title','owner'], q)
+    
+    if not items:
+        return
+    
+    for item in items:
+        print_item_info(item)
+        itemID = item.get('id')
+        
+        # Download file from portal
+        filePath = portal.item_datad(itemID)
+        filePaths.append(filePath)
+        
+        is_updated = False
+        for host in hostname_map:
+            if findInFile(filePath, host):
+                editFiles([filePath], host, hostname_map[host])
+                is_updated = True
+            
+        if is_updated:
+            portal.update_item(itemID, None, filePath)
+    
+    # Delete the files that were downloaded.   
+    if filePaths:
+        for filePath in filePaths:
+            os.remove(filePath)
+        
 def print_item_info(item):
     itemID = item.get('id')
     itemTitle = item.get('title')
