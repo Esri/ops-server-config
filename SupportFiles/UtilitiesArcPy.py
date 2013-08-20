@@ -23,8 +23,11 @@ def copyData(sourcePath, destinationPath, dataType=""):
     pymsg = ""
     
     try:
-        
-        arcpy.Copy_management(sourcePath, destinationPath)
+        if arcpy.Exists(destinationPath):
+            print "\tWARNING: dataset already exists in destination: " + destinationPath
+            print "\tIf dataset is participating in a relationship, then might have been copied when parent was copied."
+        else:
+            arcpy.Copy_management(sourcePath, destinationPath)
         
     except:
         success = False
@@ -82,11 +85,17 @@ def copyGDBData(sourceGDBPath, destinationGDBPath):
             for dataset in allDatasetsList:
                 srcPath = os.path.join(sourceGDBPath, dataset)
                 destPath = os.path.join(destinationGDBPath, dataset)
-                print "\tCopying " + dataset + "..."
-                results = copyData(srcPath, destPath)
-                copySuccess = checkResults(results, printMsg)
-                if not copySuccess:
-                    success = False
+                print "\tDataset: " + dataset
+                if arcpy.Exists(destPath):
+                    print "\t\tWARNING: Will not copy dataset."
+                    print "\t\tDataset already exists in destination: " + destPath
+                    print "\t\t(If dataset is participating in a relationship, then might have been copied when parent was copied)."
+                else:
+                    print "\tCopying..."
+                    results = copyData(srcPath, destPath)
+                    copySuccess = checkResults(results, printMsg)
+                    if not copySuccess:
+                        success = False
     except:
         success = False
         pymsg = "\tError Info:\n\t" + str(sys.exc_info()[1])
