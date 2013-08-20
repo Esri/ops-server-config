@@ -1,6 +1,8 @@
 REM =====================================================================
 REM Install ArcGIS Server and Authorize Software
 REM =====================================================================
+SET FQDN=%COMPUTERNAME%.%USERDNSDOMAIN%
+
 echo.
 echo %sectionBreak%
 echo Install ArcGIS Server
@@ -134,3 +136,14 @@ Call "%~dp0SupportFiles\CreateOpsServer.py" %ops_agsServiceAccount% ^
 
 REM Add delay
 PING 127.0.0.1 -n 6 > nul
+
+REM ---------------------------------------------------------------------
+REM Start geometry service
+REM ---------------------------------------------------------------------
+echo.
+echo %sectionBreak%
+echo Start the Utilities/Geometry service...
+echo.
+Call "%~dp0..\..\Publish\Server\StartStopServices.py" %FQDN% ^
+    6080 %ops_userName% %ops_passWord% no Start Utilities//Geometry.GeometryServer
+PING 127.0.0.1 -n 3 > nul

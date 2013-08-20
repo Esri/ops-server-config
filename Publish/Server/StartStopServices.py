@@ -20,13 +20,14 @@ scriptName = os.path.basename(sys.argv[0])
 # ---------------------------------------------------------------------
 serviceParam = '{folder//}service.type'
 
-if len(sys.argv) < 6:
-    print '\n' + scriptName + ' <Server_Name> <Server_Port> <User_Name> <Password> <Start|Stop> {' + serviceParam + ',...}'
+if len(sys.argv) < 7:
+    print '\n' + scriptName + ' <Server_Name> <Server_Port> <User_Name> <Password> <Use_SSL: Yes|No> <Start|Stop> {' + serviceParam + ',...}'
     print '\nWhere:'
     print '\n\t<Server_Name> (required) server name.'
     print '\n\t<Server_Port> (required) server port; if not using server port enter #'
     print '\n\t<User_Name> (required) user with admin or publisher permission.'
     print '\n\t<Password> (required) user password.'
+    print '\n\t<Use_SSL: Yes|No> (required) Flag indicating if ArcGIS Server requires HTTPS.'
     print '\n\t<Start|Stop> (required) action to perform.'
     
     print '\n\t{' + serviceParam + ',...} (optional) to Start|Stop specific services, specify'
@@ -49,10 +50,16 @@ serverName = sys.argv[1]
 serverPort = sys.argv[2]
 userName = sys.argv[3]
 passWord = sys.argv[4]
-serviceAction = sys.argv[5]
-if len(sys.argv) == 7:
-    userServiceStr = sys.argv[6]
+useSSL = sys.argv[5]
+serviceAction = sys.argv[6]
+if len(sys.argv) == 8:
+    userServiceStr = sys.argv[7]
 
+if useSSL.strip().lower() in ['yes', 'ye', 'y']:
+    useSSL = True
+else:
+    useSSL = False
+    
 # Perform some checks on the user specified service list
 if userServiceStr is not None:
     serviceList = userServiceStr.replace(" ", ",").split(",")
@@ -100,9 +107,6 @@ try:
     # Print header
     # ---------------------------------------------------------------------
     print
-    print "===================================================================================="
-    print serviceAction.title() + " all services on server"
-    print "===================================================================================="
     print "Start time: " + str(startTime)
     print
  
@@ -110,7 +114,7 @@ try:
     # Get list of all services/or user specified list
     # ---------------------------------------------------------------------
     if not serviceList:
-        serviceList = getServiceList(serverName, serverPort, userName, passWord)
+        serviceList = getServiceList(serverName, serverPort, userName, passWord, useSSL)
     
         # Append Geometry service to list
         serviceList.append(u'Utilities//Geometry.GeometryServer')
@@ -129,7 +133,7 @@ try:
         
         print "\n- Working..."
         stopStartServices(serverName, serverPort, userName, passWord, \
-                          serviceAction.title(), serviceList)
+                          serviceAction.title(), serviceList, useSSL)
         
             
 except:
