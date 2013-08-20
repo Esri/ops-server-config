@@ -42,7 +42,7 @@ import urllib
 import urllib2
 import json
     
-def gentoken(server, port, adminUser, adminPass, expiration=60):
+def gentoken(server, port, adminUser, adminPass, useSSL=True, expiration=60):
     #Re-usable function to get a token required for Admin changes
     
     query_dict = {'username':   adminUser,
@@ -52,10 +52,7 @@ def gentoken(server, port, adminUser, adminPass, expiration=60):
     
     query_string = urllib.urlencode(query_dict)
     
-    if port:
-        url = "https://{}:{}/arcgis/admin/generateToken".format(server, port)
-    else:
-        url = "https://{}/arcgis/admin/generateToken".format(server)
+    url = "{}{}{}/arcgis/admin/generateToken".format(getProtocol(useSSL), server, getPort(port))
     
     token = json.loads(urllib.urlopen(url + "?f=json", query_string).read())
         
@@ -66,8 +63,9 @@ def gentoken(server, port, adminUser, adminPass, expiration=60):
         # Return the token to the function which called for it
         return token['token']
     
-    
-def modifyLogs(server, port, adminUser, adminPass, clearLogs, logLevel, token=None):
+#"{}{}{}/arcgis/admin/logs/clean?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)
+
+def modifyLogs(server, port, adminUser, adminPass, clearLogs, logLevel, useSSL=True, token=None):
     ''' Function to clear logs and modify log settings.
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     clearLogs = True|False
@@ -77,18 +75,18 @@ def modifyLogs(server, port, adminUser, adminPass, clearLogs, logLevel, token=No
     
     # Get tand set the token
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)
+        token = gentoken(server, port, adminUser, adminPass, useSSL)
     
     # Clear existing logs
     if clearLogs:
-        clearLogs = "https://{}/arcgis/admin/logs/clean?token={}&f=json".format(server, token)
+        clearLogs = "{}{}{}/arcgis/admin/logs/clean?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)
         status = urllib2.urlopen(clearLogs, ' ').read()    
     
         if 'success' in status:
             print "Cleared log files"
     
     # Get the current logDir, maxErrorReportsCount and maxLogFileAge as we dont want to modify those
-    currLogSettings_url = "https://{}/arcgis/admin/logs/settings?f=pjson&token={}".format(server, token)
+    currLogSettings_url = "{}{}{}/arcgis/admin/logs/settings?f=pjson&token={}".format(getProtocol(useSSL), server, getPort(port), token)
     logSettingProps = json.loads(urllib2.urlopen(currLogSettings_url, ' ').read())['settings'] 
     
     # Place the current settings, along with new log setting back into the payload
@@ -100,7 +98,7 @@ def modifyLogs(server, port, adminUser, adminPass, clearLogs, logLevel, token=No
    
     # Modify the logLevel
     log_encode = urllib.urlencode(logLevel_dict)     
-    logLevel_url = "https://{}/arcgis/admin/logs/settings/edit?f=json&token={}".format(server, token)
+    logLevel_url = "{}{}{}/arcgis/admin/logs/settings/edit?f=json&token={}".format(getProtocol(useSSL), server, getPort(port), token)
     logStatus = json.loads(urllib.urlopen(logLevel_url, log_encode).read())
     
     
@@ -112,7 +110,7 @@ def modifyLogs(server, port, adminUser, adminPass, clearLogs, logLevel, token=No
     return
         
         
-def createFolder(server, port, adminUser, adminPass, folderName, folderDescription, token=None):
+def createFolder(server, port, adminUser, adminPass, folderName, folderDescription, useSSL=True, token=None):
     ''' Function to create a folder
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     folderName = String with a folder name
@@ -122,7 +120,7 @@ def createFolder(server, port, adminUser, adminPass, folderName, folderDescripti
     
     # Get and set the token
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
     
     # Dictionary of properties to create a folder
     folderProp_dict = { "folderName": folderName,
@@ -130,7 +128,7 @@ def createFolder(server, port, adminUser, adminPass, folderName, folderDescripti
                       }
     
     folder_encode = urllib.urlencode(folderProp_dict)            
-    create = "https://{}/arcgis/admin/services/createFolder?token={}&f=json".format(server, token)    
+    create = "{}{}{}/arcgis/admin/services/createFolder?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)    
     status = urllib2.urlopen(create, folder_encode).read()
 
     
@@ -143,12 +141,12 @@ def createFolder(server, port, adminUser, adminPass, folderName, folderDescripti
     return
         
 
-def getFolders(server, port):
+def getFolders(server, port, useSSL=True):
     ''' Function to get all folders on a server  
     Note: Uses the Services Directory, not the REST Admin
     '''        
     
-    foldersURL = "https://{}/arcgis/rest/services/?f=pjson".format(server)    
+    foldersURL = "{}{}{}/arcgis/rest/services/?f=pjson".format(getProtocol(useSSL), server, getPort(port))    
     status = json.loads(urllib2.urlopen(foldersURL, '').read())
         
     folders = status["folders"]
@@ -157,7 +155,7 @@ def getFolders(server, port):
     return folders
 
 
-def renameService(server, port, adminUser, adminPass, service, newName, token=None):
+def renameService(server, port, adminUser, adminPass, service, newName, useSSL=True, token=None):
     ''' Function to rename a service
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     service = String of existing service with type separated by a period <serviceName>.<serviceType>
@@ -167,7 +165,7 @@ def renameService(server, port, adminUser, adminPass, service, newName, token=No
     
     # Get and set the token
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)      
+        token = gentoken(server, port, adminUser, adminPass, useSSL)      
     
     # Dictionary of properties used to rename a service
     renameService_dict = { "serviceName": service.split('.')[0],
@@ -176,7 +174,7 @@ def renameService(server, port, adminUser, adminPass, service, newName, token=No
                          }
     
     rename_encode = urllib.urlencode(renameService_dict)            
-    rename = "https://{}/arcgis/admin/services/renameService?token={}&f=json".format(server, token)    
+    rename = "{}{}{}/arcgis/admin/services/renameService?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)    
     status = urllib2.urlopen(rename, rename_encode ).read()
     
     
@@ -187,8 +185,28 @@ def renameService(server, port, adminUser, adminPass, service, newName, token=No
         print status
         
     return
- 
-def stopStartServices(server, port, adminUser, adminPass, stopStart, serviceList, token=None):  
+
+def getProtocol(useSSL):
+    ''' Return proper protocol '''
+    # Added EL 20 Aug 2013
+    if useSSL:
+        return "https://"
+    else:
+        return "http://"
+
+def getPort(port):
+    ''' Return string representing port parameter '''
+    # Added EL 20 Aug 2013
+    portStr = ""
+    if port:
+        if str(port).strip() == "#":
+            portStr = ""
+        else:
+            portStr = ":" + str(port)
+    
+    return portStr
+
+def stopStartServices(server, port, adminUser, adminPass, stopStart, serviceList, useSSL=True, token=None):  
     ''' Function to stop, start or delete a service.
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     stopStart = Stop|Start|Delete
@@ -198,11 +216,11 @@ def stopStartServices(server, port, adminUser, adminPass, stopStart, serviceList
     
     # Get and set the token
     if token is None:       
-        token = gentoken(server, port, adminUser, adminPass)
+        token = gentoken(server, port, adminUser, adminPass, useSSL)
     
     # modify the services(s)    
     for service in serviceList:
-        op_service_url = "https://{}/arcgis/admin/services/{}/{}?token={}&f=json".format(server, service, stopStart, token)
+        op_service_url = "{}{}{}/arcgis/admin/services/{}/{}?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), service, stopStart, token)
         status = urllib2.urlopen(op_service_url, ' ').read()
         
         if 'success' in status:
@@ -251,7 +269,7 @@ def stopStartServices(server, port, adminUser, adminPass, stopStart, serviceList
 #    return
         
         
-def registerSOE(server, port, adminUser, adminPass, itemID, token=None):
+def registerSOE(server, port, adminUser, adminPass, itemID, useSSL=True, token=None):
     ''' Function to upload a file to the REST Admin
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     itemID = itemID of an uploaded SOE the server will register.    
@@ -264,7 +282,7 @@ def registerSOE(server, port, adminUser, adminPass, itemID, token=None):
     # Registration of an SOE only requires an itemID. The single item dictionary is encoded in place
     SOE_encode = urllib.urlencode({"id":itemID})   
     
-    register = "https://{}/arcgis/admin/services/types/extensions/register?token={}&f=json".format(server, token)    
+    register = "{}{}{}/arcgis/admin/services/types/extensions/register?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)    
     status = urllib2.urlopen(register, SOE_encode).read()
     
     if 'success' in status:
@@ -276,7 +294,7 @@ def registerSOE(server, port, adminUser, adminPass, itemID, token=None):
     return      
 
 
-def getServiceList(server, port, adminUser, adminPass, token=None):
+def getServiceList(server, port, adminUser, adminPass, useSSL=True, token=None):
     ''' Function to get all services
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
@@ -285,11 +303,11 @@ def getServiceList(server, port, adminUser, adminPass, token=None):
     
     
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
     
     services = []    
     folder = ''    
-    URL = "https://{}/arcgis/admin/services{}?f=pjson&token={}".format(server, folder, token)    
+    URL = "{}{}{}/arcgis/admin/services{}?f=pjson&token={}".format(getProtocol(useSSL), server, getPort(port), folder, token)    
 
     serviceList = json.loads(urllib2.urlopen(URL).read())
 
@@ -304,7 +322,7 @@ def getServiceList(server, port, adminUser, adminPass, token=None):
         
     if len(folderList) > 0:
         for folder in folderList:                                              
-            URL = "https://{}/arcgis/admin/services/{}?f=pjson&token={}".format(server, folder, token)    
+            URL = "{}{}{}/arcgis/admin/services/{}?f=pjson&token={}".format(getProtocol(useSSL), server, getPort(port), folder, token)    
             fList = json.loads(urllib2.urlopen(URL).read())
             
             for single in fList["services"]:
@@ -314,7 +332,7 @@ def getServiceList(server, port, adminUser, adminPass, token=None):
     return services
 
 
-def getServerInfo(server, port, adminUser, adminPass, token=None):
+def getServerInfo(server, port, adminUser, adminPass, useSSL=True, token=None):
     ''' Function to get and display a detailed report about a server
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     service = String of existing service with type seperated by a period <serviceName>.<serviceType>
@@ -333,10 +351,10 @@ def getServerInfo(server, port, adminUser, adminPass, token=None):
     
     # Get tand set the token
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)      
+        token = gentoken(server, port, adminUser, adminPass, useSSL)      
      
     report = ''
-    URL = "https://{}/arcgis/admin/".format(server)
+    URL = "{}{}{}/arcgis/admin/".format(getProtocol(useSSL), server, getPort(port))
 
     report += "*-----------------------------------------------*\n\n"
     
@@ -391,7 +409,7 @@ def getServerInfo(server, port, adminUser, adminPass, token=None):
     print report
 
 
-def getServiceInfo(server, port, adminUser,  adminPass, folder, serviceNameAndType, token=None):
+def getServiceInfo(server, port, adminUser,  adminPass, folder, serviceNameAndType, useSSL=True, token=None):
     ''' Function to get service item info
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
@@ -399,7 +417,7 @@ def getServiceInfo(server, port, adminUser,  adminPass, folder, serviceNameAndTy
     # Created: Eric L.
     
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
     
     if folder is not None:
         folderServerNameType = folder + "/" + serviceNameAndType
@@ -407,13 +425,13 @@ def getServiceInfo(server, port, adminUser,  adminPass, folder, serviceNameAndTy
         folderServerNameType = serviceNameAndType
         
     serviceInfo = {}       
-    URL = "https://{}/arcgis/admin/services/{}?f=pjson&token={}".format(server, folderServerNameType, token)    
+    URL = "{}{}{}/arcgis/admin/services/{}?f=pjson&token={}".format(getProtocol(useSSL), server, getPort(port), folderServerNameType, token)    
 
     serviceInfo = json.loads(urllib2.urlopen(URL).read())
     
     return serviceInfo
 
-def getServiceItemInfo(server, port, adminUser,  adminPass, folder, serverNameAndType, token=None):
+def getServiceItemInfo(server, port, adminUser,  adminPass, folder, serverNameAndType, useSSL=True, token=None):
     ''' Function to get service item info
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
@@ -421,7 +439,7 @@ def getServiceItemInfo(server, port, adminUser,  adminPass, folder, serverNameAn
     # Created: Eric L
     
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
     
     if folder is not None:
         folderServerNameType = folder + "/" + serverNameAndType
@@ -429,13 +447,13 @@ def getServiceItemInfo(server, port, adminUser,  adminPass, folder, serverNameAn
         folderServerNameType = serverNameAndType
         
     serviceItemInfo = {}       
-    URL = "https://{}/arcgis/admin/services/{}/iteminfo?f=pjson&token={}".format(server, folderServerNameType, token)    
+    URL = "{}{}{}/arcgis/admin/services/{}/iteminfo?f=pjson&token={}".format(getProtocol(useSSL), server, getPort(port), folderServerNameType, token)    
 
     serviceItemInfo = json.loads(urllib2.urlopen(URL).read())
     
     return serviceItemInfo
 
-def getConfigStoreProperty(server, port, adminUser, adminPass, token=None, property="connectionString"):
+def getConfigStoreProperty(server, port, adminUser, adminPass, useSSL=True, token=None, property="connectionString"):
     ''' Function to get config store information
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
@@ -443,16 +461,16 @@ def getConfigStoreProperty(server, port, adminUser, adminPass, token=None, prope
     # Created: Eric L
     
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
     
     directories = {}       
-    URL = "https://{}/arcgis/admin/system/configstore?f=pjson&token={}".format(server, token)    
+    URL = "{}{}{}/arcgis/admin/system/configstore?f=pjson&token={}".format(getProtocol(useSSL), server, getPort(port), token)    
 
     configStore = json.loads(urllib2.urlopen(URL).read())
     
     return configStore[property]
 
-def getServerDirectories(server, port, adminUser, adminPass, token=None):
+def getServerDirectories(server, port, adminUser, adminPass, useSSL=True, token=None):
     ''' Function to get all directories
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
@@ -460,16 +478,16 @@ def getServerDirectories(server, port, adminUser, adminPass, token=None):
     # Created: Eric L
     
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
     
     serverDirectories = {}       
-    URL = "https://{}/arcgis/admin/system/directories?f=pjson&token={}".format(server, token)    
+    URL = "{}{}{}/arcgis/admin/system/directories?f=pjson&token={}".format(getProtocol(useSSL), server, getPort(port), token)    
 
     serverDirectories = json.loads(urllib2.urlopen(URL).read())
     
     return serverDirectories
 
-def getServerDirectory(server, port, adminUser, adminPass, directoryType, token=None):
+def getServerDirectory(server, port, adminUser, adminPass, directoryType, useSSL=True, token=None):
     '''
     Get specific Server Directory json dictionary based on directoryType.
     Valid directoryType's are:
@@ -477,7 +495,7 @@ def getServerDirectory(server, port, adminUser, adminPass, directoryType, token=
     '''
     # Created: Eric L
     
-    serverDirectories = getServerDirectories(server, port, adminUser, adminPass)
+    serverDirectories = getServerDirectories(server, port, adminUser, adminPass, useSSL, token=None)
     
     for serverDirectory in serverDirectories["directories"]:
         if serverDirectory["directoryType"] == directoryType.upper():
@@ -485,7 +503,7 @@ def getServerDirectory(server, port, adminUser, adminPass, directoryType, token=
     
     return serverDirectory
 
-def getDataItemInfo(server, port, adminUser,  adminPass, dataItemPath, token=None):
+def getDataItemInfo(server, port, adminUser,  adminPass, dataItemPath, useSSL=True, token=None):
     ''' Function to get data item info
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.
@@ -494,10 +512,10 @@ def getDataItemInfo(server, port, adminUser,  adminPass, dataItemPath, token=Non
     # Created: Eric L
     
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
         
     dataItemInfo = {}       
-    URL = "https://{}/arcgis/admin/data/items{}?f=pjson&token={}".format(server, dataItemPath, token)    
+    URL = "{}{}{}/arcgis/admin/data/items{}?f=pjson&token={}".format(getProtocol(useSSL), server, getPort(port), dataItemPath, token)    
 
     dataItemInfo = json.loads(urllib2.urlopen(URL).read())
     
@@ -509,7 +527,7 @@ def getDataItemInfo(server, port, adminUser,  adminPass, dataItemPath, token=Non
         
     return success, dataItemInfo
 
-def registerDataItem(server, port, adminUser, adminPass, item, token=None):
+def registerDataItem(server, port, adminUser, adminPass, item, useSSL=True, token=None):
     ''' Function to register a data store item
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     Requires item containing necessary json structure for data item.
@@ -519,10 +537,10 @@ def registerDataItem(server, port, adminUser, adminPass, item, token=None):
     
     # Get and set the token
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
     
     item_encode = urllib.urlencode(item)            
-    URL = "https://{}/arcgis/admin/data/registerItem?token={}&f=json".format(server, token)    
+    URL = "{}{}{}/arcgis/admin/data/registerItem?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)    
     status = json.loads(urllib2.urlopen(URL, item_encode).read())
     
     if status.get('status') == 'error':
@@ -536,7 +554,7 @@ def registerDataItem(server, port, adminUser, adminPass, item, token=None):
         
     return success, status
 
-def unregisterDataItem(server, port, adminUser, adminPass, itemPath, token=None):
+def unregisterDataItem(server, port, adminUser, adminPass, itemPath, useSSL=True, token=None):
     ''' Function to unregister a data store item
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
@@ -545,10 +563,10 @@ def unregisterDataItem(server, port, adminUser, adminPass, itemPath, token=None)
     
     # Get and set the token
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
     
     item_encode = urllib.urlencode(itemPath)            
-    URL = "https://{}/arcgis/admin/data/unregisterItem?token={}&f=json".format(server, token)    
+    URL = "{}{}{}/arcgis/admin/data/unregisterItem?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)    
     status = json.loads(urllib2.urlopen(URL, item_encode).read())
 
     if status.get('status') == 'error':
@@ -562,7 +580,7 @@ def unregisterDataItem(server, port, adminUser, adminPass, itemPath, token=None)
 
     return success, status
 
-def validateDataItem(server, port, adminUser, adminPass, item, token=None):
+def validateDataItem(server, port, adminUser, adminPass, item, useSSL=True, token=None):
     ''' Function to validate a data store item
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
@@ -571,10 +589,10 @@ def validateDataItem(server, port, adminUser, adminPass, item, token=None):
 
     # Get and set the token
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
     
     item_encode = urllib.urlencode(item)            
-    URL = "https://{}/arcgis/admin/data/validateDataItem?token={}&f=json".format(server, token)    
+    URL = "{}{}{}/arcgis/admin/data/validateDataItem?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)    
     status = json.loads(urllib2.urlopen(URL, item_encode).read())
     
     if status.get('status') == 'success':
@@ -584,7 +602,7 @@ def validateDataItem(server, port, adminUser, adminPass, item, token=None):
         
     return success, status
 
-def getServicesDirectory(server, port, adminUser,  adminPass, token=None):
+def getServicesDirectory(server, port, adminUser,  adminPass, useSSL=True, token=None):
     ''' Function to get properties related to the HTML view of the ArcGIS REST API.
         Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
         If a token exists, you can pass one in for use.
@@ -593,9 +611,9 @@ def getServicesDirectory(server, port, adminUser,  adminPass, token=None):
     
     # Get and set the token
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)
+        token = gentoken(server, port, adminUser, adminPass, useSSL)
 
-    URL = "https://{}/arcgis/admin/system/handlers/rest/servicesdirectory?token={}&f=json".format(server, token)    
+    URL = "{}{}{}/arcgis/admin/system/handlers/rest/servicesdirectory?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)    
     status = json.loads(urllib2.urlopen(URL, '').read())
     
     # If successful, the json won't contain a 'status' or 'success' key/values;
@@ -611,7 +629,7 @@ def getServicesDirectory(server, port, adminUser,  adminPass, token=None):
 def editServicesDirectory(server, port, adminUser, adminPass,
                           allowed_origins, arcgis_com_map, arcgis_com_map_text,
                           jsapi_arcgis, jsapi_arcgis_css, jsapi_arcgis_css2,
-                          jsapi_arcgis_sdk, services_dir_enabled, token=None):
+                          jsapi_arcgis_sdk, services_dir_enabled, useSSL=True, token=None):
     '''
     Function to edit the properties related to the HTML view of the ArcGIS REST API.
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
@@ -621,7 +639,7 @@ def editServicesDirectory(server, port, adminUser, adminPass,
     
     # Get and set the token
     if token is None:    
-        token = gentoken(server, port, adminUser, adminPass)    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
 
     # The following are not required to be set to avoid the null pointer error:
     # consoleLogging, 'servicesDirEnabled'
@@ -674,7 +692,7 @@ def editServicesDirectory(server, port, adminUser, adminPass,
         prop_dict['servicesDirEnabled'] = 'false'
     
     prop_encode = urllib.urlencode(prop_dict)            
-    URL = "https://{}/arcgis/admin/system/handlers/rest/servicesdirectory/edit?token={}&f=json".format(server, token)    
+    URL = "{}{}{}/arcgis/admin/system/handlers/rest/servicesdirectory/edit?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)    
     status = json.loads(urllib2.urlopen(URL, prop_encode).read())
 
     if status.get('status') == 'success':
