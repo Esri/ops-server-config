@@ -26,10 +26,10 @@ def main():
     results = check_args()
     if not results:
         sys.exit(exitErrCode)
-    server_fqdn, port, user, password = results
+    server_fqdn, port, user, password, use_ssl, arcgis_com_map_text = results
     
     if debug:
-        print 'Parameter values: ', server_fqdn, port, user, password
+        print 'Parameter values: ', results
     
     try:
         
@@ -41,7 +41,7 @@ def main():
         # 'allowedOrigins' and 'jsapi.arcgis.sdk' are set to these same values
         # (REST request will fail with a 'java.lang.NullPointerException' if all the
         # properties are not specified in the 'edit' request)
-        success, s_dir_props = getServicesDirectory(server_fqdn, port, user, password)
+        success, s_dir_props = getServicesDirectory(server_fqdn, port, user, password, use_ssl)
         if not success:
             raise Exception('ERROR: Encountered issue getting current ' +
                     'services directory properties: \n' + str(s_dir_props))
@@ -52,7 +52,6 @@ def main():
         print '\n- Setting services directory properties...\n'
         
         arcgis_com_map = 'https://{}/arcgis/home/webmap/viewer.html'.format(server_fqdn)
-        arcgis_com_map_text = 'Portal Map Viewer'
         jsapi_arcgis = 'https://{}/arcgis/jsapi/jsapi/'.format(server_fqdn)
         jsapi_arcgis_css = 'https://{}/arcgis/home/js/dojo/dijit/themes/tundra/tundra.css'.format(server_fqdn)
         jsapi_arcgis_css2 = 'https://{}/arcgis/home/js/esri/css/esri.css'.format(server_fqdn)
@@ -73,7 +72,7 @@ def main():
                             s_dir_props['allowedOrigins'], arcgis_com_map,
                             arcgis_com_map_text, jsapi_arcgis,
                             jsapi_arcgis_css, jsapi_arcgis_css2,
-                            s_dir_props['jsapi.arcgis.sdk'], services_dir_enabled)
+                            s_dir_props['jsapi.arcgis.sdk'], services_dir_enabled, use_ssl)
         if not success:
             raise Exception('ERROR: Encountered issue setting services ' +
                     'directory properties: \n' + str(response))
@@ -82,7 +81,7 @@ def main():
         # Get the updated set ArcGIS Server Services Directory properties and
         # display the new values
         # ---------------------------------------------------------------------
-        success, s_dir_props = getServicesDirectory(server_fqdn, port, user, password)
+        success, s_dir_props = getServicesDirectory(server_fqdn, port, user, password, use_ssl)
         if not success:
             raise Exception('ERROR: Encountered issue getting updated ' +
                     'services directory properties: \n' + str(s_dir_props))
@@ -129,16 +128,19 @@ def check_args():
     # ---------------------------------------------------------------------
     # Check arguments
     # ---------------------------------------------------------------------
-
-    if len(sys.argv) <> 5:
+    arcgis_com_map_text = 'Portal Map Viewer'
+    
+    if len(sys.argv) < 6:
         
-        print '\n' + scriptName + ' <AGS_FQDN> <Port> <AdminUser> <AdminPassword>'
+        print '\n' + scriptName + ' <AGS_FQDN> <Port> <AdminUser> <AdminPassword> <Use_SSL: Yes|No> {ArcGIS_Map_Text}'
     
         print '\nWhere:'
         print '\t<AGS_FQDN> (required parameter): the fully qualified domain name of the ArcGIS Server.'
         print '\n\t<Port> (required parameter): the port number of the ArcGIS Server (specify # if no port).'
         print '\n\t<AdminUser> (required parameter): ArcGIS Server site administrator.'
         print '\n\t<AdminPassword> (required parameter): Password for ArcGIS Server site administrator.'
+        print '\n\t<Use_SSL: Yes|No> (required) Flag indicating if ArcGIS Server security configuration requires HTTPS.'
+        print '\n\t{ArcGIS_Map_Text} (optional) value for arcgis.com.map.text property; if not specified, value set to "' + arcgis_com_map_text + '".'
         print '\nPurpose:'
         print '\tSets the paths of the ArcGIS API for JavaScript to use the'
         print '\tthe locally hosted JavaScript API and map viewer installed'
@@ -148,8 +150,8 @@ def check_args():
         print '\tthe following ArcGIS Server Admin REST API URL:'
         print '\thttps://server.domain/arcgis/admin/system/handlers/rest/servicesdirectory'
         print '\n\t- Script does not validate property values.'
-        print '\n\t- Script is hardcode to set the JavaScript API URLs'
-        print '\tusing https.'
+        print '\n\t- Script is hardcoded to set the protocol on the JavaScript API URLs'
+        print '\tto https.'
         return None
     
     else:
@@ -159,11 +161,20 @@ def check_args():
         port = sys.argv[2]
         adminuser = sys.argv[3]
         password = sys.argv[4]
+        use_ssl = sys.argv[5]
         
+        if len(sys.argv) == 7:
+            arcgis_com_map_text = sys.argv[6]
+            
         if port.strip() == '#':
             port = None
-            
-    return server_fqdn, port, adminuser, password
+        
+        if use_ssl.strip().lower() in ['yes', 'ye', 'y']:
+            use_ssl = True
+        else:
+            use_ssl = False
+    
+    return server_fqdn, port, adminuser, password, use_ssl, arcgis_com_map_text
 
 if __name__ == "__main__":
     main()
