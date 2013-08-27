@@ -13,10 +13,19 @@ from UtilitiesArcPy import createAGSConnectionFile
 from UtilitiesArcPy import checkResults
 import OpsServerConfig
 import DataStore
+import json
+
+DEBUG = False
+
+# Store list of valid Ops Server type values
+valid_ops_types = OpsServerConfig.valid_ops_types
 
 scriptName = os.path.basename(sys.argv[0])
 filePattern = "*.sd"
 totalSuccess = True
+specified_users = None
+as_specified_ops_types = None
+specified_ops_types = None
 
 doFindSDFiles = True
 doCreateAGSConnFile = True
@@ -48,9 +57,9 @@ useSSL = True
 # ---------------------------------------------------------------------
 # Check arguments
 # ---------------------------------------------------------------------
-if len(sys.argv) <> 6:
+if len(sys.argv) < 6:
     print "\n" + scriptName + " <Server_FullyQualifiedDomainName> <Server_Port> <User_Name> " + \
-                            "<Password> <Service_Definition_Root_Folder_Path>"
+                            "<Password> <Service_Definition_Root_Folder_Path> {OwnersToPublish} {OpsServerTypesToPublish}"
     print "\nWhere:"
     print "\n\t<Server_FullyQualifiedDomainName> (required parameter) Fully qualified domain name of ArcGIS Server."
     print "\n\t<Server_Port> (required parameter) ArcGIS Server port number; if not using server port enter '#'"
@@ -58,6 +67,25 @@ if len(sys.argv) <> 6:
     print "\n\t<Password> (required parameter) ArcGIS Server site administrator password."
     print "\n\t<Service_Definition_Root_Folder_Path> (required parameter) is the path of the root folder"
     print "\t\tcontaing the service definition (.sd) files to upload (publish)."
+    
+    print '\n\t{OwnersToPublish} (optional parameter):'
+    print '\t\t-By default, all services are published regardless of the owner.'
+    print '\t\t-Specify # placeholder character if you want to publish services for all owners and you are'
+    print '\t\t   specifying {OpsServerTypesToPublish} values'
+    print '\t\t-To publish services for only specific owners specify comma delimited list of owner names, i.e. owner1,owner2,...'
+    print '\t\t-To publish services for ALL owners except specific owners, specify comma delimited '
+    print '\t\t   list of owners to exclude with "-" prefix, i.e. -owner1,owner2,...'
+    print '\t\t-Owner names are case sensitive (i.e. names must match exactly)'
+    
+    print '\n\t{OpsServerTypesToPost} (optional parameter):'
+    print '\t\t-To post content for specific Ops Server types specify type value, i.e.'
+    print '\t\t   ' + str(valid_ops_types)  + '; you can specify more then one type,'
+    print '\t\t   i.e, Land,Maritime,...'
+
+    print '\n\tNOTES:'
+    print '\t\t(1) To include spaces in any of the parameter lists, surround the list with double-quotes,'
+    print '\t\t i.e., "value1, value2, ..."'
+        
     print
     sys.exit(1)
 
@@ -66,6 +94,47 @@ serverPort = sys.argv[2]
 userName = sys.argv[3]
 passWord = sys.argv[4]
 rootSDFolderPath = sys.argv[5]
+
+if len(sys.argv) > 6:
+    specified_users = sys.argv[6]
+    if specified_users.strip().lower() == '#':
+        specified_users = None
+        
+if len(sys.argv) > 7:
+    as_specified_ops_types = sys.argv[7]
+    
+if len(sys.argv) > 8:
+    print "You entered too many script parameters."
+    sys.exit(1)
+
+
+    
+if DEBUG:
+    print "serverFQDN: " + str(serverFQDN)
+    print "serverPort: " + str(serverPort)
+    print "userName: " + str(userName)
+    print "passWord: " + str(passWord)
+    if specified_users:
+        print "specifiedUsers: " + str(specified_users)
+    if as_specified_ops_types:
+        print "as_specified_ops_types: " + str(as_specified_ops_types)      
+
+excludeUsers = None
+includeUsers = None
+if specified_users:
+    if specified_users.find('-') == 0:
+        excludeUsers = specified_users.replace('-', '', 1).replace(' ', '').split(',')
+    else:
+        includeUsers = specified_users.replace(' ', '').split(',')
+                    
+# Check if specified ops server types are valid
+if as_specified_ops_types:
+    results, specified_ops_types = OpsServerConfig.validateOpsTypes(as_specified_ops_types)
+    if not results:
+        print "Parameter {OpsServerTypesToPublish}: '" + str(as_specified_ops_types) + \
+        "' does not contain valid value(s)."
+        print "Valid {OpsServerTypesToPublish} values are: " + str(valid_ops_types)
+        sys.exit(1)
 
 server = serverFQDN.split('.')[0]
 
@@ -286,18 +355,59 @@ try:
         print
         
         for sdFilePath in sdFilePaths:
-            print "\t- Uploading '" + sdFilePath + "'..."
+            doPublish = True
+            owners = None
+            tags = None
+            print "\n- Service Definition: " + sdFilePath + "..."
             
-            results = uploadServiceDefinition(sdFilePath, agsPubConnectionFile)
+            # Extract info from portal info json file for the .sd file
+            sdFolder = os.path.dirname(sdFilePath)
+            fileNameNoExt = os.path.splitext(os.path.basename(sdFilePath))[0]
+            os.chdir(sdFolder)
+            p_info = json.load(open(fileNameNoExt + '_p_info.json'))
+            tags = p_info['tags']
+            portalItems = p_info.get('portalItems')
             
-            if results[0]:
-                print "\tDone.\n"
-            else:
-                totalSuccess = False
-                print "\n\t**********************************************"
-                print "\t*ERROR encountered:"
-                print results[1]
-                print "\n\t**********************************************\n"
+            if portalItems:
+                owners = []
+                for item in portalItems:
+                    if item.get('owner'):
+                        owners.append(item['owner'])
+                owners = list(set(owners))
+            
+            # Evaluate if the service should be published based on owners
+            if specified_users:
+                if excludeUsers:
+                    doPublish = True
+                    for user in excludeUsers:
+                        if user in owners:
+                            doPublish = False
+                elif includeUsers:
+                    doPublish = False
+                    for user in includeUsers:
+                        if user in owners:
+                            doPublish = True
+            
+            # If service passed "owner" test, evaluate if the service should
+            # be published based on tag values
+            if specified_ops_types:
+                if doPublish:
+                    doPublish = OpsServerConfig.hasOpsTypeTags(specified_ops_types, tags)
+            
+            print '\tTags: ' + str(tags)
+            print '\tOwners: ' + str(owners)
+            print "\tPublish service? " + str(doPublish)
+            
+            if doPublish:
+                results = uploadServiceDefinition(sdFilePath, agsPubConnectionFile)
+                if results[0]:
+                    print "\tDone.\n"
+                else:
+                    totalSuccess = False
+                    print "\n\t**********************************************"
+                    print "\t*ERROR encountered:"
+                    print results[1]
+                    print "\n\t**********************************************\n"
         
     # ---------------------------------------------------------------------
     # Unregister data stores

@@ -4,7 +4,8 @@
 #Purpose:       Copies the latest service definition files for specified
 #               ArcGIS Server site.
 #
-#Prerequisites: 
+#Prerequisites: 7-zip must be installed. Change path set in variable
+#               'sevenZipExePath' if necessary.
 #
 #History:       2013/07/26:   Initial code.
 #
@@ -13,9 +14,20 @@ import sys, os, traceback, datetime, json, subprocess, tempfile
 from walkingDirTrees import listFiles
 from AGSRestFunctions import getServerDirectory
 from AGSRestFunctions import getServiceList
+from AGSRestFunctions import getServiceInfo
 from shutil import copy2
 from shutil import rmtree
 from socket import getfqdn
+import copy, json
+
+# Add Publish/Portal to sys path inorder to import
+#   modules in subfolder
+supportFilesPath = os.path.join(
+    os.path.dirname(os.path.dirname(sys.argv[0])), 'Publish', 'Portal')
+sys.path.append(supportFilesPath)
+from portalpy import Portal
+
+sevenZipExePath = r'C:\Program Files\7-Zip\7z.exe'
 
 scriptName = sys.argv[0]
 exitErrCode = 1
@@ -92,8 +104,6 @@ def check_args():
 def extractFromSDFile(sdFile, extractFolder, fileToExtract=None):
     ''' Extract file from compressed .sd file '''
     
-    sevenZipExePath = r'C:\Program Files\7-Zip\7z.exe'
-    
     # 'Build' 7zip command line arguments
     # -y switch suppresses the overwrite user query if the file already exists.
     exeArgs = sevenZipExePath + ' e ' + sdFile + ' -o' + extractFolder + ' ' + fileToExtract + ' -y'
@@ -167,7 +177,7 @@ def get_sd_files(sdRootFolder):
     return fileInfo
 
 def get_ags_services(server, port, adminuser, password):
-    ''' Return collection of ArcGIS Server services '''
+    ''' Return collection of ArcGIS Server services and service info'''
     
     agsServices = {}
     
@@ -179,8 +189,21 @@ def get_ags_services(server, port, adminuser, password):
     services = [service for service in allServices if service not in excludeServices]
     
     # Create dictionary from list of services; values are None.
-    agsServices = dict.fromkeys(services)
+#    agsServices = dict.fromkeys(services)
+    for service in services:
+        
+        parsedService = service.split('//')
+        folder = None
+        if len(parsedService) == 1:
+            serviceNameType = parsedService[0]
+        else:
+            folder = parsedService[0]
+            serviceNameType = parsedService[1]
+            
+        info = getServiceInfo(server, port, adminuser, password, folder, serviceNameType)
     
+        agsServices[service] = info
+        
     if debug:
         print "\nwithin get_ags_servides function:"
         print "agsServices:"
@@ -206,8 +229,9 @@ def filesToCopy(sdFiles, agsServices):
     
     return sdFilesToCopy
 
-def copySDFiles(sdFilesToCopy, targetFolder):
-    ''' Copy SD files to target folder '''
+def copySDFiles(sdFilesToCopy, targetFolder, agsServices, portalProps):
+    '''Copy SD files to target folder.
+    Pass in collection of service info to dump to file system.'''
     
     print '\n' + sectionBreak
     print 'Copy SD Files...'
@@ -227,8 +251,69 @@ def copySDFiles(sdFilesToCopy, targetFolder):
         if not os.path.exists(outputFolder):
             os.makedirs(outputFolder)
         copy2(sdFilePath, outputFilePath)
+        
+        os.chdir(outputFolder)
+        
+        serviceInfo = agsServices[service]
+        json.dump(serviceInfo, open(os.path.splitext(sdFile)[0] + '_s_info.json','w'))
+        
+        props = portalProps[service]
+        json.dump(props, open(os.path.splitext(sdFile)[0] + '_p_info.json','w'))
+        
     print sectionBreak
 
+def getPortalPropsForServices(portal, agsServices):
+    
+    allServicesProps = None
+    
+    if not agsServices:
+        return None
+    
+    allServicesProps = {}
+    for service, info in agsServices.iteritems():
+        allTags = []
+        props = info.get('portalProperties')
+        if props:
+            outProps = copy.deepcopy(props)
+            portalItems = props['portalItems']
+            for i in range(len(portalItems)):
+                itemID = portalItems[i]['itemID']
+                itemType = portalItems[i]['type']
+                item = portal.item(itemID)
+                if not item:
+                    print 'ERROR: Service "' + service + '" is associated with a portal item (' + \
+                        itemID + '; ' + itemType + ') that does not exist.'
+                    outProps['portalItems'][i]['itemExists'] = False
+                    continue
+                outProps['portalItems'][i]['itemExists'] = True
+                tags = item['tags']
+                owner = item['owner']
+                if tags:
+                    allTags.extend(tags)
+                    outProps['portalItems'][i]['tags'] = tags
+                    outProps['portalItems'][i]['owner'] = owner
+                
+            uniqueTags = list(set(allTags))
+            outProps['tags'] = uniqueTags
+        
+            allServicesProps[service] = outProps
+    
+    return allServicesProps
+
+def getPortalTags(portal, itemIDs):
+    ''' Return list of unique tag elements '''
+    allTags = []
+    for itemID in itemIDs:
+        tags = portal.item(itemID).get('tags')
+        if tags:
+            allTags.extend(tags)
+    uniqueTags = list(set(allTags))
+
+    if len(uniqueTags) == 0:
+        uniqueTags = None
+
+    return uniqueTags
+    
 def report(sdFiles, agsServices):
     ''' Report issues with the .sd files and ArcGIS Services '''
     
@@ -265,6 +350,12 @@ def report(sdFiles, agsServices):
     
 def main():
     
+    # Before executing rest of script, lets check if 7-zip exe exists
+    if not os.path.exists(sevenZipExePath):
+        print 'ERROR: File path set by "sevenZipExePath" variable (' + \
+            sevenZipExePath + ') does not exist. Exiting script.'
+        sys.exit(exitErrCode)
+    
     # Check arguments
     results = check_args()
     if not results:
@@ -288,12 +379,17 @@ def main():
     # Get collection of ArcGIS Service services on server
     agsServices = get_ags_services(server, port, adminuser, password)
  
+    # Get the portal properties for each portal item referenced by the service
+    # according to the services' json info
+    portal = Portal('https://' + server + '/arcgis', adminuser, password)
+    props = getPortalPropsForServices(portal, agsServices)
+    
     # Determine which sd files to copy
     sdFilesToCopy = filesToCopy(sdFiles, agsServices)
     
     # Copy sd files
     if doCopy:
-        copySDFiles(sdFilesToCopy, targetFolder)
+        copySDFiles(sdFilesToCopy, targetFolder, agsServices, props)
     
     # Print report
     report(sdFilesToCopy, agsServices)
