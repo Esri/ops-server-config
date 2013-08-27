@@ -31,6 +31,7 @@ from portalpy import Portal, parse_hostname, portal_time, WebMap, normalize_url,
 from portalpy.provision import load_items, load_items_based_on_tags
 from Utilities import findInFile, editFiles
 import logging
+import OpsServerConfig
 
 logging.basicConfig()
 
@@ -64,7 +65,7 @@ destGroupID_GroupName = {}
 origIDToNewID = {}
 
 # Store list of valid Ops Server type values
-valid_ops_types = ['All', 'Land', 'Maritime', 'Intel', 'Air', 'NG']
+valid_ops_types = OpsServerConfig.valid_ops_types
 
 def main():
 
