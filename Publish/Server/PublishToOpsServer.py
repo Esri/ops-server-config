@@ -52,19 +52,20 @@ installOnlyPublishingFolders = OpsServerConfig.installOnlyPublishingFolders
 
 
 installOnlyClientFolders = OpsServerConfig.installOnlyPublishingFolders
-useSSL = True
 
 # ---------------------------------------------------------------------
 # Check arguments
 # ---------------------------------------------------------------------
 if len(sys.argv) < 6:
     print "\n" + scriptName + " <Server_FullyQualifiedDomainName> <Server_Port> <User_Name> " + \
-                            "<Password> <Service_Definition_Root_Folder_Path> {OwnersToPublish} {OpsServerTypesToPublish}"
+                            "<Password> <Use_SSL: Yes|No> "
+    print "\t\t<Service_Definition_Root_Folder_Path> {OwnersToPublish} {OpsServerTypesToPublish}"
     print "\nWhere:"
     print "\n\t<Server_FullyQualifiedDomainName> (required parameter) Fully qualified domain name of ArcGIS Server."
     print "\n\t<Server_Port> (required parameter) ArcGIS Server port number; if not using server port enter '#'"
     print "\n\t<User_Name> (required parameter) ArcGIS Server site administrator user name."
     print "\n\t<Password> (required parameter) ArcGIS Server site administrator password."
+    print '\n\t<Use_SSL: Yes|No> (required) Flag indicating if ArcGIS Server requires HTTPS.'
     print "\n\t<Service_Definition_Root_Folder_Path> (required parameter) is the path of the root folder"
     print "\t\tcontaing the service definition (.sd) files to upload (publish)."
     
@@ -85,7 +86,7 @@ if len(sys.argv) < 6:
     print '\n\tNOTES:'
     print '\t\t(1) To include spaces in any of the parameter lists, surround the list with double-quotes,'
     print '\t\t i.e., "value1, value2, ..."'
-        
+    print '\t\t(2) {OwnersToPublish} values i.e., owner names are case sensitive (i.e. names must match exactly)'
     print
     sys.exit(1)
 
@@ -93,20 +94,25 @@ serverFQDN = sys.argv[1]
 serverPort = sys.argv[2]
 userName = sys.argv[3]
 passWord = sys.argv[4]
-rootSDFolderPath = sys.argv[5]
+useSSL = sys.argv[5]
+rootSDFolderPath = sys.argv[6]
 
-if len(sys.argv) > 6:
-    specified_users = sys.argv[6]
+if len(sys.argv) > 7:
+    specified_users = sys.argv[7]
     if specified_users.strip().lower() == '#':
         specified_users = None
         
-if len(sys.argv) > 7:
-    as_specified_ops_types = sys.argv[7]
-    
 if len(sys.argv) > 8:
+    as_specified_ops_types = sys.argv[8]
+    
+if len(sys.argv) > 9:
     print "You entered too many script parameters."
     sys.exit(1)
 
+if useSSL.strip().lower() in ['yes', 'ye', 'y']:
+    useSSL = True
+else:
+    useSSL = False
 
     
 if DEBUG:
@@ -207,7 +213,7 @@ def registerDataStores():
     # Get data folder based on the existing folder data store
     for regName in installOnlyPublishingFolders.keys():
         searchPath = "/fileShares/" + regName
-        success, item = DataStore.getitem(serverFQDN, serverPort, userName, passWord, searchPath)
+        success, item = DataStore.getitem(serverFQDN, serverPort, userName, passWord, searchPath, useSSL)
         
         if not success:
             registerSuccessful = False
@@ -227,7 +233,7 @@ def registerDataStores():
             dataStorePaths.append(dsPath)
             
             # Register the data store item
-            success, response = DataStore.register(serverFQDN, serverPort, userName, passWord, dsItem)
+            success, response = DataStore.register(serverFQDN, serverPort, userName, passWord, dsItem, useSSL)
             if success:
                 print "\tDone."
             else:
@@ -260,7 +266,7 @@ def registerDataStores():
             dataStorePaths.append(dsPath)
             
             # Register the data store item
-            success, response = DataStore.register(serverFQDN, serverPort, userName, passWord, dsItem)
+            success, response = DataStore.register(serverFQDN, serverPort, userName, passWord, dsItem, useSSL)
             if success:
                 print "\tDone."
             else:
@@ -277,7 +283,7 @@ def unregisterDataStores(dataStorePaths):
     
     for itemPath in dataStorePaths:
         print "\n\t" + itemPath
-        success, response = DataStore.unregister(serverFQDN, serverPort, userName, passWord, itemPath)
+        success, response = DataStore.unregister(serverFQDN, serverPort, userName, passWord, itemPath, useSSL)
         if success:
             print "\tDone."
         else:
