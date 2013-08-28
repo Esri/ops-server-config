@@ -131,31 +131,31 @@ def create_managed_entdb_item(name, server_db_conn):
 
     return item[_pathkey], {_itemkey: item}
 
-def register(server, port, user, password, item, token=None):
+def register(server, port, user, password, item, useSSL=True, token=None):
     '''Register a data item.
     'Returns tuple: success(True|False) and response.
     '''
     
-    return _register(server, port, user, password, item, token)
+    return _register(server, port, user, password, item, useSSL, token)
     
-def unregister(server, port, user, password, itempath, token=None):
+def unregister(server, port, user, password, itempath, useSSL=True, token=None):
     '''Unregister a data item.
     'Returns tuple: success(True|False) and response.
     '''
     
     item = {_unregpathkey: itempath}
-    return _unregister(server, port, user, password, item, token)
+    return _unregister(server, port, user, password, item, useSSL, token)
 
-def validateitem(server, port, user, password, item, token=None):
+def validateitem(server, port, user, password, item, useSSL=True, token=None):
     '''Validate a data item.
     'Returns tuple: success(True|False) and response.
     '''
     
-    return _validateitem(server, port, user, password, item, token)
+    return _validateitem(server, port, user, password, item, useSSL, token)
 
-def getitem(server, port, user, password, itempath, token=None):
+def getitem(server, port, user, password, itempath, useSSL=True, token=None):
     '''Get data item based on data item path.
     'Returns tuple: success(True|False) and dictionary of data item.
     '''
     
-    return _getdataiteminfo(server, port, user, password, itempath, token)
+    return _getdataiteminfo(server, port, user, password, itempath, useSSL, token)
