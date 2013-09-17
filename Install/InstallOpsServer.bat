@@ -20,7 +20,7 @@ REM to the accounts password.
 set ops_agsServiceAccount=SET_AGS_ACCOUNT_NAME
 
 REM This variable defines the user name for the ArcGIS Server
-REM site administrator user. Typically there is no need to change this variable.
+REM site administrator user.
 set ops_userName=SET_ACCOUNT_USER_NAME
 
 REM This varaible is used for the following passwords: PostgreSQL superuser,
@@ -53,7 +53,6 @@ set ops_install_server=YES
 set ops_install_webadaptor=YES
 set ops_register_ags=YES
 set ops_install_portal=YES
-set ops_create_certificate=YES
 set ops_register_portal=YES
 set ops_create_portal_admin_account=YES
 set ops_change_ags_security=YES
@@ -372,12 +371,6 @@ date /T
 time /T
 echo.
 echo.
-
-REM Create domain certificate and bind to https 443 port
-REM using IIS manager
-if "%ops_create_certificate%"=="YES" (
-    Call %~dp0WebAdaptorIIS\CreateCertificate.bat
-)
 
 REM Register portal with the webadaptor
 if "%ops_register_portal%"=="YES" (
