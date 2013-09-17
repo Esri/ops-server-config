@@ -39,7 +39,7 @@ set ops_dataDrive=c
 REM Define which web browser to use for installation steps which require you
 REM to work within a web browser. Have encountered issues with Internet Explorer;
 REM recommend FireFox or Chrome (NOTE: have mostly tested with FireFox).
-set ops_webBrowserExePath="C:\Program Files (x86)\Mozilla Firefox\firefox.exe"
+set ops_webBrowserExePath="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
 
 REM Define which text editor to use for installation steps which require you
 REM to work within a text editor.
