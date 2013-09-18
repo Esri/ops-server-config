@@ -1,7 +1,7 @@
 REM =====================================================================
 REM Install ArcGIS Server and Authorize Software
 REM =====================================================================
-SET FQDN=%COMPUTERNAME%.%USERDNSDOMAIN%
+SET FQDN=%ops_FQDN%
 
 echo.
 echo %sectionBreak%

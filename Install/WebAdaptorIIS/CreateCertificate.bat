@@ -19,7 +19,7 @@ echo 3. From the "Actions" panel, click "Create Domain Certificate".
 echo.
 echo 4. On the "Distinguished Name Properties" dialog enter...
 echo.
-echo      Common name^:        %ops_agsFQDN%
+echo      Common name^:        %ops_FQDN%
 echo      Organization^:       Esri, Inc.
 echo      Organization unit^:  Development
 echo      City^/locality^:      Redlands
@@ -33,7 +33,7 @@ echo.
 echo    ^- Click "Select", click the "ESRI Enterprise Root" certificate
 echo       authority and click "OK".
 echo.
-echo    ^- Within the "Friendly name" textbox enter "%ops_agsFQDN% Esri Ent Root CA".
+echo    ^- Within the "Friendly name" textbox enter "%ops_FQDN% Esri Ent Root CA".
 echo.
 echo    ^- Click "Finish".
 echo.

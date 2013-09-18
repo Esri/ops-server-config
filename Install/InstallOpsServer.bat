@@ -5,6 +5,13 @@ REM ---------------------------------------------------------------------
 REM Set User Editable Variables
 REM ---------------------------------------------------------------------
 
+REM This variable defines the fully qualified domain name (FQDN) of the
+REM server that ArcGIS Server and Portal for ArcGIS are being installed.
+REM *****
+REM NOTE: specify ops_FQDN value in lowercase.
+REM *****
+set ops_FQDN=SET_FQDN_OF_SERVER
+
 REM Root folder where software installers are located. This can be a logical
 REM drive letter or a UNC path.
 set ops_softwareRoot=SET_PATH_TO_SOFTWARE_FOLDER
@@ -39,7 +46,7 @@ set ops_dataDrive=c
 REM Define which web browser to use for installation steps which require you
 REM to work within a web browser. Have encountered issues with Internet Explorer;
 REM recommend FireFox or Chrome (NOTE: have mostly tested with FireFox).
-set ops_webBrowserExePath="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe
+set ops_webBrowserExePath="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
 
 REM Define which text editor to use for installation steps which require you
 REM to work within a text editor.
@@ -53,8 +60,8 @@ set ops_install_server=YES
 set ops_install_webadaptor=YES
 set ops_register_ags=YES
 set ops_install_portal=YES
-set ops_register_portal=YES
 set ops_create_portal_admin_account=YES
+set ops_register_portal=YES
 set ops_change_ags_security=YES
 set ops_register_ags_https=YES
 set ops_federate_ags=YES
@@ -193,7 +200,6 @@ set /p choice="Enter the number of your choice: "
 
 if "%choice%"=="1" (
     set opsServerInstallType=Install
-    set ops_agsFQDN=%COMPUTERNAME%.%USERDNSDOMAIN%
     REM was having problems with the IIS check on some systems;
     REM for now, set variable to "NO" so that it does not run
     REM the check. Not critical to run the check, since we do tell
@@ -372,14 +378,14 @@ time /T
 echo.
 echo.
 
-REM Register portal with the webadaptor
-if "%ops_register_portal%"=="YES" (
-    Call %~dp0WebAdaptorIIS\RegisterPortalwithWebAdaptor.bat
-)
-
 REM Create the portal primary administrator account
 if "%ops_create_portal_admin_account%"=="YES" (
     Call %~dp0Portal\Portal\CreatePortalAdminAccount.bat
+)
+
+REM Register portal with the webadaptor
+if "%ops_register_portal%"=="YES" (
+    Call %~dp0WebAdaptorIIS\RegisterPortalwithWebAdaptor.bat
 )
 
 REM Change ArcGIS security config to "HTTPS Only"

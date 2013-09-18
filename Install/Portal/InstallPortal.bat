@@ -2,7 +2,7 @@ REM =====================================================================
 REM Install Portal Software
 REM =====================================================================
 
-SET FQDN=%COMPUTERNAME%.%USERDNSDOMAIN%
+SET FQDN=%ops_FQDN%
 
 REM ---------------------------------------------------------------------
 REM Install Portal for ArcGIS

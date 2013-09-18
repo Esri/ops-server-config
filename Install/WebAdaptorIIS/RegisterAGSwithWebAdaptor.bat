@@ -11,7 +11,7 @@ echo Register ArcGIS Server with the Web Adaptor for IIS...
 echo.
 
 if exist %ops_ConfWebAdaptorExePath% (
-    %ops_ConfWebAdaptorExePath% /w http://localhost/arcgis/webadaptor/server /g http://%COMPUTERNAME%:6080 ^
+    %ops_ConfWebAdaptorExePath% /m server /w http://localhost/arcgis/webadaptor/server /g http://%ops_FQDN%:6080 ^
         /u %ops_userName% /p %ops_passWord% /a true
     PING 127.0.0.1 -n 3 > nul
 ) else (

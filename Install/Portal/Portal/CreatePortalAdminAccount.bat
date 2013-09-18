@@ -21,5 +21,5 @@ echo    5. Sign Out of the portal.
 echo.
 echo    6. Close the web browser.
 echo.
-%ops_webBrowserExePath% https://%ops_agsFQDN%/arcgis/home/signin.html?
+%ops_webBrowserExePath% https://%ops_FQDN%:7443/arcgis/home/signin.html?
 PING 127.0.0.1 -n 3 > nul

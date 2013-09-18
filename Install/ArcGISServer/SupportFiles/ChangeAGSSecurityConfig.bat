@@ -27,7 +27,7 @@ echo    6. Sign out from the "ArcGIS Server Administrator Directory".
 echo.
 echo    7. Close the web browser.
 echo.
-%ops_webBrowserExePath% http://%ops_agsFQDN%/arcgis/admin/security/config
+%ops_webBrowserExePath% http://%ops_FQDN%/arcgis/admin/security/config
 echo.
 echo Giving ArcGIS Server a few more seconds to restart...
 echo.
