@@ -12,8 +12,12 @@ echo Register ArcGIS Server with the Web Adaptor for IIS ^(HTTPS^)...
 echo.
 
 if exist %ops_ConfWebAdaptorExePath% (
-    %ops_ConfWebAdaptorExePath% /m server /w https://%ops_FQDN%/arcgis/webadaptor/server /g https://%ops_FQDN%:6443 ^
-        /u %ops_userName% /p %ops_passWord% /a true
+    echo Executing the following command:
+    set execute=%ops_ConfWebAdaptorExePath% /m server /w https://%ops_FQDN%/arcgis/webadaptor/server /g https://%ops_FQDN%:6443 ^
+/u %ops_userName% /p %ops_passWord% /a true
+    echo.
+    %execute%
+    Call %~dp0..\..\SupportFiles\BatchFiles\CheckErrorLevel.bat %ERRORLEVEL%
     PING 127.0.0.1 -n 3 > nul
     
     echo.

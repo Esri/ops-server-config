@@ -8,8 +8,12 @@ echo Register Portal for ArcGIS with the Web Adpator for IIS...
 echo.
 
 if exist %ops_ConfWebAdaptorExePath% (
-    %ops_ConfWebAdaptorExePath% /m portal /w https://%ops_FQDN%/arcgis/webadaptor/portal /g http://%ops_FQDN%:7080 ^
-        /u %ops_userName% /p %ops_passWord%
+    echo Executing the following command:
+    set execute=%ops_ConfWebAdaptorExePath% /m portal /w https://%ops_FQDN%/arcgis/webadaptor/portal /g http://%ops_FQDN%:7080 ^
+/u %ops_userName% /p %ops_passWord%
+    echo.
+    %execute%
+    Call %~dp0..\..\SupportFiles\BatchFiles\CheckErrorLevel.bat %ERRORLEVEL%
     PING 127.0.0.1 -n 3 > nul
 ) else (
     echo **********************************************************
