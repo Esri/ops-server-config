@@ -86,6 +86,7 @@ REM ---------------------------------------------------------------------
 REM The variables below define which processes to execute.
 set ops_install_rdbms=YES
 set ops_install_server=YES
+set ops_create_ags_site=YES
 set ops_install_webadaptor=YES
 set ops_register_ags=YES
 set ops_install_portal=YES

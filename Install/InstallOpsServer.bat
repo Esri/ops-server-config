@@ -291,6 +291,11 @@ if "%ops_install_server%"=="YES" (
     Call %~dp0ArcGISServer\InstallArcGISServer.bat
 )
 
+REM Create ArcGIS Server site and data stores
+if "%ops_create_ags_site%"=="YES" (
+    Call %~dp0ArcGISServer\CreateArcGISServerSite.bat
+)
+
 REM Install Web Adaptor
 if "%ops_install_webadaptor%"=="YES" (
     Call %~dp0WebAdaptorIIS\InstallWebAdaptor.bat
@@ -332,9 +337,7 @@ if "%ops_change_ags_security%"=="YES" (
 REM Re-register ArcGIS Server with the web adaptor because the
 REM security config was changed to HTTPS.
 if "%ops_register_ags_https%"=="YES" (
-    Call Call %~dp0WebAdaptorIIS\RegisterAGSwithWebAdaptorHTTPS.bat
-    
-    REM should we delete the http web adaptor entry?
+    Call %~dp0WebAdaptorIIS\RegisterAGSwithWebAdaptorHTTPS.bat
 )
 
 REM Federate ArcGIS Server site with portal; set hosted server

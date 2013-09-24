@@ -50,28 +50,3 @@ if exist %ops_AGSAuthFile% (
 )
 %execute%
 PING 127.0.0.1 -n 15 > nul
-    
-REM ---------------------------------------------------------------------
-REM Create ArcGIS Server site, create data stores, register data stores
-REM ---------------------------------------------------------------------
-echo.
-echo %sectionBreak%
-echo Create ArcGIS Server site, create data stores, and register data stores...
-echo.
-Call "%~dp0SupportFiles\CreateOpsServer.py" %ops_agsServiceAccount% ^
-                %ops_userName% %ops_passWord% %ops_dataDrive% %ops_cacheDrive%
-                
-
-REM Add delay
-PING 127.0.0.1 -n 6 > nul
-
-REM ---------------------------------------------------------------------
-REM Start geometry service
-REM ---------------------------------------------------------------------
-echo.
-echo %sectionBreak%
-echo Start the Utilities/Geometry service...
-echo.
-Call "%~dp0..\..\Publish\Server\StartStopServices.py" %FQDN% ^
-    6080 %ops_userName% %ops_passWord% no Start Utilities//Geometry.GeometryServer
-PING 127.0.0.1 -n 3 > nul
