@@ -9,18 +9,15 @@ Call InstallSettings.bat
 REM ---------------------------------------------------------------------
 REM Set other variables
 REM ---------------------------------------------------------------------
+set ops_AGSVersion=10.2
+set ops_PortalVersion=10.2
+
 REM Define PostgreSQL paths
 set ops_postgresqlInstallDIR="C:\Program Files\PostgreSQL\9.2"
 set ops_postgresqlDataDIR=%ops_postgresqlInstallDIR%\data
 
 REM Define path to Esri SoftwareAuthorization.exe
 set ops_softwareAuthExePath="C:\Program Files\Common Files\ArcGIS\bin\SoftwareAuthorization.exe"
-
-REM Define root folder path to ArcGIS Server authorization files
-set ops_AuthFileRootAGS=%ops_softwareRoot%\Authorization_Files\ArcGIS_Server\Advanced
-
-REM Define root folder path to Portal for ArcGIS authorization files
-set ops_AuthFileRootPortal=%ops_softwareRoot%\Authorization_Files\ArcGIS_Portal
 
 REM Define path to ConfigureWebAdaptor.exe
 set ops_ConfWebAdaptorExePath="C:\Program Files (x86)\Common Files\ArcGIS\WebAdaptor\IIS\Tools\ConfigureWebAdaptor.exe"
