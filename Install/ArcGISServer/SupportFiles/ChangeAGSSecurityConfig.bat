@@ -31,4 +31,4 @@ echo.
 echo.
 echo Giving ArcGIS Server a few more seconds to restart...
 echo.
-PING 127.0.0.1 -n 18 > nul
+PING 127.0.0.1 -n 30 > nul
