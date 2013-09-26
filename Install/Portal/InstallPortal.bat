@@ -1,7 +1,7 @@
 REM =====================================================================
 REM Install Portal Software
 REM =====================================================================
-
+set ops_ChkErrLevelFile=%~dp0..\..\SupportFiles\BatchFiles\CheckErrorLevel.bat
 SET FQDN=%ops_FQDN%
 
 REM ---------------------------------------------------------------------
@@ -12,7 +12,13 @@ echo %sectionBreak%
 echo Install Portal for ArcGIS
 echo.
 echo --Installing Portal for ArcGIS...
-msiexec /I %ops_softwareRoot%\Portal\setup.msi /qb CONTENTDIR=C:\arcgisportal
+echo.
+set execute=msiexec /I %ops_softwareRoot%\Portal\setup.msi /qb CONTENTDIR=C:\arcgisportal
+
+echo %execute%
+echo.
+%execute%
+Call %ops_ChkErrLevelFile% %ERRORLEVEL%
 PING 127.0.0.1 -n 3 > nul
 
 REM ---------------------------------------------------------------------
@@ -31,7 +37,11 @@ if exist %ops_PortalAuthFile% (
 ) else (
     echo   Prompting user for authorizing information...
 )
+echo.
+echo %execute%
+echo.
 %execute%
+Call %ops_ChkErrLevelFile% %ERRORLEVEL%
 PING 127.0.0.1 -n 15 > nul
 
 REM ---------------------------------------------------------------------

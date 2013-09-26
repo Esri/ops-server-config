@@ -107,6 +107,7 @@ try:
     
     
 except:
+    success = False
     
     # Get the traceback object
     tb = sys.exc_info()[2]

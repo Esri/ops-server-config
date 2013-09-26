@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys, os, time, traceback
 from datetime import datetime
+totalSuccess = True
 
 # Add "Root folder"\SupportFiles to sys path inorder to import
 #   modules in subfolder
@@ -101,7 +102,6 @@ if not isActionValid:
 
 try:
     startTime = datetime.now()
-    totalSuccess = True
     
     # ---------------------------------------------------------------------
     # Print header
@@ -137,6 +137,7 @@ try:
         
             
 except:
+    totalSuccess = False
     
     # Get the traceback object
     tb = sys.exc_info()[2]
@@ -157,3 +158,7 @@ finally:
     print
     print "Start time: " + str(startTime)
     print "End time: " + str(endTime)
+    if totalSuccess:
+        sys.exit(0)
+    else:
+        sys.exit(1)
