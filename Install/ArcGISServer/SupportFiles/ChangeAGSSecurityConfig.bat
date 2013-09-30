@@ -2,6 +2,7 @@ REM =====================================================================
 REM Change the ArcGIS Server Security Configuration
 REM =====================================================================
 REM We're changing from the default of "HTTP and HTTPS" to "HTTPS Only"
+set ops_ChkErrLevelFile=%~dp0..\..\..\SupportFiles\BatchFiles\CheckErrorLevel.bat
 echo.
 echo.
 echo %sectionBreak%
@@ -27,7 +28,12 @@ echo    6. Sign out from the "ArcGIS Server Administrator Directory".
 echo.
 echo    7. Close the web browser.
 echo.
-%ops_webBrowserExePath% http://%ops_FQDN%/arcgis/admin/security/config
+set execute=%ops_webBrowserExePath% http://%ops_FQDN%/arcgis/admin/security/config
+echo %execute%
+echo.
+%execute%
+Call %ops_ChkErrLevelFile% %ERRORLEVEL%
+
 echo.
 echo Giving ArcGIS Server a few more seconds to restart...
 echo.
