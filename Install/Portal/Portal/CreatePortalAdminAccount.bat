@@ -1,6 +1,7 @@
 REM =====================================================================
 REM Create the Portal primary administrator account
 REM =====================================================================
+set ops_ChkErrLevelFile=%~dp0..\..\..\SupportFiles\BatchFiles\CheckErrorLevel.bat
 echo.
 echo.
 echo %sectionBreak%
@@ -21,5 +22,9 @@ echo    5. Sign Out of the portal.
 echo.
 echo    6. Close the web browser.
 echo.
-%ops_webBrowserExePath% https://%ops_FQDN%:7443/arcgis/home/signin.html?
+set execute=%ops_webBrowserExePath% https://%ops_FQDN%:7443/arcgis/home/signin.html?
+echo %execute%
+echo.
+%execute%
+Call %ops_ChkErrLevelFile% %ERRORLEVEL%
 PING 127.0.0.1 -n 3 > nul
