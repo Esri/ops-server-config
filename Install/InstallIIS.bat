@@ -4,6 +4,12 @@ title Internet Information Server ^(IIS^) Installer
 set ops_scriptName=%0
 
 REM ---------------------------------------------------------------------
+REM Set user specified variables
+REM ---------------------------------------------------------------------
+Call InstallSettings.bat
+set sectionBreak=========================================================================
+
+REM ---------------------------------------------------------------------
 REM Check if command prompt is running in elevated permissions mode
 REM (i.e. "run as administrator)
 REM ---------------------------------------------------------------------
@@ -95,6 +101,19 @@ echo Install IIS and other prerequisites for ArcGIS Web Adaptor for IIS
 echo.
 Call %~dp0WebAdaptorIIS\InstallWebAdaptorPrerequisites.bat
 PING 127.0.0.1 -n 3 > nul
+
+
+REM ---------------------------------------------------------------------
+REM Open Server Manager so users who have a domain certicate server
+REM can create a domain certificate and bind to https
+REM ---------------------------------------------------------------------
+echo.
+echo %sectionBreak%
+echo Create domain certificate (applies only to those users who
+echo have a domain certificate server and want to use a domain
+echo certificate with Portal for ArcGIS/ArcGIS Server) and bind to https
+echo.
+Call %~dp0WebAdaptorIIS\CreateCertificate.bat
 goto end
 
 :end
