@@ -408,6 +408,15 @@ def getServerInfo(server, port, adminUser, adminPass, useSSL=True, token=None):
     
     print report
 
+def getServicePortalProps(server, port, adminUser,  adminPass, folder, serviceNameAndType, useSSL=True, token=None):
+    ''' Function to get the portal properties of the service
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    If a token exists, you can pass one in for use.  
+    '''
+
+    serviceInfo = getServiceInfo(server, port, adminUser,  adminPass, folder, serviceNameAndType, useSSL, token)
+    servicePortalProps = serviceInfo.get("portalProperties")
+
 
 def getServiceInfo(server, port, adminUser,  adminPass, folder, serviceNameAndType, useSSL=True, token=None):
     ''' Function to get service item info
@@ -425,11 +434,43 @@ def getServiceInfo(server, port, adminUser,  adminPass, folder, serviceNameAndTy
         folderServerNameType = serviceNameAndType
         
     serviceInfo = {}       
-    URL = "{}{}{}/arcgis/admin/services/{}?f=pjson&token={}".format(getProtocol(useSSL), server, getPort(port), folderServerNameType, token)    
+    #URL = "{}{}{}/arcgis/admin/services/{}?f=json&token={}".format(getProtocol(useSSL), server, getPort(port), folderServerNameType, token)
+    URL = "{}{}{}/arcgis/admin/services/{}?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), folderServerNameType, token)    
 
     serviceInfo = json.loads(urllib2.urlopen(URL).read())
     
     return serviceInfo
+
+def editServiceInfo(server, port, adminUser,  adminPass, folder, serviceNameAndType, serviceInfo, useSSL=True, token=None):
+    ''' Function to edit service item info
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    If a token exists, you can pass one in for use.  
+    '''    
+    # Created: Eric L.
+    
+    if token is None:    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
+    
+    if folder is not None:
+        folderServerNameType = folder + "/" + serviceNameAndType
+    else:
+        folderServerNameType = serviceNameAndType
+    
+    updatedSvcJson = json.dumps(serviceInfo)
+    
+    prop_encode = urllib.urlencode({'service': updatedSvcJson})
+    
+    URL = "{}{}{}/arcgis/admin/services/{}/edit?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), folderServerNameType, token)    
+    status = json.loads(urllib2.urlopen(URL, prop_encode).read())
+
+    if status.get('status') == 'success':
+        success = True
+    else:
+        success = False
+        
+    return success, status
+
+
 
 def getServiceItemInfo(server, port, adminUser,  adminPass, folder, serverNameAndType, useSSL=True, token=None):
     ''' Function to get service item info
@@ -691,7 +732,11 @@ def editServicesDirectory(server, port, adminUser, adminPass,
     else:
         prop_dict['servicesDirEnabled'] = 'false'
     
-    prop_encode = urllib.urlencode(prop_dict)            
+    prop_encode = urllib.urlencode(prop_dict)
+    
+    print "\nprop_encode:"
+    print prop_encode
+    print "\n"
     URL = "{}{}{}/arcgis/admin/system/handlers/rest/servicesdirectory/edit?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)    
     status = json.loads(urllib2.urlopen(URL, prop_encode).read())
 
@@ -701,3 +746,43 @@ def editServicesDirectory(server, port, adminUser, adminPass,
         success = False
         
     return success, status
+
+def getServiceTypes(server, port, adminUser, adminPass, useSSL=True, token=None):
+    ''' Function to get all supported service types (and extensions)
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    If a token exists, you can pass one in for use.  
+    '''    
+    
+    serviceTypesInfoList = []
+    
+    if token is None:    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
+    
+    types = {}       
+    URL = "{}{}{}/arcgis/admin/services/types?f=pjson&token={}".format(getProtocol(useSSL), server, getPort(port), token)    
+
+    types = json.loads(urllib2.urlopen(URL).read())
+    
+    typeList = types.get('types')
+    
+    for serviceType in typeList:
+        info = getServiceTypeExtensions(server, port, adminUser, adminPass, serviceType['Name'], useSSL, token)
+        serviceTypesInfoList.append(info)
+        
+    return serviceTypesInfoList
+
+def getServiceTypeExtensions(server, port, adminUser, adminPass, serviceType, useSSL=True, token=None):
+    ''' Function to get service type extensions for the specified service type
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    If a token exists, you can pass one in for use.  
+    '''
+    
+    if token is None:    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
+    
+    serviceTypeAndExtensions = {}       
+    URL = "{}{}{}/arcgis/admin/services/types/{}?f=pjson&token={}".format(getProtocol(useSSL), server, getPort(port), serviceType, token)    
+
+    serviceTypeAndExtensions = json.loads(urllib2.urlopen(URL).read())
+    
+    return serviceTypeAndExtensions
