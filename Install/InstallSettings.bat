@@ -78,11 +78,6 @@ REM recommend FireFox or Chrome (NOTE: have mostly tested with FireFox).
 set ops_webBrowserExePath="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
 
 REM ---------------------------------------------------------------------
-REM Define which text editor to use for installation steps which require you
-REM to work within a text editor.
-set ops_textEditorExePath="C:\Windows\System32\notepad.exe"
-
-REM ---------------------------------------------------------------------
 REM The variables below define which processes to execute.
 set ops_install_rdbms=YES
 set ops_install_server=YES
