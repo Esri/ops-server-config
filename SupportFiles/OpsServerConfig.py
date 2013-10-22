@@ -51,8 +51,8 @@ databasesToCreate = {"operations":[True,"Operations"], \
                     "physical":[False, "Physical"], \
                     "political":[False, "Political"], \
                     "social":[False, "Social"], \
-                    "operationsgep":[False, "OperationsGEP"], \
-                    "rtds":[False, "RTDS"]}
+                    "rtds":[False, "RTDS"], \
+                    "currentoperations":[False, "CurrentOperations"]}
 
 
 # ----------------------------------------------------------------------------
