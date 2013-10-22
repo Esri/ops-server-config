@@ -195,13 +195,6 @@ def extract_portal(portaladdress,contentpath,adminuser,adminpassword, specifiedU
     
     # Create output file to store username and fullname properties
     userfile = open(os.path.join(contentpath,'userfile.txt'),'w')
-    #for u in usersList:
-    #    fullName = u["fullName"]
-    #    userName = u["username"]
-    #    if userName.lower() not in userExcludeList:
-    #        users[str(userName)] = str(fullName)
-    #        userfile.write(userName + "," + fullName + "\n")
-    #userfile.close()
     
     # If only specific users should be extracted
     # then only keep those users in the user information dictionary
@@ -212,16 +205,17 @@ def extract_portal(portaladdress,contentpath,adminuser,adminpassword, specifiedU
                 usersList.append(u)
     else:
         usersList = usersListAllNames
-        
+    
+    userfile.write("SourceUserName,TargetUserName,TargetPassword\n")
+    
     for u in usersList:
-        fullName = u["fullName"]
         userName = u["username"]
         if userName.lower() not in userExcludeList:
-            users[str(userName)] = str(fullName)
-            userfile.write(userName + "," + fullName + "\n")
+            users[str(userName)] = None
+            userfile.write(userName + "," + userName + ",MyDefault4Password!" + "\n")
     userfile.close()   
     
-    for username, password in users.iteritems():
+    for username in users.keys():
         # Create output folder if it doesn't exist
         extractpath = os.path.join(contentpath, username)
         if not os.path.exists(extractpath):

@@ -32,6 +32,7 @@ from portalpy.provision import load_items, load_items_based_on_tags
 from Utilities import findInFile, editFiles
 import logging
 import OpsServerConfig
+import copy
 
 logging.basicConfig()
 
@@ -152,7 +153,7 @@ def main():
     users = val_arg_users(specified_users, contentpath)
     
     if DEBUG:
-        print "Users to publish: " + str(users)
+        print "Users to publish: " + str(users.keys())
     
     
     # Check if specified ops server types are valid
@@ -209,20 +210,10 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     # ------------------------------------------------------------------------
     print titleBreak
     print "Creating users...\n"
-    
-    ## Create dictionary of users to post content for. The "userfile.txt"
-    ## file contains user name and full name of user, i.e. userx,User X.
-    ## Dictionary key is user name, dictionary value is password; in this
-    ## case set the password the same as user name.
-    #userfile = open(os.path.join(contentpath,'userfile.txt'),'r')
-    #for line in userfile:
-    #    username,fullname = line.split(',')
-    #    users[username] = username
-    #userfile.close()
-    
-    for username, password in users.iteritems():
-       print "... " + str(username)
-       publish_register_user(portaladmin,contentpath,username,password)
+        
+    for username, userinfo in users.iteritems():
+       print "... " + userinfo['target_username']
+       publish_register_user(portaladmin,contentpath,userinfo)
     
     # ------------------------------------------------------------------------
     # Create groups and add users to groups
@@ -230,10 +221,10 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     print "\n" + titleBreak
     print "Creating groups ...\n"
     
-    for username, password in users.iteritems():
-        portal = Portal(portaladdress, username, password)
-        newGroups = publish_user_groups(portal,contentpath,username,password, users)
- 
+    for username, userinfo in users.iteritems():
+        portal = Portal(portaladdress, userinfo['target_username'], userinfo['target_password'])
+        newGroups = publish_user_groups(portal, contentpath, userinfo, users)
+    
     # ------------------------------------------------------------------------
     # Publish Items and Update their sharing info
     # ------------------------------------------------------------------------
@@ -241,7 +232,12 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     print "Publishing items and setting sharing ..."
     print titleBreak
     
-    for username, password in users.iteritems():
+    for username, userinfo in users.iteritems():
+        
+        username = userinfo['target_username']
+        password = userinfo['target_password']
+        userfoldername = userinfo['username']
+    
         # ---------------------------------------
         # Sign into portal as the user
         # ---------------------------------------
@@ -251,7 +247,8 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
         # Publish all the users' items
         # ---------------------------------------
         #NOTE: must execute with portal object signed in as item owner.
-        newItems, origItemSourceIDs = publish_user_items(portal, contentpath, source_hostname, new_hostname, new_port, specified_ops_types)
+        usercontentpath = os.path.join(contentpath, userfoldername)
+        newItems, origItemSourceIDs = publish_user_items(portal, usercontentpath, source_hostname, new_hostname, new_port, specified_ops_types)
         
         # Dump info about new items to JSON to use for resetting IDs of related items
         dump_newItem_info(newItems, origItemSourceIDs, os.path.join(portalLogPath, username))
@@ -261,7 +258,7 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
         # appropriate user folder
         # ---------------------------------------
         #NOTE: must execute with portal object signed in as an admin.
-        foldersFolder = os.path.join(contentpath, username)
+        foldersFolder = os.path.join(contentpath, userfoldername)
         if os.path.exists(os.path.join(foldersFolder, "folders.json")):
             os.chdir(foldersFolder)
             foldersInfo = json.load(open('folders.json'))
@@ -272,7 +269,7 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
         # appropriate groups
         # ---------------------------------------
         #NOTE: must execute with portal object signed in as item owner.
-        userItemsPath = os.path.join(contentpath, username, "items")
+        userItemsPath = os.path.join(contentpath, userfoldername, "items")
         share_items(portal, userItemsPath, newItems, origItemSourceIDs, originGroupToDestGroups)
     
     
@@ -313,6 +310,14 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     print "Update the URLs in CSV portal items...\n"
     update_csv_items(portaladmin, hostname_map)
     
+    # Share the items in the default web apps template and
+    # default gallery template built-in group with the
+    # 'OpsServer' user 'AFMI Web Application Templates' and
+    # 'AFMI Gallery Templates'
+    print "\n" + sectionBreak
+    print "Share the items in the default web apps and gallery template groups..."
+    share_templates(portaladdress, users['OpsServer']['target_username'], users['OpsServer']['target_password'])
+    
     #----------------------------------------------------------------
     # EL, 6/11/2013 - don't update the portal properties
     ##Portal Resources
@@ -322,7 +327,6 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     #print "Portal property updates..."
     #resp = publish_portal_properties(portaladmin,portal_properties,source_portal_address,target_portal_address)  
     #
-
 
 def dump_newItem_info(newItems, origItemSourceIDs, userLogPath):
     # Used for resetting the various ids in 'related' items in target portal
@@ -483,9 +487,13 @@ def reassign_items(portalAdmin, ownerName, newItems, origItemSourceIDs, foldersI
             # Reassign item to folder
             portalAdmin.reassign_item(newID, ownerName, folderName)
     
-def publish_register_user(portaladmin,contentpath,username,password):
+def publish_register_user(portaladmin,contentpath,userinfo):
+    
+    username = userinfo['target_username']
+    password = userinfo['target_password']
+    userfoldername = userinfo['username']
 
-    userfolder = os.path.join(contentpath + "/" + username)
+    userfolder = os.path.join(contentpath, userfoldername)
     os.chdir(userfolder)
     
     # Get user properties from file
@@ -507,8 +515,6 @@ def publish_register_user(portaladmin,contentpath,username,password):
         portaladmin.update_user(username,userproperties)
         
     # Create any folders for this user
-    userfolder = os.path.join(contentpath, username)
-    os.chdir(userfolder)
     if os.path.exists('folders.json'):
         folderInfo = json.load(open('folders.json'))
         for folder in folderInfo:
@@ -543,7 +549,7 @@ def publish_register_user(portaladmin,contentpath,username,password):
 #    
 #    return found
 
-def publish_user_items(portal, contentpath, old_hostname, new_hostname, new_port, specified_ops_types):
+def publish_user_items(portal, usercontentpath, old_hostname, new_hostname, new_port, specified_ops_types):
     ''' Publish all items for current user '''
     # Returns list of dictionaries of new items as well as a list of the
     # original item ids
@@ -552,10 +558,7 @@ def publish_user_items(portal, contentpath, old_hostname, new_hostname, new_port
     userName = portal.logged_in_user()["username"]
     print "Publishing items for user '" + userName + "'...\n"
     #print "specified_ops_types: " + str(specified_ops_types)
-    itemfolder = os.path.join(contentpath,userName,"items")
-
-    #EL this assumes that everything in the itemFolder is a folder
-    #itemfolders = os.listdir(itemfolder)
+    itemfolder = os.path.join(usercontentpath,"items")
     
     # ------------------------------------------------------------------------
     # Add items
@@ -640,9 +643,14 @@ def publish_user_items(portal, contentpath, old_hostname, new_hostname, new_port
 #
 #    return newitems, old_source_ids
 
-def publish_user_groups(portal,contentpath,username,password, users):
+def publish_user_groups(portal,contentpath, userinfo, users):
     #MF print portal.logged_in_user["username"]
-    groupfolder = os.path.join(contentpath + "/" + username + "/groups")
+    
+    username = userinfo['target_username']
+    password = userinfo['target_password']
+    userfoldername = userinfo['username']
+    
+    groupfolder = os.path.join(contentpath + "/" + userfoldername + "/groups")
     groupfolders = os.listdir(groupfolder)
     
     numTotalGroupFolders = len(groupfolders)
@@ -676,8 +684,8 @@ def publish_user_groups(portal,contentpath,username,password, users):
             
             # Check if users are in the list we added to the portal
             users_to_invite = []
-            portal_users = users.keys()
-            for u in group_users["users"]:
+            portal_users = get_target_users(users)
+            for u in map_group_users(group_users["users"], users):
                 u = str(u) #MF dict keys are unicode, make them ascii
                 if u in portal_users:
                     users_to_invite.append(u)
@@ -693,6 +701,20 @@ def publish_user_groups(portal,contentpath,username,password, users):
     os.chdir(groupfolder)
     
     return originGroupToDestGroups
+
+def get_target_users(users):
+    target_users = []
+    for user, userinfo in users.iteritems():
+        target_users.append(userinfo['target_username'])
+    
+    return target_users
+
+def map_group_users(group_users, users):
+    target_group_users = []
+    for group_user in group_users:
+        if group_user in users.keys():
+            target_group_users.append(users[group_user]['target_username'])
+    return target_group_users
 
 def publish_portal_resources(portaladmin,portal_properties):
     #MF publish resources from disk
@@ -1035,9 +1057,16 @@ def val_arg_users(specified_users, contentpath):
     # i.e. userx,User X. Dictionary key is user name, dictionary value
     # is password; in this case set the password the same as user name.
     userfile = open(os.path.join(contentpath,'userfile.txt'),'r')
+    lineOne = True
     for line in userfile:
-        username,fullname = line.split(',')
-        all_users[username] = username
+        # Skip the first line since it contains header info
+        if lineOne:
+            lineOne = False
+            continue
+        username,target_username,target_password = line.rstrip().split(',')
+        all_users[username] = {'username': username,
+                               'target_username': target_username,
+                               'target_password': target_password}
     userfile.close()
 
     
@@ -1069,6 +1098,119 @@ def val_arg_users(specified_users, contentpath):
                     #add to dictionary
                     values_to_use[user] = all_users[user] 
         return values_to_use
+
+def share_templates(portaladdress, username, password):
+    
+    # Create portal connection
+    portal = Portal(portaladdress, username, password)
+    
+    print '\nShare web app templates with "AFMI Web Application Templates" group...'
+    results = share_default_webapp_templates(portal, portal.logged_in_user()['username'], 'AFMI Web Application Templates')
+    if results['success']:
+        print '\tDone.'
+    else:
+        print 'ERROR: {}'.format(results['message'])
+    
+    print '\nShare web app templates with "AFMI Gallery Templates" group...'
+    results = share_default_gallery_templates(portal, portal.logged_in_user()['username'], 'AFMI Gallery Templates')
+    if results['success']:
+        print '\tDone.'
+    else:
+        print 'ERROR: {}'.format(results['message'])    
+
+def share_default_gallery_templates(portal, groupOwner, groupTitle):
+    func_results = {'success': True}
+    
+    templateType = 'GALLERY'
+    results = share_default_templates(portal, templateType, groupOwner, groupTitle)
+    if not results['success']:
+        func_results['success'] = results['success']
+        func_results['message'] = results['message']
+        
+    return func_results
+
+def share_default_webapp_templates(portal, groupOwner, groupTitle):
+    func_results = {'success': True}
+    
+    templateType = 'WEBAPPS'
+    results = share_default_templates(portal, templateType, groupOwner, groupTitle)
+    if not results['success']:
+        func_results['success'] = results['success']
+        func_results['message'] = results['message']
+        
+    return func_results
+
+def share_default_templates(portal, templateType, groupOwner, groupTitle):
+    func_results = {'success': True}
+    
+    # Get a list of template ids for items shared with the "default" template group
+    printStatement = '\t-Retrieving list of items in default {} group...'
+    
+    if templateType == 'WEBAPPS':
+        
+        templateTypeStr = 'web app templates'
+        print printStatement.format(templateTypeStr)
+        templateIDs = unpack(portal.webmap_templates(['id']))
+        
+    elif templateType == 'GALLERY':
+        
+        templateTypeStr = 'gallery templates'
+        print printStatement.format(templateTypeStr)
+        templateIDs = unpack(portal.gallery_templates(['id']))
+        
+    else:
+        # Template type value is invalid
+        func_results['success'] = False
+        func_results['message'] = 'Invalid templateType value "{}"; must be WEBAPPS or GALLERY.'.format(templateType)
+        return func_results
+    
+    if not templateIDs:
+        func_results['success'] = False
+        func_results['message'] = '{} portal property not set to use "Default" group.'.format(templateTypeStr.capitalize())
+        return func_results
+    
+    # Get the group id for the group to share the template items
+    groupID = getGroupID(portal, groupOwner, groupTitle)
+    
+    if not groupID:
+        func_results['success'] = False
+        func_results['message'] = 'Could not find group where owner = "{}" and title = "{}"'.format(groupOwner, groupTitle)
+        return func_results
+    
+    # Share templates with group
+    print '\t-Sharing web templates with group {} ({})...'.format(groupTitle, groupOwner)
+    results = share_template_items(portal, templateIDs, [groupID])
+    if not results['success']:
+        func_results['success'] = False
+        print results['message']
+        
+    return func_results
+
+def getGroupID(portal, owner, title):
+    # Return id for group owned by 'owner' with title = specified title
+    groupID = None
+    groups = portal.user(owner)['groups']
+    if groups:
+        for group in groups:
+            if group['title'] == title:
+                groupID = group['id']
+        
+    return groupID
+
+def share_template_items(portal, item_ids, group_ids):
+    func_results = {'success': True}
+    errList = []
+    for item_id in item_ids:
+        results = portal.share_item(item_id, group_ids)
+        if len(results['notSharedWith']) > 0:
+            errList.append(results)
+    
+    if len(errList) > 0:
+        func_results['success'] = False
+        func_results['message'] = errList
+        
+    return func_results
+
 
 #def val_portal_connection_props(portal_address, username, password):
 #    portal_con = Portal(portal_address, username, password)
