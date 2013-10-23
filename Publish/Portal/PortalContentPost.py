@@ -290,6 +290,10 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     print "Update the URLs in URL based items...\n"
     update_url_based_items(portaladmin, hostname_map)   
     
+    print "\n" + sectionBreak
+    print "Update URLs within item properties...\n"    
+    update_items(portaladmin, hostname_map)
+    
     # Update the urls and item ids in webmaps
     print "\n" + sectionBreak
     print "Update the URLs and item ids in webmaps...\n"
@@ -790,6 +794,33 @@ def update_url_based_items(portal, hostname_map):
                 url = url.replace(host, hostname_map[host])
                 portal.update_item(item['id'], {'url': url})
 
+def update_items(portal, hostname_map):
+    ''' Update server names in item properties '''
+    
+    jsonPropertiesToUpdate = ['description', 'snippet', 'accessInformation', 'licenseInfo']
+    
+    # Return all portal items
+    items = portal.search()
+    
+    if not items:
+        return
+
+    for item in items:
+        print_item_info(item)
+        itemID = item.get('id')
+        
+        for jsonProperty in jsonPropertiesToUpdate:
+            is_updated = False
+            propertyValue = item.get(jsonProperty)
+            if propertyValue:
+                for host in hostname_map:
+                    if propertyValue.find(host) > -1:
+                        propertyValue = propertyValue.replace(host, hostname_map[host])
+                        is_updated = True
+        
+                if is_updated:
+                    portal.update_item(itemID, {jsonProperty: propertyValue})
+
 def update_webmaps(portal, hostname_map, id_map):
     '''Update URLs and item ids in WebMaps'''
     
@@ -981,7 +1012,9 @@ def update_csv_items(portal, hostname_map):
     if filePaths:
         for filePath in filePaths:
             os.remove(filePath)
-        
+
+
+     
 def print_item_info(item):
     itemID = item.get('id')
     itemTitle = item.get('title')
