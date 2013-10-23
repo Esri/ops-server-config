@@ -672,6 +672,8 @@ def load_items_based_on_tags(portal, path, tags, f='json', cls=None, **kw):
             ditem.pop('owner')
             ditem.pop('thumbnail')
     
+            print "Loading item: " + source_id
+            
             # Remove any properties that have no entry
             for property in list(ditem.keys()):
                 if ditem[property] is None:
