@@ -19,6 +19,13 @@ echo 3. From the "Actions" panel, click "Create Domain Certificate".
 echo.
 echo 4. On the "Distinguished Name Properties" dialog enter...
 echo.
+echo    *********************        NOTE        *********************
+echo    - Enter the property values as they apply to your organization.
+echo    - The "Common name" is composed of the host name and the domain
+echo      name of your website, i.e the address you will be using to
+echo      access your website.
+echo    **************************************************************
+echo.
 echo      Common name^:        %ops_FQDN%
 echo      Organization^:       Esri, Inc.
 echo      Organization unit^:  Development
