@@ -1,16 +1,14 @@
-
-
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# MFportalcontent.py
+# PortalContentExtract.py
 # -------------------------------------------------------
-# Various tools for copying Portal by either direct copy
-# or through an intermediate file system by extract/post.
+# Script to extract users/groups/items from a portal to
+# file system files.
 # -------------------------------------------------------
 # v1.0 - 11/**/2012
 # -------------------------------------------------------
 # - 12/11/2012 - MF - Copy and modify from BC portalcontent.py.
+# - **/**/2013 - EL - Continue to modify.
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
 
 import portalpy
 import os, sys
@@ -20,38 +18,17 @@ import types
 import shutil
 from datetime import datetime, timedelta
 from portalpy import Portal, parse_hostname, portal_time, WebMap
+import logging
 TEXT_BASED_ITEM_TYPES = portalpy.TEXT_BASED_ITEM_TYPES
 FILE_BASED_ITEM_TYPES = portalpy.FILE_BASED_ITEM_TYPES
 
-## SOURCE PORTAL INFO
-##portaladdress = r"http://afmlocomport.esri.com"
-#source_portal_address = r"https://afmcomstaging.esri.com/arcgis"
-#source_hostname = "afmcomstaging.esri.com" #Use Hostname or None
-#
-## TARGET PORTAL INFO
-#target_portal_address = r"http://dislagstest11.esri.com"
-#target_hostname = r"dislagstest11.esri.com"
-#
-##orig from MF; EL commented 5/20/2013
-##contentpath = os.path.join(os.getcwd(),"test")  #MF this is the file store path
-#contentpath = r"C:\DefenseTemplates\A4W-Systems\ConfigureOpsServer\Publish\Portal\test"
-#
-#port = '6080' #Use 6080 or None
-#
-#adminuser = ""
-#adminpassword = ""
+logging.basicConfig()
 
-portal_processing = "EXTRACT" #MF {EXTRACT | POST | COPY}
-#       EXTRACT - copy portal properties and content to file system as backup/copy/etc.
-#       POST - publish portal files to a new server
-#       COPY - direct copy and publish from one portal to another
-DEBUG = True
-
+portal_processing = "EXTRACT"
 titleBreak = "====================================================================================="
 sectionBreak = "------------------------------------------------------------------------------------"
 sectionBreak2 = "--------------------"
-#MF Static user list for testing
-#users = {'DEVELOPMENT':'DEVELOPMENT','FIRESCDR':'FIRESCDR','INTELLIGENCE':'INTELLIGENCE','INFOMGR':'INFOMGR'}
+
 users = {}
 
 #track stored IDs to new IDs when posting groups
@@ -90,40 +67,14 @@ def main():
     contentpath = sys.argv[4]
     if len(sys.argv) == 6:
         specifiedUsers = sys.argv[5]
-    
-    #For testing in standalone mode
-    #print portal.info()   
-    #list_group_ids(portal)
-    #print_user_contents(portal)
-
-    #MF testing different portal copying patterns
-    if portal_processing == "EXTRACT":
-        print_script_header(source_portal_address, portal_processing)
-        if not os.path.exists(contentpath):
-            os.makedirs(contentpath)
-        else:
-            shutil.rmtree(contentpath)
-        extract_portal(source_portal_address,contentpath,adminuser,adminpassword,specifiedUsers)
-        os.chdir(contentpath)    
-    elif portal_processing == "POST":
-        publish_portal(target_portal_address,contentpath,adminuser,adminpassword)
-    
-        os.chdir(contentpath)
-    elif portal_processing == "COPY":
-        #MF #TODO Set up a copy process (EXTRACT/POST/shutil.rmtree)
-        print "Script is not set up to copy at this time."
-        ###if not os.path.exists(contentpath):
-        ###    os.makedirs(contentpath)
-        ###else:
-        ###    shutil.rmtree(contentpath)
-        ###extract_portal(source_portal_address,contentpath,adminuser,adminpassword)
-        ###publish_portal(target_portal_address,contentpath,adminuser,adminpassword)
-        ###shutil.rmtree(contentpath)
         
+    print_script_header(source_portal_address, portal_processing)
+    if not os.path.exists(contentpath):
+        os.makedirs(contentpath)
     else:
-        print "Don't know what you mean.\nCheck value/spelling of 'portal_processing' variable."
-
-    #############Publish Testing###############################################
+        shutil.rmtree(contentpath)
+    extract_portal(source_portal_address,contentpath,adminuser,adminpassword,specifiedUsers)
+    os.chdir(contentpath)    
     
     print "\nDONE."
 
@@ -158,7 +109,7 @@ def extract_portal(portaladdress,contentpath,adminuser,adminpassword, specifiedU
     os.chdir(contentpath)
     
     #Make Admin connection to portal and retrieve portal info
-    portaladmin = Portal(portaladdress, adminuser, adminpassword) # debug=DEBUG)
+    portaladmin = Portal(portaladdress, adminuser, adminpassword)
     
 
     # ------------------------------------------------------------------------
@@ -385,58 +336,6 @@ def extract_item(portal,itemid,username,folder=''):
 
     sharinginfo = portal.user_item(itemid,username,folder)
     json.dump(sharinginfo[1], open('sharing.json','w'))
-
-
-#def print_user_contents(portal):
-#    root_items, folder_items = portal.user_contents('INTELLIGENCE')
-#    print root_items
-#    print folder_items
-    
-###Testing Utilities
-
-#def list_group_ids(portal):
-#    groups = portal.groups(['title', 'id'])
-#    print groups
-#    
-#def list_hostname_references(source_hostname,portal):   
-#    hostname_references = []
-#    url_items = portal.search(['id','type','url'], portalpy.URL_ITEM_FILTER)
-#    for item in url_items:
-#        if parse_hostname(item['url']) == source_hostname:
-#            hostname_references.append((item['id'], item['type'], item['url']))
-#    webmaps = portal.webmaps()
-#    for webmap in webmaps:
-#        urls = webmap.urls(normalize=True)
-#        for url in urls:
-#            if parse_hostname(url) == source_hostname:
-#                hostname_references.append((webmap.id, 'Web Map', url))
-#    return hostname_references
-#
-#def _decode_list(data):
-#    rv = []
-#    for item in data:
-#        if isinstance(item, unicode):
-#            item = item.encode('utf-8')
-#        elif isinstance(item, list):
-#            item = _decode_list(item)
-#        elif isinstance(item, dict):
-#            item = _decode_dict(item)
-#        rv.append(item)
-#    return rv
-#
-#def _decode_dict(data):
-#    rv = {}
-#    for key, value in data.iteritems():
-#        if isinstance(key, unicode):
-#           key = key.encode('utf-8')
-#        if isinstance(value, unicode):
-#           value = value.encode('utf-8')
-#        elif isinstance(value, list):
-#           value = _decode_list(value)
-#        elif isinstance(value, dict):
-#           value = _decode_dict(value)
-#        rv[key] = value
-#    return rv
 
 if __name__ == "__main__":
     main()
