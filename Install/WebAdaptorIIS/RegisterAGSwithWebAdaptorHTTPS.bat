@@ -38,4 +38,5 @@ if exist %ops_ConfWebAdaptorExePath% (
     echo **  Exiting RegisteringAGSwithWebAdaptor.bat.
     echo **********************************************************
     echo.
+    Call %ops_ChkErrLevelFile% 1
 )
