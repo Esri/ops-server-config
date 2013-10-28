@@ -13,7 +13,7 @@ echo Install Portal for ArcGIS
 echo.
 echo --Installing Portal for ArcGIS...
 echo.
-set execute=msiexec /I %ops_softwareRoot%\Portal\setup.msi /qb CONTENTDIR=C:\arcgisportal
+set execute=%ops_softwareRoot%\Portal\setup.exe /qb CONTENTDIR=C:\arcgisportal
 
 echo %execute%
 echo.

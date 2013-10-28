@@ -14,7 +14,7 @@ REM ---------------------------------------------------------------------
 echo.
 echo --Installing ArcGIS Server...
 echo.
-set execute=msiexec /I %ops_softwareRoot%\ArcGISServer\setup.msi /qb ^
+set execute=%ops_softwareRoot%\ArcGISServer\setup.exe /qb ^
 USER_NAME=%ops_agsServiceAccount% PASSWORD=%ops_passWord% INSTALLDIR1=C:\Python27
 
 echo %execute%
