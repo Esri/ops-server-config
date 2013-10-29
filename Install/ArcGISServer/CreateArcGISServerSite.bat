@@ -18,11 +18,13 @@ PING 127.0.0.1 -n 6 > nul
 REM ---------------------------------------------------------------------
 REM Start geometry service
 REM ---------------------------------------------------------------------
+set ops_servicesList=Utilities//Geometry.GeometryServer,Utilities//PrintingTools.GPServer
 echo.
 echo %sectionBreak%
-echo Start the Utilities/Geometry service...
+echo Start the following services^:
+echo    %ops_servicesList%
 echo.
 Call "%~dp0..\..\Publish\Server\StartStopServices.py" %FQDN% ^
-    6080 %ops_userName% %ops_passWord% no Start Utilities//Geometry.GeometryServer
+    6080 %ops_userName% %ops_passWord% no Start %ops_servicesList%
 Call %ops_ChkErrLevelFile% %ERRORLEVEL%
 PING 127.0.0.1 -n 3 > nul

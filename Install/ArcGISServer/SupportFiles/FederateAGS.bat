@@ -53,9 +53,21 @@ echo.
 echo.
 echo    ^-^-^-^-^-^- Utility Services ^-^-^-^-^-^-
 echo.
+echo       NOTE: you need to set these URLs; the "Printing" service is used to create
+echo             thumbnails when you save a web map; and the "Geometry" service is used
+echo             by various web applications.
+echo.
 echo    1. Click "Utility Services" tab on side panel.
 echo.
-echo.   2. Change the "Geometry" service URL to:
+echo    2. Change the "Printing" service URL to:
+echo.
+echo       NOTE: make sure to include the %%20 characters within the URL to represent the spaces
+echo             in the service URL.
+echo.
+echo       https^://%ops_FQDN%/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%%20Web%%20Map%%20Task
+echo.
+echo.
+echo.   3. Change the "Geometry" service URL to:
 echo.
 echo       https^://%ops_FQDN%/arcgis/rest/services/Utilities/Geometry/GeometryServer
 echo.
