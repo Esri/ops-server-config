@@ -9,8 +9,12 @@ echo Create the Portal for ArcGIS primary administrator account...
 echo.
 echo ^- When the web browser opens the "Initial Administrator Account Required" page...
 echo.
-echo    NOTE: The web browser will open in a minute or two; a delay has been
-echo          added to give the portal service time to restart.
+echo    NOTEs:
+echo       - The web browser will open in a minute or two; a delay has been
+echo         added to give the portal service time to restart.
+echo.
+echo       - If the web browser opens, but the page does not display, refresh
+echo         the web page.
 echo.
 echo    1. Enter the required information to create the admin user.
 echo.
@@ -34,7 +38,7 @@ echo    5. Sign Out of the portal.
 echo.
 echo    6. Close the web browser.
 echo.
-PING 127.0.0.1 -n 80 > nul
+PING 127.0.0.1 -n 100 > nul
 set execute=%ops_webBrowserExePath% https://%ops_FQDN%:7443/arcgis/home/signin.html?
 echo %execute%
 echo.

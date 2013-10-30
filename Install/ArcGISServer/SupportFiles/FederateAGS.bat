@@ -35,7 +35,10 @@ echo.
 echo    8. For "Username/Password" properties specify the
 echo       name and password of the primary site administrator
 echo       account that was used to initially log in to Manager
-echo       and administer ArcGIS Server.
+echo       and administer ArcGIS Server, see values below^:
+echo.
+echo       For "Username" specify^: %ops_userName%
+echo       For "Password" specify^: %ops_passWord%
 echo.
 echo    9. Click "Add".
 echo.
