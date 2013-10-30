@@ -296,6 +296,11 @@ if "%ops_create_ags_site%"=="YES" (
     Call %~dp0ArcGISServer\CreateArcGISServerSite.bat
 )
 
+REM Install ArcGIS GeoEvent Processor Extension for ArcGIS Server
+if "%ops_install_geoevent%"=="YES" (
+    Call %~dp0GeoEvent\InstallGeoEvent.bat
+)
+
 REM Install Web Adaptor
 if "%ops_install_webadaptor%"=="YES" (
     Call %~dp0WebAdaptorIIS\InstallWebAdaptor.bat
@@ -318,6 +323,11 @@ date /T
 time /T
 echo.
 echo.
+
+REM Create Operations Dashboard One-click install and deploy to portal folders
+if "%ops_create_opsdashboard_installer%"=="YES" (
+    Call %~dp0OpsDashboardUtility\CreateOneClickInstaller.bat
+)
 
 REM Create the portal primary administrator account
 if "%ops_create_portal_admin_account%"=="YES" (
@@ -344,6 +354,11 @@ REM Federate ArcGIS Server site with portal; set hosted server
 REM and set SSL properties.
 if "%ops_federate_ags%"=="YES" (
     Call %~dp0ArcGISServer\SupportFiles\FederateAGS.bat
+)
+
+REM Configure GeoEvent Processor Extension for ArcGIS Server
+if "%ops_configure_geoevent%"=="YES" (
+    Call %~dp0GeoEvent\SupportFiles\ConfigureGeoEvent.bat
 )
 
 goto end
