@@ -11,9 +11,12 @@ echo.
 echo.
 echo ^- When the web browser opens to the GeoEvent Processor Manager "Sign In" page...
 echo.
+echo.
 echo    Sign in with the default GeoEvent administrator account:
+echo.
 echo      Username: arcgis
 echo      Password: manager
+echo.
 echo.
 echo    ^-^-^-^-^- Change password on GeoEvent Administrator account ^-^-^-^-^-^-
 echo.
@@ -31,6 +34,7 @@ echo.
 echo.
 echo    5. You will be signed out of the GeoEvent Processor Manager; sign back in
 echo       using the new password.
+echo.
 echo       Username: arcgis
 echo       Password: %ops_passWord%
 echo.
@@ -54,7 +58,7 @@ echo.
 echo    4. For "Password" and "Repeat Password" property specify: %ops_passWord%
 echo.
 echo.
-echo    5. For "Full Name" property specify "GeoEvent Server Administrator, Secondary".
+echo    5. For "Full Name" property specify: GeoEvent Server Administrator, Secondary
 echo.
 echo.
 echo    6. Select all "Roles Available" ^(i.e. Administrator, Publisher, and User^) and
@@ -82,45 +86,54 @@ echo.
 echo       https^://%ops_FQDN%/arcgis/
 echo.
 echo.
-echo    6. Now you need to generate a token; click on the
-echo       "https://%ops_FQDN%/arcgis/sharing/generateToken" link
-echo       which will open another web browser tab and display the "Generate Token"
-echo       dialog.
+echo    6. Generate a token:
 echo.
-echo       NOTEs:
-echo         - If the link to the "generateToken" page is not displayed, manually
-echo             open a new web browser tab and enter the following URL:
-echo             https^://%ops_FQDN%/arcgis/sharing/generateToken
+echo       Click in the "Token" text box. A link to the "generateToken" URL will
+echo       be displayed.
+echo.
+echo          NOTEs:
+echo            - If the link to the "generateToken" page is not displayed, manually
+echo              open a new web browser tab and enter the following URL:
+echo              https^://%ops_FQDN%/arcgis/sharing/generateToken
+echo.
+echo.
+echo       Click on the "generateToken" URL link.
+echo.
 echo.
 echo       For the "Username" property specify^: %ops_userName%
 echo.
+echo.
 echo       For the "Password" property specify^: %ops_passWord%
+echo.
 echo.
 echo       For the "Client Webapp URL" property specify^:
 echo         https^://%ops_FQDN%^:6143/geoevent/admin/datastores/agsconnection/OpsServer
 echo.
+echo.
 echo       For the "Expiration" property, select "1 year"
 echo.
+echo.
 echo       Click the "Generate Token" button.
+echo.
 echo.
 echo       Copy the token.
 echo.
 echo.
-echo    6. Click on the previous web browser tab.
+echo    7. Click on the previous web browser tab.
 echo.
 echo.
-echo    7. Paste the generated token into the "Token" property textbox.
+echo    8. Paste the generated token into the "Token" property textbox.
 echo.
 echo.
-echo    8. Click the "Register" button.
+echo    9. Click the "Register" button.
 echo.
 echo       The "Status" box for this entry should now have a green checkbox.
 echo.
 echo.
-echo    9. Sign out of the GeoEvent Processor Manager.
+echo   10. Sign out of the GeoEvent Processor Manager.
 echo.
 echo.
-echo   10. Close the web browser.
+echo   11. Close the web browser.
 echo.
 echo.
 set execute=%ops_webBrowserExePath% https://%ops_FQDN%:6143/geoevent/manager/site.html
