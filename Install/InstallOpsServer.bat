@@ -306,9 +306,14 @@ if "%ops_install_webadaptor%"=="YES" (
     Call %~dp0WebAdaptorIIS\InstallWebAdaptor.bat
 )
 
-REM Register ArcGIS Server with the Web Adaptor
-if "%ops_register_ags%"=="YES" (
-    Call %~dp0WebAdaptorIIS\RegisterAGSwithWebAdaptor.bat
+REM Change ArcGIS security config to "HTTPS Only"
+if "%ops_change_ags_security%"=="YES" (
+    Call %~dp0ArcGISServer\SupportFiles\ChangeAGSSecurityConfig.bat
+)
+
+REM Register ArcGIS Server with the web adaptor as HTTPS
+if "%ops_register_ags_https%"=="YES" (
+    Call %~dp0WebAdaptorIIS\RegisterAGSwithWebAdaptorHTTPS.bat
 )
 
 REM Install Portal Related Software
@@ -316,15 +321,7 @@ if "%ops_install_portal%"=="YES" (
     Call %~dp0Portal\InstallPortal.bat
 )
 
-echo.
-echo.
-echo Almost done...
-date /T
-time /T
-echo.
-echo.
-
-REM Create Operations Dashboard One-click install and deploy to portal folders
+REM Create Operations Dashboard ClickOnce Application and deploy to portal folders
 if "%ops_create_opsdashboard_installer%"=="YES" (
     Call %~dp0OpsDashboardUtility\CreateOneClickInstaller.bat
 )
@@ -339,19 +336,8 @@ if "%ops_register_portal%"=="YES" (
     Call %~dp0WebAdaptorIIS\RegisterPortalwithWebAdaptor.bat
 )
 
-REM Change ArcGIS security config to "HTTPS Only"
-if "%ops_change_ags_security%"=="YES" (
-    Call %~dp0ArcGISServer\SupportFiles\ChangeAGSSecurityConfig.bat
-)
-
-REM Re-register ArcGIS Server with the web adaptor because the
-REM security config was changed to HTTPS.
-if "%ops_register_ags_https%"=="YES" (
-    Call %~dp0WebAdaptorIIS\RegisterAGSwithWebAdaptorHTTPS.bat
-)
-
-REM Federate ArcGIS Server site with portal; set hosted server
-REM and set SSL properties.
+REM Federate ArcGIS Server site with portal, set hosted server,
+REM set SSL properties, and reset Utility service URLs
 if "%ops_federate_ags%"=="YES" (
     Call %~dp0ArcGISServer\SupportFiles\FederateAGS.bat
 )
@@ -383,7 +369,7 @@ IF EXIST %ops_tempInstallDir% (
 )
 echo.
 echo.
-echo Installation of Ops Server completed.
+echo Execution of InstallOpsServer.bat script completed.
 date /T
 time /T
 echo.

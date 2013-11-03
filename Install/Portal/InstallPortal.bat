@@ -54,6 +54,6 @@ echo Configure ArcGIS Server Services Directory to point to
 echo locally hosted ArcGIS for JavaScript API...
 echo.
 Call "%~dp0..\..\SupportFiles\SetServicesDirectoryProps.py" ^
- %FQDN% # %ops_userName% %ops_passWord% No
+ %FQDN% # %ops_userName% %ops_passWord% Yes
 echo.
  

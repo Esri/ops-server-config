@@ -13,7 +13,10 @@ set ops_FQDN=SET_FQDN_OF_SERVER
 
 REM ---------------------------------------------------------------------
 REM Root folder where software installers are located. This can be a logical
-REM drive letter or a UNC path.
+REM drive letter or a UNC path. 
+REM
+REM This is the path to the OPSServerInstall\Software folder on your
+REM external drive.
 REM
 REM NOTEs:
 REM    - The path must not contain any spaces.
@@ -73,8 +76,9 @@ set ops_dataDrive=c
 
 REM ---------------------------------------------------------------------
 REM This variable defines the path and name of the ArcGIS Server
-REM (AGS) authorization file (*** license must be the Enterprise Advanced license ***)
-REM to use during the installation process.
+REM (AGS) authorization file (*** license must be the Enterprise Advanced 
+REM license ***) to use during the installation process.
+REM
 REM Examples:
 REM    C:\AuthorizationFiles\ArcGISServer\Server_Ent_Adv.ecp
 REM    C:\AuthorizationFiles\ArcGISServer\Server_Ent_Adv.prvc
@@ -99,7 +103,7 @@ set ops_PortalAuthFile="SET_FILE_PATH"
 REM ---------------------------------------------------------------------
 REM Define which web browser to use for installation steps which require you
 REM to work within a web browser. Have encountered issues with Internet Explorer;
-REM recommend FireFox or Chrome (NOTE: have mostly tested with FireFox).
+REM recommend FireFox or Chrome.
 set ops_webBrowserExePath="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
 
 REM ---------------------------------------------------------------------
@@ -109,25 +113,29 @@ REM Valid values are "YES" or "NO"
 REM Install the rdbms (PostgreSQL)
 set ops_install_rdbms=YES
 
-REM Install ArcGIS Server
+REM Install and authorize ArcGIS Server 
 set ops_install_server=YES
 
-REM Create the ArcGIS Server site, create the SDE geodatabases, SDE connection files.
+REM Create the ArcGIS Server site, create the SDE geodatabases, SDE connection files
 set ops_create_ags_site=YES
 
-REM Install GeoEvent Processor Extension for ArcGIS Server
+REM Install GeoEvent Processor Extension for ArcGIS Server and copy various
+REM Ops Server configured GeoEvent files. 
 set ops_install_geoevent=YES
 
 REM Install the ArcGIS WebAdaptor for IIS
 set ops_install_webadaptor=YES
 
-REM Register ArcGIS Server with the WebAdaptor (using http)
-set ops_register_ags=YES
+REM Change the ArcGIS Server security configuration to "HTTPS Only"
+set ops_change_ags_security=YES
+
+REM Register ArcGIS Server with the WebAdaptor (using https)
+set ops_register_ags_https=YES
 
 REM Install Portal for ArcGIS
 set ops_install_portal=YES
 
-REM Create Operations Dashboard One-click install and deploy to portal folders
+REM Create Operations Dashboard ClickOnce Application and deploy to portal folders
 set ops_create_opsdashboard_installer=YES
 
 REM Create the Portal for ArcGIS initial administrator account
@@ -136,13 +144,8 @@ set ops_create_portal_admin_account=YES
 REM Register Portal for ArcGIS Server with the WebAdaptor
 set ops_register_portal=YES
 
-REM Change the ArcGIS Server security configuration
-set ops_change_ags_security=YES
-
-REM Register ArcGIS Server with the WebAdaptor (using https)
-set ops_register_ags_https=YES
-
-REM Federate the ArcGIS Server with portal, set SSL properties, set Utility Service URLs
+REM Federate ArcGIS Server site with portal, set hosted server,
+REM set SSL properties, and reset Utility service URLs
 set ops_federate_ags=YES
 
 REM Configure GeoEvent Processor Extension for ArcGIS Server - create new administrator
