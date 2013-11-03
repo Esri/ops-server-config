@@ -16,6 +16,7 @@ echo.
 echo       - If the web browser opens, but the page does not display, refresh
 echo         the web page.
 echo.
+echo.
 echo    1. Enter the required information to create the admin user.
 echo.
 echo       ***************          WARNING         ***************
@@ -27,16 +28,22 @@ echo       *** Password must be set as: %ops_passWord%
 echo       ***
 echo       ********************************************************            
 echo.
+echo.
 echo    2. Click "Create".
+echo.
 echo.
 echo    3. If creation of the admin account is successful,
 echo       you will be directed to the "Sign In" page.
 echo.
+echo.
 echo    4. Test if you can sign in.
+echo.
 echo.
 echo    5. Sign Out of the portal.
 echo.
+echo.
 echo    6. Close the web browser.
+echo.
 echo.
 PING 127.0.0.1 -n 100 > nul
 set execute=%ops_webBrowserExePath% https://%ops_FQDN%:7443/arcgis/home/signin.html?
