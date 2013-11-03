@@ -24,7 +24,7 @@ Call %ops_ChkErrLevelFile% %ERRORLEVEL%
 echo.
 echo Giving GeoEvent about a minute to finish setting up all it's web services before
 echo continuing with the Ops Server configuration...
-PING 127.0.0.1 -n 50 > nul
+PING 127.0.0.1 -n 60 > nul
 
 REM ---------------------------------------------------------------------
 REM Stopping GeoEvent service so we can continue configuration without any file locks
