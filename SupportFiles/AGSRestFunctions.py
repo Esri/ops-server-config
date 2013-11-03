@@ -734,9 +734,6 @@ def editServicesDirectory(server, port, adminUser, adminPass,
     
     prop_encode = urllib.urlencode(prop_dict)
     
-    print "\nprop_encode:"
-    print prop_encode
-    print "\n"
     URL = "{}{}{}/arcgis/admin/system/handlers/rest/servicesdirectory/edit?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)    
     status = json.loads(urllib2.urlopen(URL, prop_encode).read())
 
