@@ -20,15 +20,7 @@ if exist %ops_ConfWebAdaptorExePath% (
     %execute%
     Call %ops_ChkErrLevelFile% %ERRORLEVEL%
     PING 127.0.0.1 -n 3 > nul
-    
-    echo.
-    echo. CAUTION: if an error was thrown during the registration process
-    echo           and ArcGIS Server was not registered do NOT proceed
-    echo           to the federate server steps. DO NOT close the
-    echo           command window; after the registration problem
-    echo           has been resolved, you can proceed with the
-    echo           federate server steps.
-    echo.
+
 ) else (
     echo **********************************************************
     echo **  ERROR:
