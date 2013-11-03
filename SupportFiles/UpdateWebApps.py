@@ -18,12 +18,14 @@ scriptName = sys.argv[0]
 if len(sys.argv) < 4:
     print '\n' + scriptName + ' <RootFolderToSearch> <OldServerName> <NewServerName> {IDJsonFile}'
     print '\nWhere:'
-    print '\n\t<RootFolderToSearch> (required parameter): the path of the root folder to search for web files to edit.'
-    print '\n\t<OldServerName> (required parameter): the old server name, for example afmcomstaging.esri.com'
-    print '\n\t<NewServerName> (required parameter): the new server name where web apps will running on, for example afmblueleaf01.esri.com'
-    print '\n\t{IDJsonFile} (optional parameter): the file path to the .json file containing the old and new ids'
-    print '\nNOTE: script only edits index.html, briefingbook_config.js, Config.js, and *.csv files;'
-    print '\tSearch functionality is case-sensitive.'
+    print '\n\t<RootFolderToSearch> (required): the path of the root folder to search for web files to edit.'
+    print '\n\t<OldServerName> (required): the old server name, for example afmcomstaging.esri.com'
+    print '\n\t<NewServerName> (required): the new server name where web apps will running on'
+    print '\n\t{IDJsonFile} (optional): the file path to the .json file containing the old and new portal item ids.'
+    print '\t\t\t(i.e. the file named "oldID_newID.json" that is created by the PublishContentPost.py script within'
+    print '\t\t\t the source portal content folder)'
+    print '\n\tNOTE: script only edits index.html, briefingbook_config.js, Config.js, and *.csv files;'
+    print '\t\tSearch functionality is case-sensitive.'
     sys.exit(1)
     
     
