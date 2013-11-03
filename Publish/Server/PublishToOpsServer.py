@@ -78,7 +78,7 @@ if len(sys.argv) < 6:
     print '\t\t   list of owners to exclude with "-" prefix, i.e. -owner1,owner2,...'
     print '\t\t-Owner names are case sensitive (i.e. names must match exactly)'
     
-    print '\n\t{OpsServerTypesToPost} (optional parameter):'
+    print '\n\t{OpsServerTypesToPublish} (optional parameter):'
     print '\t\t-To post content for specific Ops Server types specify type value, i.e.'
     print '\t\t   ' + str(valid_ops_types)  + '; you can specify more then one type,'
     print '\t\t   i.e, Land,Maritime,...'
