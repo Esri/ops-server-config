@@ -63,7 +63,7 @@ REM       The password can only contain the following ASCII characters:
 REM       - Numbers 0 through 9
 REM       - ASCII letters A through Z (upper case and lower case)
 REM       - A dot (.)
-set ops_passWord=SET_PASSWORD_HERE
+set ops_passWord=SET_PASSWORD
 
 REM ---------------------------------------------------------------------
 REM Defines the drive where the ArcGIS Server site cache directory will
@@ -86,7 +86,7 @@ REM NOTEs:
 REM    - Variable value must be enclosed by double-quotes ("value") if path contains
 REM      any spaces.
 REM    - Path can be a local path (i.e. with drive letter) or a UNC path.
-set ops_AGSAuthFile="SET_FILE_PATH"
+set ops_AGSAuthFile="SET_PATH_TO_AGS_AUTHORIZATION_FILE"
 
 REM ---------------------------------------------------------------------
 REM This variable defines the path and name of the Portal for ArcGIS
@@ -98,7 +98,7 @@ REM NOTEs:
 REM    - Variable value must be enclosed by double-quotes ("value") if path contains
 REM      any spaces.
 REM    - Path can be a local path (i.e. with drive letter) or a UNC path.
-set ops_PortalAuthFile="SET_FILE_PATH"
+set ops_PortalAuthFile="SET_PATH_TO_PORTAL_AUTHORIZATION_FILE"
 
 REM ---------------------------------------------------------------------
 REM Define which web browser to use for installation steps which require you
@@ -155,3 +155,5 @@ set ops_configure_geoevent=YES
 REM ---------------------------------------------------------------------
 REM END Set User Editable Variables
 REM ---------------------------------------------------------------------
+Call %~dp0..\SupportFiles\BatchFiles\CheckExistence.bat %ops_softwareRoot% ^
+%ops_AGSAuthFile% %ops_PortalAuthFile% %ops_webBrowserExePath%
