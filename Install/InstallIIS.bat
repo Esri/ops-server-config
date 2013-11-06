@@ -66,7 +66,7 @@ echo *           Internet Information Server ^(IIS^) Installer               *
 echo *************************************************************************
 echo. This script:
 echo.   - Installs IIS.
-echo.   - Installs .Net Framework
+echo.   - Installs .Net Framework 3.5
 echo.   - Sets the IIS default document
 echo.   - Adds additional IIS MIME types required by Ops Server components.
 echo.

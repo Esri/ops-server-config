@@ -77,7 +77,8 @@ set ops_dataDrive=c
 REM ---------------------------------------------------------------------
 REM This variable defines the path and name of the ArcGIS Server
 REM (AGS) authorization file (*** license must be the Enterprise Advanced 
-REM license ***) to use during the installation process.
+REM license and must include license for GeoEvent Processor ***)
+REM to use during the installation process.
 REM
 REM Examples:
 REM    C:\AuthorizationFiles\ArcGISServer\Server_Ent_Adv.ecp
@@ -101,13 +102,13 @@ REM    - Path can be a local path (i.e. with drive letter) or a UNC path.
 set ops_PortalAuthFile="SET_PATH_TO_PORTAL_AUTHORIZATION_FILE"
 
 REM ---------------------------------------------------------------------
-REM Define which web browser to use for installation steps which require you
+REM Defines which web browser to use for installation steps which require you
 REM to work within a web browser. Have encountered issues with Internet Explorer;
 REM recommend FireFox or Chrome.
 set ops_webBrowserExePath="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
 
 REM ---------------------------------------------------------------------
-REM The variables below define which processes to execute.
+REM The variables below define which install/configuration processes to execute.
 REM Valid values are "YES" or "NO"
 
 REM Install the rdbms (PostgreSQL)
