@@ -121,13 +121,7 @@ echo *************************************************************************
 echo *                    Operations Server Installation                     *
 echo *************************************************************************
 echo.
-REM Display prequisites and other important install notes stored in Notes.txt
-REM to user.
-type Notes.txt
-echo.
-echo *************************************************************************
-echo.
-echo 1. Install Ops Server.
+echo 1. Install
 echo. 
 echo 0. Quit
 echo.
