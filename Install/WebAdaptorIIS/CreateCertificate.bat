@@ -1,61 +1,152 @@
 REM =====================================================================
-REM Create Certificate
+REM Enable SSL on your web server
 REM =====================================================================
 REM This script launches the ServerManager.msc interface
-
+echo.
 echo.
 echo %sectionBreak%
-echo Create domain certificate and bind to https port 443 using IIS Manager
+echo  Enable SSL on your web server...
 echo.
-echo When the "Server Manager" interface opens, perform the following^:
+echo    To enable SSL on your web server you will need to:
+echo      ^- Obtain a SSL certificate from a Certificate Authority or create a domain certificate.
+echo      ^- Bind the certificate to the website that will host the ArcGIS Web Adaptor for IIS.
+echo    See the instructions below.
 echo.
-echo 1. Navigate to Server Manager ^> Roles ^> Web Server ^(IIS^)
+echo. 
+echo    When the "Server Manager" interface opens, perform the following:
+echo.
+echo.
+echo    1. Navigate to Server Manager ^> Roles ^> Web Server ^(IIS^)
 echo             ^> Internet Information Services ^(IIS^) Manager
 echo.
-echo 2. From the Connections panel, click on the server node and then
+echo.
+echo    2. From the Connections panel, click on the server node and then
 echo             double-click on "Server Certificates" ^(in IIS group^).
 echo.
-echo 3. From the "Actions" panel, click "Create Domain Certificate".
 echo.
-echo 4. On the "Distinguished Name Properties" dialog enter...
+echo    ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+echo    3. Create Certificate Authority certificate __OR__ domain certificate.
 echo.
-echo    *********************        NOTE        *********************
-echo    - Enter the property values as they apply to your organization.
-echo    - The "Common name" is composed of the host name and the domain
-echo      name of your website, i.e the address you will be using to
-echo      access your website.
-echo    **************************************************************
 echo.
-echo      Common name^:        %ops_FQDN%
-echo      Organization^:       Esri, Inc.
-echo      Organization unit^:  Development
-echo      City^/locality^:      Redlands
-echo      State^/province^:     CA
-echo      Country^/region^:     US
+echo        ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+echo.       To create Certificate Authority certificate:
+echo        ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
 echo.
-echo      Then click "Next" button.
+echo        For more detailed information see the following web page:
 echo.
-echo 5. On the "Online Certificaion Authority" dialog...
+echo        http://www.sslshopper.com/article-installing-an-ssl-certificate-in-windows-server-2008-iis-7.0.html
 echo.
-echo    ^- Click "Select", click the "ESRI Enterprise Root" certificate
-echo       authority and click "OK".
 echo.
-echo    ^- Within the "Friendly name" textbox enter "%ops_FQDN% Esri Ent Root CA".
+echo            3a. From the "Actions" panel, click "Create Certificate Request".
 echo.
-echo    ^- Click "Finish".
 echo.
-echo 6. Now you will bind the certificate to https port 443...
+echo            3b. On the "Distinguished Name Properties" dialog...
 echo.
-echo    ^- From the "Connections" panel, navigate to Sites ^> Default Web Site
+echo                ^- Enter...
 echo.
-echo    ^- From the "Actions" panel, click "Bindings".
+echo                Common name:        %ops_FQDN%
+echo                Organization:       "Specify your organization"
+echo                Organization unit:  "Specify organization unit"
+echo                City^/locality:      "Specify your city/locality" ^(no abbreviations^)
+echo                State^/province:     "Specify your state/provice" ^(no abbreviations^)
+echo                Country^/region:     "Specify your country/region"
 echo.
-echo    ^- On the "Site Bindings" dialog, click "Add",
-echo       select "https" in "Type" dropdown, select the certificate you made above
-echo       in the "SSL certificate" dropdown and then click "OK".
-echo       On the "Site Bindings" dialog, click "Close".
+echo                ^- Click "Next".
 echo.
-echo 7. Now close the "Server Manager" interface, click File ^> Exit.
+echo.
+echo            3c. On the "Cryptographic Service Provider Properties" dialog...
+echo.
+echo                ^- Use the default "Cryptographic service provider"
+echo                    ^(i.e. Microsoft RSA SChannel Cryptographic Provider^)
+echo.
+echo                ^- Select a minimum bit length of at least 2048 or higher.
+echo.
+echo                ^- Click "Next" button.
+echo.
+echo.
+echo            3d. On the "File Name" dialog...
+echo.
+echo                ^- Specify a file name for the certificate request (CSR file).
+echo.
+echo                ^- Click "Finish".
+echo.
+echo.
+echo            3e. Use the contents of the CSR file to obtain a certificate
+echo                from a Certficate Authority.
+echo.
+echo.
+echo            3f. When you have obtained the certificate from a Certficate
+echo                Authority, install the certificate by clicking on
+echo                "Complete Certficate Request".
+echo.
+echo.
+echo.           3g. On the "Specify Certificate Authority Response" dialog...
+echo.
+echo                ^- Browse to the certificate file.
+echo.
+echo                ^- Within the "Friendly name" textbox enter a friendly name
+echo                  such as "%ops_FQDN%".
+echo.
+echo.
+echo            3h. Proceed to step #4.
+echo.
+echo.
+echo        ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+echo.       To create domain certificate:
+echo        ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+echo.
+echo            3a. From the "Actions" panel, click "Create Domain Certificate".
+echo.
+echo.
+echo            3b. On the "Distinguished Name Properties" dialog enter...
+echo.
+echo.
+echo                Common name:        %ops_FQDN%
+echo                Organization:       "Specify your organization"
+echo                Organization unit:  "Specify organization unit"
+echo                City^/locality:      "Specify your city/locality" ^(no abbreviations^)
+echo                State^/province:     "Specify your state/provice" ^(no abbreviations^)
+echo                Country^/region:     "Specify your country/region"
+echo.
+echo                Then click "Next" button.
+echo.
+echo.
+echo            3c. On the "Online Certificaion Authority" dialog...
+echo.
+echo                ^- Click "Select", click the certificate authority and click "OK".
+echo.
+echo                ^- Within the "Friendly name" textbox enter a friendly name
+echo                  such as "%ops_FQDN%".
+echo.
+echo                ^- Click "Finish".
+echo.
+echo.
+echo            3d. Proceed to step #4.
+echo.
+echo.
+echo    ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+echo.
+echo    4. Bind the certificate to the web site that will host the web adaptor.
+echo.
+echo.
+echo        4a. From the "Connections" panel, navigate to Sites ^> Default Web Site
+echo.
+echo.
+echo        4b. From the "Actions" panel, click "Bindings".
+echo.
+echo.
+echo        4c. On the "Site Bindings" dialog, click "Add"...
+echo.
+echo            ^- Select "https" in "Type" dropdown.
+echo.
+echo            ^- Select the SSL certificate in the "SSL certificate" dropdown.
+echo.
+echo            ^- Click "OK".
+echo.
+echo            ^- On the "Site Bindings" dialog, click "Close".
+echo.
+echo.
+echo    5. Close the "Server Manager" interface; click File ^> Exit.
 echo.
 echo.
 
