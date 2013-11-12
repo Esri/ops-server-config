@@ -113,6 +113,33 @@ if "%ERRORLEVEL%"=="1" (
 )
 cls
 
+REM ---------------------------------------------------------------------
+REM Check software dependencies
+REM ---------------------------------------------------------------------
+REM Always call SetOverallErrorLevel.bat after running one of the "check"
+REM batch files under the "Checks" folder.
+
+REM Set error "flag" to initial "good" value of zero.
+set ops_OverallErrLvl=0
+
+REM Check if IIS is running/installed.
+Call %~dp0..\SupportFiles\BatchFiles\Checks\IsInstalled_IIS.bat
+Call %~dp0..\SupportFiles\BatchFiles\SetOverallErrorLevel.bat %ops_CheckErrLvl%
+
+REM Check if .NET 3.5 is installed.
+Call %~dp0..\SupportFiles\BatchFiles\Checks\IsInstalled_NETFramework3_5.bat
+Call %~dp0..\SupportFiles\BatchFiles\SetOverallErrorLevel.bat %ops_CheckErrLvl%
+
+REM Check if .NET 4.5 is installed
+Call %~dp0..\SupportFiles\BatchFiles\Checks\IsInstalled_NETFramework4_5.bat
+Call %~dp0..\SupportFiles\BatchFiles\SetOverallErrorLevel.bat %ops_CheckErrLvl%
+
+REM Pause script execution if dependencies are not met.
+Call %~dp0..\SupportFiles\BatchFiles\CheckErrorLevel.bat %ops_OverallErrLvl%
+
+REM Clear screen
+cls
+
 :start
 REM ---------------------------------------------------------------------
 REM Start Block
