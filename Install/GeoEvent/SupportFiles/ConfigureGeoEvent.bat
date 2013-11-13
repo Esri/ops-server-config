@@ -86,15 +86,14 @@ echo.
 echo       https^://%ops_FQDN%/arcgis/
 echo.
 echo.
-echo    6. Generate a token:
+echo    5. Generate a token:
 echo.
 echo       Click in the "Token" text box. A link to the "generateToken" URL will
-echo       be displayed.
+echo       be displayed under the "Token" text box in a blue box.
 echo.
-echo          NOTEs:
-echo            - If the link to the "generateToken" page is not displayed, manually
-echo              open a new web browser tab and enter the following URL:
-echo              https^://%ops_FQDN%/arcgis/sharing/generateToken
+echo.
+echo       Copy the "Client Webapp URL" property value shown in the blue box
+echo         ^(use will need this value for generating the token^).
 echo.
 echo.
 echo       Click on the "generateToken" URL link.
@@ -106,8 +105,8 @@ echo.
 echo       For the "Password" property specify^: %ops_passWord%
 echo.
 echo.
-echo       For the "Client Webapp URL" property specify^:
-echo         https^://%ops_FQDN%^:6143/geoevent/admin/datastores/agsconnection/OpsServer
+echo       Paste the "Client Webapp URL" property value you copied from the previous
+echo         web page into the "Client Webapp URL" text box.
 echo.
 echo.
 echo       For the "Expiration" property, select "1 year"
@@ -119,21 +118,21 @@ echo.
 echo       Copy the token.
 echo.
 echo.
-echo    7. Click on the previous web browser tab.
+echo    6. Click on the previous web browser tab.
 echo.
 echo.
-echo    8. Paste the generated token into the "Token" property textbox.
+echo    7. Paste the generated token into the "Token" property textbox.
 echo.
 echo.
-echo    9. Click the "Register" button.
+echo    8. Click the "Register" button.
 echo.
 echo       The "Status" box for this entry should now have a green checkbox.
 echo.
 echo.
-echo   10. Sign out of the GeoEvent Processor Manager.
+echo    9. Sign out of the GeoEvent Processor Manager.
 echo.
 echo.
-echo   11. Close the web browser.
+echo   10. Close the web browser.
 echo.
 echo.
 set execute=%ops_webBrowserExePath% https://%ops_FQDN%:6143/geoevent/manager/site.html
