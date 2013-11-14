@@ -26,7 +26,6 @@ exitErrCode = 1
 debug = False
 sectionBreak = '=' * 175
 sectionBreak1 = '-' * 175
-totalSuccess = True
 
 doUpdateService = True
 doDeleteItems = True
@@ -125,6 +124,8 @@ def parseService(service):
 
 def main():
     
+    totalSuccess = True
+    
     # -------------------------------------------------
     # Check arguments
     # -------------------------------------------------
@@ -154,10 +155,14 @@ def main():
         # Create portal object
         portal_address = '{}://{}/arcgis'.format(protocol, server)
         portal = Portal(portal_address, adminuser, password)
+        if not portal:
+            raise Exception("ERROR: Could not create 'portal' object. Exiting script execution." )
         
         print '\n- Retrieving portal item information from portal...'
         portal_url_items = getPortalURLItems(portal)
-     
+        if not portal_url_items:
+            raise Exception("ERROR: There are no URL portal items. Exiting script execution." )
+        
         # ------------------------------------------------- 
         # Get all services that exist on server
         # -------------------------------------------------
@@ -167,6 +172,8 @@ def main():
         # Remove certain services from collection
         excludeServices = ['SampleWorldCities.MapServer']
         services = [service for service in allServices if service not in excludeServices]
+        if len(services) == 0:
+            raise Exception("ERROR: There are no user published ArcGIS Server services. Exiting script execution." )
         
         # -------------------------------------------------
         # Update portal item ids with service portal properties json
