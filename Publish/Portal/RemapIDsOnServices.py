@@ -228,7 +228,7 @@ def main():
                     info['portalProperties'] = servicePortalProps
                     
                     if doUpdateService:
-                        print '\n- Updating portal item information stored within service JSON (requires restarting the service) ...'
+                        print '\n- Updating portal item information stored within service JSON (service will be restarted automatically)...'
                         success, status = editServiceInfo(server, port, adminuser, password, folder, serviceNameType, info)
                         if success:
                             print '\tDone.'
