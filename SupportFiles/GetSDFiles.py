@@ -43,7 +43,7 @@ def check_args():
 
     if len(sys.argv) < 6:
         
-        print '\n' + scriptName + ' <AGSFullyQualifiedDomainName> <Port> <AdminUser> <AdminPassword> <REPORT|COPY> {CopyToFolder}'
+        print '\n' + scriptName + ' <AGSFullyQualifiedDomainName> <Port> <AdminUser> <AdminPassword> <REPORT|COPY> {CopyToFolder} {Owners}'
     
         print '\nWhere:'
         print '\n\t<AGSFullyQualifiedDomainName> (required parameter): the fully qualified domain name of th ArcGIS Server.'
@@ -53,6 +53,10 @@ def check_args():
         print '\n\t<REPORT|COPY> (required parameter): \tREPORT - provides status report without copying service definitions;'
         print '\n\t\t\t\t\t\tCOPY - provides status report and copies service definitions.'
         print '\n\t{CopyToFolder} (required parameter if using "COPY" option ): Folder where the service definitions are to be copied.'
+        print '\n\t{Owners} (optional) list of owners to filter the service definition files (only services associated with the portal items '
+        print '\t\t"owned" by these users *** [AND SHARED WITH "EVERYONE"] *** will be copied).'
+        print '\n\t\t- List must be comma delimited list (spaces can be included after commas, but list must be enclosed by quotes).'
+        print '\t\t- Owner names are case sensitive.'
         print '\nNOTE: this script must be executed from the ArcGIS Server machine.\n'
         return None
     
@@ -65,8 +69,12 @@ def check_args():
         password = sys.argv[4]
         exeType = sys.argv[5]
         targetFolder = None
-        if len(sys.argv) == 7:
+        specified_users = None
+        users = None
+        if len(sys.argv) >= 7:
             targetFolder = sys.argv[6]
+        if len(sys.argv) >= 8:
+            specified_users = sys.argv[7]
         
         # Process/validate variables
         if getfqdn().lower() <> server.lower().strip():
@@ -99,7 +107,10 @@ def check_args():
                 print '\n<CopyToFolder> folder ' + targetFolder + ' is not empty; remove contents. Exiting script.'
                 return None
         
-    return server, port, adminuser, password, doCopy, targetFolder
+        if specified_users:
+            users = specified_users.replace(' ', '').split(',')
+            
+    return server, port, adminuser, password, doCopy, targetFolder, users
 
 def extractFromSDFile(sdFile, extractFolder, fileToExtract=None):
     ''' Extract file from compressed .sd file '''
@@ -201,7 +212,6 @@ def get_ags_services(server, port, adminuser, password):
             serviceNameType = parsedService[1]
             
         info = getServiceInfo(server, port, adminuser, password, folder, serviceNameType)
-    
         agsServices[service] = info
         
     if debug:
@@ -211,15 +221,42 @@ def get_ags_services(server, port, adminuser, password):
     
     return agsServices
 
-def filesToCopy(sdFiles, agsServices):
+#def filesToCopy(sdFiles, agsServices):
+#    ''' Return collection of service definition files to copy '''
+#    
+#    # The service definition files that should be copied are those
+#    # that exist for each existing ArcGIS Server serice.
+#    sdFilesToCopy = {}
+#    for i in agsServices:
+#        if i in sdFiles:
+#            sdFilesToCopy[i] = sdFiles[i]
+#    
+#    if debug:
+#        print '\nwithin filesToCopy function:'
+#        print 'sdFilesToCopy variable...'
+#        for key, value in sdFilesToCopy.iteritems():
+#            print str(key) + ' = ' + str(value)
+#    
+#    return sdFilesToCopy
+
+def filesToCopy(sdFiles, agsServices, copyItemIDs=None):
     ''' Return collection of service definition files to copy '''
-    
+
     # The service definition files that should be copied are those
     # that exist for each existing ArcGIS Server serice.
     sdFilesToCopy = {}
     for i in agsServices:
+        serviceInfo = agsServices[i]
+        portalItemsJson = serviceInfo['portalProperties']['portalItems']
         if i in sdFiles:
-            sdFilesToCopy[i] = sdFiles[i]
+            if copyItemIDs:
+                if portalItemsJson:
+                    for portalItemJson in portalItemsJson:
+                        itemID = portalItemJson['itemID']
+                        if itemID in copyItemIDs:
+                            sdFilesToCopy[i] = sdFiles[i]
+            else:
+                sdFilesToCopy[i] = sdFiles[i]
     
     if debug:
         print '\nwithin filesToCopy function:'
@@ -228,6 +265,7 @@ def filesToCopy(sdFiles, agsServices):
             print str(key) + ' = ' + str(value)
     
     return sdFilesToCopy
+
 
 def copySDFiles(sdFilesToCopy, targetFolder, agsServices, portalProps):
     '''Copy SD files to target folder.
@@ -347,7 +385,26 @@ def report(sdFiles, agsServices):
     print printLine
     
     print sectionBreak
+
+def getItemsIDs(portal, users):
+    # Return list of ids of items owned by users (only finds items shared with 'Everyone')
+    ids = []
     
+    for user in users:
+        q = 'owner:' + user
+        items = portal.search(['id','type','url','title','owner'], q)
+    
+        if items:
+            for item in items:
+                if item.get('url'):
+                    #print item.get('id'), item.get('owner'), item.get('type')
+                    ids.append(item.get('id'))
+        
+    if len(ids) == 0:
+        ids = None
+        
+    return ids
+
 def main():
     
     # Before executing rest of script, lets check if 7-zip exe exists
@@ -360,10 +417,10 @@ def main():
     results = check_args()
     if not results:
         sys.exit(exitErrCode)
-    server, port, adminuser, password, doCopy, targetFolder = results
+    server, port, adminuser, password, doCopy, targetFolder, users = results
     
     if debug:
-        print server, port, adminuser, password, doCopy, targetFolder
+        print server, port, adminuser, password, doCopy, targetFolder, users
     
     # Determine where admins upload folder is located on server
     uploadsFolderInfo = getServerDirectory(server, port, adminuser, password, "UPLOADS")
@@ -378,14 +435,20 @@ def main():
     
     # Get collection of ArcGIS Service services on server
     agsServices = get_ags_services(server, port, adminuser, password)
- 
+    
     # Get the portal properties for each portal item referenced by the service
     # according to the services' json info
-    portal = Portal('https://' + server + '/arcgis', adminuser, password)
+    #portal = Portal('https://' + server + '/arcgis', adminuser, password)
+    portal = Portal('https://' + server + '/arcgis', adminuser, 'H0neyBadger5')
     props = getPortalPropsForServices(portal, agsServices)
     
+    # Get list of item ids for all specified users
+    userItemIDs = None
+    if users:
+        userItemIDs = getItemsIDs(portal, users)
+    
     # Determine which sd files to copy
-    sdFilesToCopy = filesToCopy(sdFiles, agsServices)
+    sdFilesToCopy = filesToCopy(sdFiles, agsServices, userItemIDs)
     
     # Copy sd files
     if doCopy:
