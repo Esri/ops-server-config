@@ -439,7 +439,7 @@ def main():
     # Get the portal properties for each portal item referenced by the service
     # according to the services' json info
     #portal = Portal('https://' + server + '/arcgis', adminuser, password)
-    portal = Portal('https://' + server + '/arcgis', adminuser, 'H0neyBadger5')
+    portal = Portal('https://' + server + '/arcgis', adminuser, '**************')
     props = getPortalPropsForServices(portal, agsServices)
     
     # Get list of item ids for all specified users
