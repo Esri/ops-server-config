@@ -182,11 +182,15 @@ def main():
         
         print '\n- Remap portal ids on each ArcGIS Server service...\n'
         
+        totalNumIDsNotFound = 0
+        
         for service in services:
             print '\t' + ('-' * 75)
             print '\tService: ' + service
             
             folder, serviceNameType = parseService(service)
+            
+            numIDsFoundForService = 0
             
             # Get the service info
             info = getServiceInfo(server, port, adminuser, password, folder, serviceNameType)
@@ -215,10 +219,10 @@ def main():
                         new_id = findPortalItemID(server, serviceSearchStr, portal_url_items)
                         
                         if new_id:
+                            numIDsFoundForService = numIDsFoundForService + 1
                             servicePortalItem['itemID'] = new_id
                             portalItemIDsToDelete.append(orig_id)
                             print '\t\tFound new item id - ' + new_id
-                            
                         else:
                             totalSuccess = False
                             print '\n\t**** ERROR: new item id not found.'
@@ -228,6 +232,11 @@ def main():
                     
                     if doUpdateService:
                         print '\n\n\t- Updating portal item information stored within service JSON (service will be restarted automatically)...'
+                        
+                        if numIDsFoundForService == 0:
+                            print '\n\t**** ERROR: there were no new ids found for this service so there is no need to update the service JSON info.'
+                            continue
+                        
                         success, status = editServiceInfo(server, port, adminuser, password, folder, serviceNameType, info)
                         if success:
                             print '\t\tDone.'
