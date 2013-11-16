@@ -24,7 +24,7 @@ import logging
 logging.basicConfig()
 
 # Do not delete the content for the following users
-exclude_users = ['admin', 'system_publisher']
+exclude_users = ['system_publisher']
 
 sectionBreak = '================================================'
 
@@ -67,7 +67,11 @@ def main():
     portal_address = sys.argv[1]
     adminuser = sys.argv[2]
     adminpassword = sys.argv[3]
-    
+
+    # Add specified user parameter value to exclude list.
+    if adminuser not in exclude_users:
+        exclude_users.append(adminuser)
+            
     # Create portal object based on specified connection information
     portaladmin = Portal(portal_address, adminuser, adminpassword)
     portalProps = portaladmin.properties
@@ -90,13 +94,19 @@ def main():
     # get a list of users
     portal_users = portaladmin.users()
     
+    # Create list of users to delete
+    portal_users_to_del = []
+    for portal_user in portal_users:
+        if portal_user['username'] not in exclude_users:
+            portal_users_to_del.append(portal_user)    
+    
+    if len(portal_users_to_del) == 0:
+        print "\nWARNING: there are no users to delete. Exiting script."
+        sys.exit(1)
+    
     # remove their groups and items
-    for user_dict in portal_users:
+    for user_dict in portal_users_to_del:
         current_user = user_dict['username']
-        
-        #Skip if user in the exclude list
-        if current_user in exclude_users:
-            continue
         
         print sectionBreak
         print "User: \t" + current_user
