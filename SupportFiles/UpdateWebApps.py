@@ -15,13 +15,13 @@ scriptName = sys.argv[0]
 # ---------------------------------------------------------------------
 # Check arguments
 # ---------------------------------------------------------------------   
-if len(sys.argv) < 4:
-    print '\n' + scriptName + ' <RootFolderToSearch> <OldServerName> <NewServerName> {IDJsonFile}'
+if len(sys.argv) <> 5:
+    print '\n' + scriptName + ' <RootFolderToSearch> <OldServerName> <NewServerName> <IDJsonFile>'
     print '\nWhere:'
     print '\n\t<RootFolderToSearch> (required): the path of the root folder to search for web files to edit.'
     print '\n\t<OldServerName> (required): the old server name, for example afmcomstaging.esri.com'
     print '\n\t<NewServerName> (required): the new server name where web apps will running on'
-    print '\n\t{IDJsonFile} (optional): the file path to the .json file containing the old and new portal item ids.'
+    print '\n\t<IDJsonFile> (required): the file path to the .json file containing the old and new portal item ids.'
     print '\t\t\t(i.e. the file named "oldID_newID.json" that is created by the PublishContentPost.py script within'
     print '\t\t\t the source portal content folder)'
     print '\n\tNOTE: script only edits index.html, briefingbook_config.js, Config.js, and *.csv files;'
@@ -33,10 +33,19 @@ if len(sys.argv) < 4:
 root_path = sys.argv[1]
 old_hostname =  sys.argv[2]
 new_hostname = sys.argv[3]
-id_map_file = None
-if len(sys.argv) == 5:
-    id_map_file = sys.argv[4]
+id_map_file = sys.argv[4]
 
+# ------------------------------------------------------------------------------------
+# Check if root folder and json file exist.
+# ------------------------------------------------------------------------------------
+if not os.path.exists(root_path):
+    print '\nERROR: <RootFolderToSearch> folder ' + root_path + ' does not exist. Exiting script.'
+    sys.exit(1)
+
+if not os.path.isfile(id_map_file):
+    print '\nERROR: <IDJsonFile> file ' + id_map_file + ' does not exist. Exiting script.'
+    sys.exit(1) 
+    
 # ------------------------------------------------------------------------------------
 # Find all briefingbook_config.js and index.html files
 # ------------------------------------------------------------------------------------
