@@ -156,13 +156,13 @@ def main():
         portal_address = '{}://{}/arcgis'.format(protocol, server)
         portal = Portal(portal_address, adminuser, password)
         if not portal:
-            raise Exception("ERROR: Could not create 'portal' object. Exiting script execution." )
+            raise Exception('ERROR: Could not create "portal" object.')
         
         print '\n- Retrieving portal item information from portal...'
         portal_url_items = getPortalURLItems(portal)
         if not portal_url_items:
-            raise Exception("ERROR: There are no URL portal items. Exiting script execution." )
-        
+            raise Exception('ERROR: There are no URL portal items. Have you published the portal content?')
+            
         # ------------------------------------------------- 
         # Get all services that exist on server
         # -------------------------------------------------
@@ -173,8 +173,8 @@ def main():
         excludeServices = ['SampleWorldCities.MapServer']
         services = [service for service in allServices if service not in excludeServices]
         if len(services) == 0:
-            raise Exception("ERROR: There are no user published ArcGIS Server services. Exiting script execution." )
-        
+            raise Exception('ERROR: There are no user published ArcGIS Server services. Have you published the ArcGIS Server services?')
+
         # -------------------------------------------------
         # Update portal item ids with service portal properties json
         # -------------------------------------------------
@@ -183,8 +183,8 @@ def main():
         print '\n- Remap portal ids on each ArcGIS Server service...\n'
         
         for service in services:
-            print '-' * 100
-            print 'Service: ' + service
+            print '\t' + ('-' * 75)
+            print '\tService: ' + service
             
             folder, serviceNameType = parseService(service)
             
@@ -192,7 +192,7 @@ def main():
             info = getServiceInfo(server, port, adminuser, password, folder, serviceNameType)
             
             # Get the service portal properties json and update the item ids
-            print '\n- Retrieving portal item information stored within service JSON...'
+            print '\n\t- Retrieving information about associated portal items stored in the server JSON...'
             servicePortalPropsOrig = info.get('portalProperties')
             
             if servicePortalPropsOrig:
@@ -202,36 +202,35 @@ def main():
                 servicePortalItems = copy.deepcopy(servicePortalItemsOrig)
                 
                 if servicePortalItems:
+                    print '\n\t- Associated portal items...'
                     for servicePortalItem in servicePortalItems:
                         
                         orig_id = servicePortalItem['itemID']
                         
-                        # Keep track of original portal items ids; these items
-                        # will be deleted after the id update
-                        portalItemIDsToDelete.append(orig_id)
-                        
                         # Get service search string
                         serviceSearchStr = getServiceSearchString(service, servicePortalItem)
-                        print '  -' + serviceSearchStr + ': original item id = ' + orig_id
+                        print '\n\t   - ' + serviceSearchStr + ': original item id = ' + orig_id
                         
                         # Get new portal item id
                         new_id = findPortalItemID(server, serviceSearchStr, portal_url_items)
                         
                         if new_id:
                             servicePortalItem['itemID'] = new_id
-                            print '\tFound new item id - ' + new_id
+                            portalItemIDsToDelete.append(orig_id)
+                            print '\t\tFound new item id - ' + new_id
+                            
                         else:
                             totalSuccess = False
-                            print '**** ERROR: new item id not found.'
+                            print '\n\t**** ERROR: new item id not found.'
                     
                     servicePortalProps['portalItems'] = servicePortalItems
                     info['portalProperties'] = servicePortalProps
                     
                     if doUpdateService:
-                        print '\n- Updating portal item information stored within service JSON (service will be restarted automatically)...'
+                        print '\n\n\t- Updating portal item information stored within service JSON (service will be restarted automatically)...'
                         success, status = editServiceInfo(server, port, adminuser, password, folder, serviceNameType, info)
                         if success:
-                            print '\tDone.'
+                            print '\t\tDone.'
                         else:
                             totalSuccess = False
                             print '**** ERROR: Update of service was not successful.'
@@ -240,8 +239,13 @@ def main():
      
         if doDeleteItems:
             print
-            print '=' * 100
-            print '\n-Deleting all the previous portal items owned by ' + portal.logged_in_user()['username'] + '...'
+            #print '=' * 100
+            print '\n\n-Deleting portal items owned by ' + portal.logged_in_user()['username'] + ' that were remapped to original portal item...'
+            
+            if len(portalItemIDsToDelete) == 0:
+                print '\n**** ERROR: No portal items to delete; which means there were no portal items '
+                print '\t     owned by ' + portal.logged_in_user()['username'] + ' that were remapped to original portal item.\n'
+                
             for portalItemID in portalItemIDsToDelete:
                 print '  -Deleting id ' + portalItemID + '...'
                 results = portal.delete_item(portalItemID, portal.logged_in_user()['username'])
