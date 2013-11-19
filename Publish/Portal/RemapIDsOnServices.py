@@ -199,12 +199,22 @@ def main():
             print '\n\t- Retrieving information about associated portal items stored in the server JSON...'
             servicePortalPropsOrig = info.get('portalProperties')
             
+            if not servicePortalPropsOrig:
+                raise Exception('ERROR: The service ' + service + ' does not ' +
+                    'have any portal properties ("portalProperties" JSON key/value). ' + 
+                    'Did you federate the server?')
+        
             if servicePortalPropsOrig:
                 
                 servicePortalProps = copy.deepcopy(servicePortalPropsOrig)
                 servicePortalItemsOrig = servicePortalProps.get('portalItems')
                 servicePortalItems = copy.deepcopy(servicePortalItemsOrig)
                 
+                if not servicePortalItems:
+                    totalSuccess = False
+                    print '\n\t**** ERROR: this service does not have any associated portal items.'
+                    continue
+                    
                 if servicePortalItems:
                     print '\n\t- Associated portal items...'
                     for servicePortalItem in servicePortalItems:
@@ -234,6 +244,7 @@ def main():
                         print '\n\n\t- Updating portal item information stored within service JSON (service will be restarted automatically)...'
                         
                         if numIDsFoundForService == 0:
+                            totalSuccess = False
                             print '\n\t**** ERROR: there were no new ids found for this service so there is no need to update the service JSON info.'
                             continue
                         
