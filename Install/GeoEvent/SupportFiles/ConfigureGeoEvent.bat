@@ -145,3 +145,13 @@ echo.
 %execute%
 Call %ops_ChkErrLevelFile% %ERRORLEVEL%
 PING 127.0.0.1 -n 10 > nul
+echo.
+echo.
+echo   *********************************************************************
+echo.  **
+echo   ** Update the GeoEvent cacert file as required for your environment.
+echo   ** ^(C:\Program Files\ArcGIS\Server\GeoEventProcessor\jre\lib\security\cacerts^)
+echo   **
+echo.  ** See GeoEvent Processor help for more information.
+echo.  **
+echo   *********************************************************************
