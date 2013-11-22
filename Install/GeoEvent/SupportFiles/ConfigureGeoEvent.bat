@@ -109,7 +109,11 @@ echo       Paste the "Client Webapp URL" property value you copied from the prev
 echo         web page into the "Client Webapp URL" text box.
 echo.
 echo.
-echo       For the "Expiration" property, select "1 year"
+echo       **********  WARNING  **********  WARNING  **********
+echo       **                                                **
+echo       ** For the "Expiration" property, select "1 year" ** 
+echo       **                                                **
+echo       **********  WARNING  **********  WARNING  **********
 echo.
 echo.
 echo       Click the "Generate Token" button.
