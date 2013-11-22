@@ -9,6 +9,25 @@ echo %sectionBreak%
 echo Configure GeoEvent Processor
 echo.
 echo.
+echo.
+echo   ***********  WARNING  **********  WARNING  ********  WARNING  ************
+echo.  **
+echo   ** If you have problems re-registering ArcGIS Server with the GeoEvent
+echo   ** processor Data Store (see steps below) you may need to modify the
+echo   ** GeoEvent Processor keystore with your certificate information.
+echo   **
+echo   ** See the help topic "Optional: Replacing ArcGIS GeoEvent Processor for
+echo   ** Server's self-signed certificate", which can be found on the Resource
+echo   ** center at:
+echo   **
+echo   ** http://resources.arcgis.com/en/help/install-guides/
+echo   ** arcgis-geoevent-processor-windows/10.2/index.html#/
+echo   ** Optional_Replacing_ArcGIS_GeoEvent_Processor_for_Server_s_self_signed_certificate/02wn00000004000000/
+echo   **
+echo   **************************************************************************
+echo.
+echo.
+echo.
 echo ^- When the web browser opens to the GeoEvent Processor Manager "Sign In" page...
 echo.
 echo.
@@ -92,8 +111,8 @@ echo       Click in the "Token" text box. A link to the "generateToken" URL will
 echo       be displayed under the "Token" text box in a blue box.
 echo.
 echo.
-echo       Copy the "Client Webapp URL" property value shown in the blue box
-echo         ^(use will need this value for generating the token^).
+echo       Copy the "HTTP referer" URL shown in the blue box.
+echo     ^(you will need this value for generating the token^).
 echo.
 echo.
 echo       Click on the "generateToken" URL link.
@@ -146,12 +165,3 @@ echo.
 Call %ops_ChkErrLevelFile% %ERRORLEVEL%
 PING 127.0.0.1 -n 10 > nul
 echo.
-echo.
-echo   *********************************************************************
-echo.  **
-echo   ** Update the GeoEvent cacert file as required for your environment.
-echo   ** ^(C:\Program Files\ArcGIS\Server\GeoEventProcessor\jre\lib\security\cacerts^)
-echo   **
-echo.  ** See GeoEvent Processor help for more information.
-echo.  **
-echo   *********************************************************************
