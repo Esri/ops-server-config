@@ -10,6 +10,7 @@ echo (also set some othe properties: SSL properties, Geometry service)
 echo.
 echo.
 echo ^- When the web browser opens the "Sign In" page...
+echo    ^(the page will be displayed in about minute^)
 echo.
 echo    ^-^-^-^-^-^- Federated/Hosted Server ^-^-^-^-^-^-
 echo.
@@ -97,6 +98,7 @@ echo.
 echo    3. Close web browser.
 echo.
 echo.
+PING 127.0.0.1 -n 60 > nul
 set execute=%ops_webBrowserExePath% https://%ops_FQDN%/arcgis/home/signin.html?
 echo %execute%
 echo.

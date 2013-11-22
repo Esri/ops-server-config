@@ -8,9 +8,10 @@ echo %sectionBreak%
 echo Create the Portal for ArcGIS primary administrator account...
 echo.
 echo ^- When the web browser opens the "Initial Administrator Account Required" page...
+echo    ^(about a 2.5 minute delay has been added)
 echo.
 echo    NOTEs:
-echo       - The web browser will open in a minute or two; a delay has been
+echo       - The web browser will open in about two minutes; a delay has been
 echo         added to give the portal service time to restart.
 echo.
 echo       - If the web browser opens, but the page does not display, refresh
@@ -45,7 +46,7 @@ echo.
 echo    6. Close the web browser.
 echo.
 echo.
-PING 127.0.0.1 -n 100 > nul
+PING 127.0.0.1 -n 160 > nul
 set execute=%ops_webBrowserExePath% https://%ops_FQDN%:7443/arcgis/home/signin.html?
 echo %execute%
 echo.

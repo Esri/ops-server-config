@@ -8,7 +8,7 @@ echo.
 echo %sectionBreak%
 echo Change the ArcGIS Server security configuration to "HTTPS Only"...
 echo.
-echo ^- When the web browser opens...
+echo ^- When the web browser opens ^(a 2 minute delay has been added^)...
 echo.
 echo    1. Sign in to the "ArcGIS Server Administrator Directory"
 echo       site as the ArcGIS Server site administrator.
@@ -46,7 +46,4 @@ echo.
 %execute%
 Call %ops_ChkErrLevelFile% %ERRORLEVEL%
 
-echo.
-echo Giving ArcGIS Server a few more seconds to restart...
-echo.
-PING 127.0.0.1 -n 30 > nul
+PING 127.0.0.1 -n 120 > nul

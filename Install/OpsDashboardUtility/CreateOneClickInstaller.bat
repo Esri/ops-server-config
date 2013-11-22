@@ -51,7 +51,7 @@ echo It will take a couple of minutes for the OperationsDashboardUtility.exe to 
 echo.
 %execute%
 Call %ops_ChkErrLevelFile% %ERRORLEVEL%
-PING 127.0.0.1 -n 8 > nul
+PING 127.0.0.1 -n 20 > nul
 
 
 REM -----------------------------------

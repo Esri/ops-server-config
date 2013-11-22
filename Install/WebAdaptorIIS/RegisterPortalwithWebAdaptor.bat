@@ -7,9 +7,9 @@ echo.
 echo %sectionBreak%
 echo Register Portal for ArcGIS with the Web Adpator for IIS...
 echo.
-echo    NOTE: a delay has been added to give the portal service time to restart.
+echo    NOTE: a 4 minute delay has been added to give the portal service time to restart.
 echo.
-PING 127.0.0.1 -n 50 > nul
+PING 127.0.0.1 -n 240 > nul
 set execute=%ops_ConfWebAdaptorExePath% /m portal /w https://%ops_FQDN%/arcgis/webadaptor /g http://%ops_FQDN%:7080 ^
 /u %ops_userName% /p %ops_passWord%
 
@@ -17,7 +17,7 @@ if exist %ops_ConfWebAdaptorExePath% (
     echo %execute%
     %execute%
     Call %ops_ChkErrLevelFile% %ERRORLEVEL%
-    PING 127.0.0.1 -n 3 > nul
+    PING 127.0.0.1 -n 10 > nul
 ) else (
     echo **********************************************************
     echo **  ERROR:

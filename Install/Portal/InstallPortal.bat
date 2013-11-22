@@ -19,7 +19,8 @@ echo %execute%
 echo.
 %execute%
 Call %ops_ChkErrLevelFile% %ERRORLEVEL%
-PING 127.0.0.1 -n 3 > nul
+echo Adding a 2 minute delay before moving on to authorize portal...
+PING 127.0.0.1 -n 120 > nul
 
 REM ---------------------------------------------------------------------
 REM Authorize Portal for ArcGIS
@@ -42,7 +43,7 @@ echo %execute%
 echo.
 %execute%
 Call %ops_ChkErrLevelFile% %ERRORLEVEL%
-PING 127.0.0.1 -n 15 > nul
+PING 127.0.0.1 -n 25 > nul
 
 REM ---------------------------------------------------------------------
 REM Configure ArcGIS Server Services Directory properties to point to
