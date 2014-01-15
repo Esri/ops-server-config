@@ -5,10 +5,14 @@ REM ---------------------------------------------------------------------
 
 REM ---------------------------------------------------------------------
 REM This variable defines the fully qualified domain name (FQDN) of the
-REM server that ArcGIS Server and Portal for ArcGIS are being installed.
+REM server that ArcGIS Server and Portal for ArcGIS are being installed
+REM
+REM Example: myopsserver.esri.com
+REM
 REM *****
 REM NOTE: specify ops_FQDN value in lowercase.
 REM *****
+REM
 set ops_FQDN=SET_FQDN_OF_SERVER
 
 REM ---------------------------------------------------------------------
@@ -21,6 +25,7 @@ REM
 REM NOTEs:
 REM    - The path must not contain any spaces.
 REM    - Path can be a local path (i.e. with drive letter) or a UNC path.
+REM
 set ops_softwareRoot=SET_PATH_TO_SOFTWARE_FOLDER
 
 REM ---------------------------------------------------------------------
@@ -32,6 +37,10 @@ REM If using a domain account, the account must already exist.
 REM Specify domain account using the syntax "domain\user". If the local/domain
 REM account already exists, then the variable "ops_passWord" must be set
 REM to the accounts' password.
+REM
+REM   NOTE: the ArcGIS Server account user name must also meet the requirements
+REM         set by your organizations' group policies (if applicable).
+REM
 set ops_agsServiceAccount=AFMAGS
 
 REM ---------------------------------------------------------------------
@@ -39,14 +48,18 @@ REM This variable defines the user name for the ArcGIS Server
 REM site administrator user and the Portal's initial administrator account.
 REM The password for this account is set by the 'ops_passWord' variable.
 REM
-REM NOTE: the most restrictive user name requirements are for the Portal
-REM       initial administrator account, so set this variable to a valid
-REM       value for the Portal initial administrator account user name.
+REM   ***** WARNING ***** WARNING ***** WARNING ***** WARNING *****
+REM
+REM       The most limited user name requirements are for the Portal
+REM       initial administrator account, so set the variable 'ops_userName'
+REM       to a valid value for the Portal initial administrator account user name;
+REM       these requirements are listed below:
 REM 
 REM       The user name can only contain the following ASCII characters:
 REM       - Numbers 0 through 9
 REM       - ASCII letters A through Z (upper case and lower case)
 REM       - A dot (.)
+REM
 set ops_userName=admin
 
 REM ---------------------------------------------------------------------
@@ -55,14 +68,24 @@ REM PostgreSQL service account, ArcGIS Server service account, ArcGIS Server
 REM site administrator, Portal for ArcGIS initial administrator account, and the
 REM "sde" user password that owns the ops server geodatabases.
 REM
-REM NOTE: the most restrictive password requirements are for the Portal
-REM       initial administrator account, so set this variable to a valid
-REM       value for the Portal initial administrator account password.
+REM   ***** WARNING ***** WARNING ***** WARNING ***** WARNING *****
+REM
+REM       The most limited password requirements are for the Portal
+REM       initial administrator account, so set the variable 'ops_passWord'
+REM       to a valid value for the Portal initial administrator account password;
+REM       these requirements are listed below:
 REM 
 REM       The password can only contain the following ASCII characters:
 REM       - Numbers 0 through 9
 REM       - ASCII letters A through Z (upper case and lower case)
 REM       - A dot (.)
+REM       - Password may not be less than 8 characters or more than 28 characters in length.
+REM
+REM       NOTE: Because this password will be used to create system accounts,
+REM             in addition to meeting the requirements listed above, the
+REM             password must meet any password requirements set by your
+REM             organizations' group policies if applicable.
+REM
 set ops_passWord=SET_PASSWORD
 
 REM ---------------------------------------------------------------------
