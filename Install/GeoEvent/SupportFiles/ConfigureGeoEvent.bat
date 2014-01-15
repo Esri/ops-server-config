@@ -9,24 +9,162 @@ echo %sectionBreak%
 echo Configure GeoEvent Processor
 echo.
 echo.
+echo   ^-^-^-^-^- Export server certificate ^-^-^-^-^-^-
 echo.
-echo   ***********  WARNING  **********  WARNING  ********  WARNING  ************
-echo.  **
-echo   ** If you have problems re-registering ArcGIS Server with the GeoEvent
-echo   ** processor Data Store (see steps below) you may need to modify the
-echo   ** GeoEvent Processor keystore with your certificate information.
-echo   **
-echo   ** See the help topic "Optional: Replacing ArcGIS GeoEvent Processor for
-echo   ** Server's self-signed certificate", which can be found on the Resource
-echo   ** center at:
-echo   **
-echo   ** http://resources.arcgis.com/en/help/install-guides/
-echo   ** arcgis-geoevent-processor-windows/10.2/index.html#/
-echo   ** Optional_Replacing_ArcGIS_GeoEvent_Processor_for_Server_s_self_signed_certificate/02wn00000004000000/
-echo   **
-echo   **************************************************************************
+echo   The reason for exporting the server certificate and importing the certificate
+echo   into the GeoEvent Processor (GEP) keystore (see next section) is to establish a
+echo   "trust relationship" between the GEP and the ArcGIS Server. Without this
+echo   "trust relationship", GEP will not be able to connect to the ArcGIS Server
+echo   and therefore will not be able to write features to the feature services.
+echo.
+echo   NOTE: While these instructions show you how to export the server certificate for
+echo         your Ops Server, you could also export your root CA certificate which would
+echo         allow you to connect the GEP to an ArcGIS Server that resides on other servers
+echo         within your domain. To export your root CA certificate, use the "Certificate"
+echo         snap-in within the Microsoft Management Console.
 echo.
 echo.
+echo   When the web browser opens to the portal home page, export the
+echo   server certificate (the instructions differ by web browser)...
+echo.
+echo.
+echo   For Chrome:
+echo.
+echo       1. Click on the "lock" icon to the left of the portal URL;
+echo          within the context menu that is displayed, click on
+echo          the "Connection" tab; click on the "Certificate information"
+echo          hyperlink, which opens the "Certificate" dialog.
+echo.
+echo.
+echo       2. On the "Certificate dialog", click on the "Details" tab, and
+echo          click on the "Copy to File" button, which opens the
+echo          "Certificate Export Wizard".
+echo.
+echo.
+echo       3. On the "Certificate Export Wizard, click "Next"; make sure the
+echo          export format "DER encoded binary X.509 (.CER)" option is
+echo          selected; click "Next".
+echo.
+echo.
+echo.      4. Specify the path and file name for the export file and click
+echo          "Next".
+echo.
+echo.
+echo       5. On the "Completing the Certificate Export Wizard" dialog,
+echo          click "Finish" and close all export wizard dialogs.
+echo.
+echo.
+echo       6. Close the web browser.
+echo.
+echo.
+echo   For Internet Explorer:
+echo.
+echo       1. Click on the "lock" icon to the right of the portal URL;
+echo          within the context menu that is displayed, click on
+echo          the "View certificates" hyperlink, which opens the "Certificate" dialog.
+echo.
+echo.
+echo       2. On the "Certificate dialog", click on the "Details" tab, and
+echo          click on the "Copy to File" button, which opens the
+echo          "Certificate Export Wizard".
+echo.
+echo.
+echo       3. On the "Certificate Export Wizard, click "Next"; make sure the
+echo          export format "DER encoded binary X.509 (.CER)" option is
+echo          selected; click "Next".
+echo.
+echo.
+echo.      4. Specify the path and file name for the export file and click
+echo          "Next".
+echo.
+echo.
+echo       5. On the "Completing the Certificate Export Wizard" dialog,
+echo          click "Finish" and close all export wizard dialogs.
+echo.
+echo.
+echo       6. Close the web browser.
+echo.
+echo.
+echo   For Firefox:
+echo.
+echo       1. Click on the "lock" icon to the left of the portal URL;
+echo          within the context menu that is displayed, click on
+echo          the "More Information" button, which displays the
+echo          "Security" tab on the "Page Info" dialog.
+echo.
+echo.
+echo       2. On the "Certificate Viewer" dialog, click on the "Details" tab, and
+echo          click on the "Export" button.
+echo.
+echo.
+echo       3. On the "Save Certificate To File" dialog, specify the path
+echo          and file name for the export file; make sure the
+echo          "Save as type" value is set to "X.509 Certificate (DER) (*.der)", and
+echo          click "Save".
+echo.
+echo.
+echo       4. Close all certificate related dialogs.
+echo.
+echo.
+echo       5. Close the web browser.
+echo.
+echo.
+set execute=%ops_webBrowserExePath% https://%ops_FQDN%/arcgis/home
+echo %execute%
+echo.
+%execute%
+Call %ops_ChkErrLevelFile% %ERRORLEVEL%
+
+echo.
+echo.
+echo    ^-^-^-^-^- Import certificate into the GeoEvent Processor Keystore ^-^-^-^-^-^-
+echo.
+echo.
+echo    1. Create a backup copy of the "cacerts" file located in the following folder:
+echo       C:\Program Files\ArcGIS\Server\GeoEventProcessor\jre\lib\security
+echo.
+echo.
+echo    2. Open a command window (cmd.exe) with administrator privilege (i.e.
+echo       "Run as administrator" context menu).
+echo.
+echo.
+echo    3. In the command window change directory to the directory where the Java keytool.exe
+echo       is located, i.e. C:\Program Files\ArcGIS\Server\GeoEventProcessor\jre\bin
+echo.
+echo.
+echo    4. Import the certificate by executing the keytool.exe with the following parameters:
+echo.
+echo         keytool -import -keystore "C:\Program Files\ArcGIS\Server\GeoEventProcessor\jre\lib\security\cacerts"
+echo         -alias agsca -file PATH_TO_CERTIFICATE -trustcacerts -storepass changeit
+echo.
+echo         NOTEs:
+echo             - Replace "PATH_TO_CERTIFICATE" with the full path and file name of the
+echo               certificate file you exported.
+echo.
+echo             - The "alias" parameter value can be anything value that you would like.
+echo               In the tool usage above the alias is set to "agsca" (i.e. ArcGIS Server
+echo               certificate authority) to denote that this certificate is for a specific
+echo               server. If you are importing a certificate for your root CA, you would
+echo               want to change the alias to something similiar to "rootCA".
+echo.
+echo             - When prompted with the question "Trust this certificate? [no]:" specify yes
+echo               and hit return key.
+echo.
+echo.
+echo   5. Stop and restart the "ArcGIS GeoEvent Processor" windows service.
+echo.
+echo.
+echo   6. After restarting the windows service, press any key within this command window to continue with
+echo      configuring GeoEvent Processor.
+echo.
+pause
+echo   Giving GeoEvent Processor a minute to finish starting...
+PING 127.0.0.1 -n 60 > nul
+echo.
+echo.
+echo.
+echo.
+echo    ^-^-^-^-^- Sign into the GeoEvent Manager ^-^-^-^-^-^-
 echo.
 echo ^- When the web browser opens to the GeoEvent Processor Manager "Sign In" page...
 echo.
