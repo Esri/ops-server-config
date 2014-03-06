@@ -18,7 +18,6 @@ import os, sys
 supportFilesPath = os.path.join(
     os.path.dirname(
     os.path.dirname(os.path.dirname(sys.argv[0]))), "SupportFiles")
-print supportFilesPath
 sys.path.append(supportFilesPath)
 
 import portalpy
@@ -28,7 +27,7 @@ import types
 import shutil
 from datetime import datetime, timedelta
 from portalpy import Portal, parse_hostname, portal_time, WebMap, normalize_url, unpack
-from portalpy.provision import load_items, load_items_based_on_tags
+from portalpy.provision import load_items, load_item
 from Utilities import findInFile, editFiles
 import logging
 import OpsServerConfig
@@ -74,23 +73,24 @@ def main():
 
     specified_users = None
     specified_ops_types = None
+    id_mapping_file = None
     
     # ---------------------------------------------------------------------
     # Check arguments
     # ---------------------------------------------------------------------   
     if len(sys.argv) < 5:
         print '\n' + scriptName + ' <PortalURL> <AdminUser> <AdminPassword> ' + \
-                    '<ContentFolderPath> {UsersToPost} {OpsServerTypesToPost}'
+                    '<ContentFolderPath> {UsersToPost} {OpsServerTypesToPost} {IdMappingFile}'
         print '\nWhere:'
-        print '\n\t<PortalURL> (required parameter): URL of Portal to post content (i.e. https://fully_qualified_domain_name/arcgis)'
+        print '\n\t<PortalURL> (required): URL of Portal to post content (i.e. https://fully_qualified_domain_name/arcgis)'
         
-        print '\n\t<AdminUser> (required parameter): Portal user that has administrator role.'
+        print '\n\t<AdminUser> (required): Portal user that has administrator role.'
         
-        print '\n\t<AdminPassword> (required parameter): Password for AdminUser.'
+        print '\n\t<AdminPassword> (required): Password for AdminUser.'
         
-        print '\n\t<ContentFolderPath> (required parameter): Folder path containing portal content to post.'
+        print '\n\t<ContentFolderPath> (required): Folder path containing portal content to post.'
         
-        print '\n\t{UsersToPost} (optional parameter):'
+        print '\n\t{UsersToPost} (optional):'
         print '\t\t-By default, content for all users is posted'
         print '\t\t-Specify # placeholder character if you want to post content for all users and you are'
         print '\t\t   specifying {OpsServerTypesToPost} values'
@@ -98,13 +98,17 @@ def main():
         #print '\t\t   (to include spaces in this list surround with double-quotes, i.e. "user1, user2,...")'
         print '\t\t-To post content for ALL users except specific users, specify comma delimited '
         print '\t\t   list of users to exclude with "-" prefix, i.e. -user1,user2,...'
-        #print '\t\t   (to include spaces in this list surround with double-quotes, i.e. "-user1, user2,...")'
         
-        print '\n\t{OpsServerTypesToPost} (optional parameter):'
+        print '\n\t{OpsServerTypesToPost} (optional):'
         print '\t\t-To post content for specific Ops Server types specify type value, i.e.'
         print '\t\t   ' + str(valid_ops_types)  + '; you can specify more then one type,'
         print '\t\t   i.e, Land,Maritime,...'
-        #print '\t\t   (to include spaces in this list surround with double-quotes, i.e. "Land, Maritime,...")'
+        print '\t\t-Specify # placeholder character if you do not want to use this parameter by need'
+        print '\t\t   to specify the {IdMappingFile} parameter value.'
+        
+        print '\n\t{IdMappingFile} (optional): JSON file containing mapping between source and target portal item ids.'
+        print '\t\t-Provides "overwrite" capability. If IdMappingFile is specified, the script will'
+        print '\t\t   update any item that already exists; items that do not exist will be added.'
         
         print '\n\tNOTES:'
         print '\t\t(1) To include spaces in any of the parameter lists, surround the list with double-quotes,'
@@ -128,6 +132,8 @@ def main():
     if len(sys.argv) > 6:
         specified_ops_types = sys.argv[6]
     if len(sys.argv) > 7:
+        id_mapping_file = sys.argv[7]
+    if len(sys.argv) > 8:
         print "You entered too many script parameters."
         sys.exit(1)
         
@@ -140,6 +146,8 @@ def main():
             print "specifiedUsers: " + str(specified_users)
         if specified_ops_types:
             print "specifiedOpsTypes: " + str(specified_ops_types)
+        if id_mapping_file:
+            print "id_mapping_file: " + str(id_mapping_file)
     
     ## Check if connection can be made to target portal
     ##result = val_portal_connection_props(target_portal_address, adminuser, adminpassword)
@@ -157,6 +165,8 @@ def main():
     
     
     # Check if specified ops server types are valid
+    if specified_ops_types == "#":
+        specified_ops_types = None
     if specified_ops_types:
         results, specified_ops_types = val_arg_ops_types(specified_ops_types)
         if not results:
@@ -165,6 +175,11 @@ def main():
             print "Valid {OpsServersToPost} values are: " + str(valid_ops_types)
             sys.exit(1)
     
+    # Check if specified id mapping file exists
+    if id_mapping_file:
+        if not os.path.exists(id_mapping_file):
+            print "Parameter {IdMappingFile}: folder '" + id_mapping_file + "' does not exist."
+    
     # Extract target ArcGIS Server hostname from target portal URL;
     # NOTE: this script assumes that the ArcGIS Server is installed
     # on the same machine as Portal for ArcGIS
@@ -172,7 +187,7 @@ def main():
     hostname_map = {source_hostname: new_hostname}
         
     # Publish content to target portal
-    publish_portal(target_portal_address, contentpath, adminuser, adminpassword, users, hostname_map, specified_ops_types)
+    publish_portal(target_portal_address, contentpath, adminuser, adminpassword, users, hostname_map, specified_ops_types, id_mapping_file)
     
     os.chdir(contentpath) #TODO: EL, do we need this?
     
@@ -191,10 +206,8 @@ def print_script_header(portal, portal_processing, users, specified_ops_types):
 
     
 #POST
-def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hostname_map, specified_ops_types):
+def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hostname_map, specified_ops_types, id_mapping_file):
     os.chdir(contentpath)
-    
-    
     
     portal_properties = json.load(open("portal_properties.json"))
     portaladmin = Portal(portaladdress, adminuser, adminpassword)
@@ -206,14 +219,28 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     makeFolder(portalLogPath)
     
     # ------------------------------------------------------------------------
-    # Creating Users
+    # Create users
     # ------------------------------------------------------------------------
     print titleBreak
-    print "Creating users...\n"
-        
+    print 'Create users...\n'
+   
+    # Only create users if this is not an online organization
+    if portaladmin.properties()['id'] == '0123456789ABCDEF': # All portals have this id.
+        for username, userinfo in users.iteritems():
+           #print '   - Creating user "{}" if it does not exist...'.format(userinfo['target_username'])
+           create_user(portaladmin, contentpath, userinfo)
+    else:
+        print '\tThis is an online organization. Users must already have been created.'
+
+    # ------------------------------------------------------------------------
+    # Create user folders
+    # ------------------------------------------------------------------------
+    print '\n'+ titleBreak
+    print 'Create user folders...\n'
+    
     for username, userinfo in users.iteritems():
-       print "... " + userinfo['target_username']
-       publish_register_user(portaladmin,contentpath,userinfo)
+       print '\nUser: ' + userinfo['target_username']
+       create_user_folders(portaladmin, contentpath, userinfo)
     
     # ------------------------------------------------------------------------
     # Create groups and add users to groups
@@ -224,7 +251,7 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     for username, userinfo in users.iteritems():
         portal = Portal(portaladdress, userinfo['target_username'], userinfo['target_password'])
         newGroups = publish_user_groups(portal, contentpath, userinfo, users)
-    
+ 
     # ------------------------------------------------------------------------
     # Publish Items and Update their sharing info
     # ------------------------------------------------------------------------
@@ -248,21 +275,11 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
         # ---------------------------------------
         #NOTE: must execute with portal object signed in as item owner.
         usercontentpath = os.path.join(contentpath, userfoldername)
-        newItems, origItemSourceIDs = publish_user_items(portal, usercontentpath, source_hostname, new_hostname, new_port, specified_ops_types)
+        newItems, origItemSourceIDs = publish_user_items(portal, usercontentpath, source_hostname,
+                                new_hostname, new_port, specified_ops_types, portaladmin, id_mapping_file)
         
         # Dump info about new items to JSON to use for resetting IDs of related items
         dump_newItem_info(newItems, origItemSourceIDs, os.path.join(portalLogPath, username))
-        
-        # ---------------------------------------
-        # Reassign the users' items to the
-        # appropriate user folder
-        # ---------------------------------------
-        #NOTE: must execute with portal object signed in as an admin.
-        foldersFolder = os.path.join(contentpath, userfoldername)
-        if os.path.exists(os.path.join(foldersFolder, "folders.json")):
-            os.chdir(foldersFolder)
-            foldersInfo = json.load(open('folders.json'))
-            reassign_items(portaladmin, username, newItems, origItemSourceIDs, foldersInfo)
         
         # ---------------------------------------
         # Share the users' items with the
@@ -322,15 +339,6 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     print "Share the items in the default web apps and gallery template groups..."
     share_templates(portaladdress, users['OpsServer']['target_username'], users['OpsServer']['target_password'])
     
-    #----------------------------------------------------------------
-    # EL, 6/11/2013 - don't update the portal properties
-    ##Portal Resources
-    #publish_portal_resources(portaladmin,portal_properties)
-    #
-    ##Portal Updates
-    #print "Portal property updates..."
-    #resp = publish_portal_properties(portaladmin,portal_properties,source_portal_address,target_portal_address)  
-    #
 
 def dump_newItem_info(newItems, origItemSourceIDs, userLogPath):
     # Used for resetting the various ids in 'related' items in target portal
@@ -462,206 +470,165 @@ def share_items(portal, userItemsPath, newItems, origItemSourceIDs, originGroupT
         else:
             pass # nothing to share??
         del sharing
+
+def has_user(portaladmin, username):
+    ''' Determines if portal already has username '''
+    exists = False
+    portal_usernames = []
+    portal_users = portaladmin.org_users()
+    for portal_user in portal_users:
+        portal_usernames.append(portal_user['username'])
     
+    if username in portal_usernames:
+      exists = True
     
-def reassign_items(portalAdmin, ownerName, newItems, origItemSourceIDs, foldersInfo):
-    #portalAdmin - portal object that has admin permissions
-    #ownerName - the new owner of the items; could be same owner.
-    #newItems - info on the items that were added to portal
-    #origItemSourceIDs - the original source ids of the newItems, order of ids must match
-    #   order of newItems
-    #foldersInfo - Json info about the users folders
-    
-    if foldersInfo is not None:
-        
-        print "Reassigning items to appropriate folder if applicable..."
-        
-        for x in range(0, len(origItemSourceIDs)):
-            newItem = newItems[x]
-            newID = newItem["id"]
-            origID = origItemSourceIDs[x]
-            
-            # Get name of the folder for the item
-            folderName = publish_get_folder_name_for_item(newItem, foldersInfo)
-            
-            # If for some reason the folder name could not determine, set the folderName to root "/"
-            if folderName is None:
-                folderName = "/"
-                
-            # Reassign item to folder
-            portalAdmin.reassign_item(newID, ownerName, folderName)
-    
-def publish_register_user(portaladmin,contentpath,userinfo):
+    return exists
+
+def create_user(portaladmin,contentpath,userinfo):
     
     username = userinfo['target_username']
     password = userinfo['target_password']
     userfoldername = userinfo['username']
 
-    userfolder = os.path.join(contentpath, userfoldername)
-    os.chdir(userfolder)
+    user_exists = has_user(portaladmin, username)
     
-    # Get user properties from file
-    userproperties = json.load(open("userinfo.json"))
-    fullname = userproperties["fullName"]
-    role = userproperties["role"]
-    email = userproperties["email"]
-    
-    # Register user
-    portaladmin.signup(username,password,fullname,email)
-    
-    # Modify user role
-    portaladmin.update_user_role(username, role)
-
-    # Update user properties on portal
-    #MF finding a few 'preferredView' properties that are 'null'/None
-    if userproperties['preferredView'] == 'null' or userproperties['preferredView'] == None:
-        userproperties['preferredView'] = 'GIS' #MF use GIS as the default instead of Web
-        portaladmin.update_user(username,userproperties)
+    if not user_exists:
+        print '   - Creating user {}...'.format(username)
+        # Get user properties from file
+        userfolder = os.path.join(contentpath, userfoldername)
+        os.chdir(userfolder)
+        userproperties = json.load(open("userinfo.json"))
+        fullname = userproperties["fullName"]
+        role = userproperties["role"]
+        email = userproperties["email"]
         
-    # Create any folders for this user
-    if os.path.exists('folders.json'):
-        folderInfo = json.load(open('folders.json'))
-        for folder in folderInfo:
-            folderName = folder[1]
-            print "...... creating folder '" + folderName + "'"
-            portaladmin.create_folder(username, folderName)
-            
+        # Create user
+        portaladmin.signup(username,password,fullname,email)
+        
+        # Modify user role
+        portaladmin.update_user_role(username, role)
+    else:
+        print '   - User {} already exists.'.format(username)
 
-#def tags_exist(find_tags, tags_to_search):
-#    found = False
-#    
-#    # Create list of possible "OpsServer" type tag prefixes; i.e. in case someone didn't
-#    # specify the correct prefix.
-#    ops_type_flags = ["opsserver", "opsservers", "opserver", "opservers", "opssrver", "opssrvr"]
-#    
-#    # Convert find_tags to lower case and remove and leading/trailing spaces
-#    find_tags_mod = [element.lower().strip() for element in list(find_tags)]
-#    
-#    # Convert tags_to_search to lower case and remove and leading/trailing spaces
-#    tags_to_search_mod = [element.lower().strip() for element in list(tags_to_search)]
-#    
-#    # Loop through tags to search and look for the find tags
-#    for search in tags_to_search_mod:
-#        search = search.replace(" ","")
-#        if search.find(":") > -1:
-#            element1 = search.split(":")[0]
-#            element2 = search.split(":")[1]
-#            
-#            if element1 in ops_type_flags:
-#                if element2 in find_tags:
-#                    found = True
-#    
-#    return found
+def has_folder(portaladmin, username, foldername):
+    ''' Determines if folder already exists '''
+    exists = False
+    portal_folders = []
+    for portal_folder in portaladmin.folders(username):
+        portal_folders.append(portal_folder['title'])
+    
+    if foldername in portal_folders:
+      exists = True
+    
+    return exists
 
-def publish_user_items(portal, usercontentpath, old_hostname, new_hostname, new_port, specified_ops_types):
+def create_user_folders(portaladmin, contentpath, userinfo):
+    ''' Create user folders '''
+    
+    if not os.path.exists(os.path.join(contentpath, userinfo['username'], 'folders.json')):
+        print '   - No folders to create.'
+    else:
+        os.chdir(os.path.join(contentpath, userinfo['username']))
+        folderinfo = json.load(open('folders.json'))
+        for folder in folderinfo:
+            foldername = folder[1]
+            if not has_folder(portaladmin, userinfo['target_username'], foldername):
+                print '   - Creating folder "{}"...'.format(foldername)
+                portaladmin.create_folder(userinfo['target_username'], foldername)
+            else:
+                print '   - Folder "{}" already exists.'.format(foldername)
+
+
+def publish_user_items(portal, usercontentpath, old_hostname, new_hostname, new_port, specified_ops_types, portaladmin, id_mapping_file):
     ''' Publish all items for current user '''
     # Returns list of dictionaries of new items as well as a list of the
     # original item ids
+    newitems, old_source_ids = [], []
+    existing_portal_ids = []
     
     print "\n" + sectionBreak
     userName = portal.logged_in_user()["username"]
     print "Publishing items for user '" + userName + "'...\n"
-    #print "specified_ops_types: " + str(specified_ops_types)
-    itemfolder = os.path.join(usercontentpath,"items")
     
-    # ------------------------------------------------------------------------
-    # Add items
-    # ------------------------------------------------------------------------
-    newitems, old_source_ids = load_items_based_on_tags(portal, itemfolder, specified_ops_types)
+    # Load 'id mapping' file if specified. Since this supports overwrite
+    # capability, let's also create a list of all current item ids to verify that item
+    # actually exists.
+    id_mapping = None
+    if id_mapping_file:
+        filefolder = os.path.dirname(id_mapping_file)
+        filename = os.path.basename(id_mapping_file)
+        os.chdir(filefolder)
+        id_mapping = json.load(open(filename))
+        
+        # Create list of existing portal items
+        existing_portal_items = portaladmin.search()
+        for existing_portal_item in existing_portal_items:
+            existing_portal_ids.append(existing_portal_item['id'])
+        
+
+    item_dirs = os.listdir(os.path.join(usercontentpath,"items"))
+    
+    n = 1
+    for item_dir in item_dirs:
+        overwrite_id = None
+        do_load_item = False
+        
+        print "\n\tPublishing item {} ({}/{})...".format(item_dir, n, len(item_dirs))
+        
+        if id_mapping:
+            overwrite_id = id_mapping.get(item_dir)['id']
+            if overwrite_id:
+                print "\t   -Item referenced in id mapping file. Checking if item exists in portal..."
+                if overwrite_id in existing_portal_ids:
+                    print "\t   -Item exists in portal. Will update item."
+                else:
+                    overwrite_id = None
+                    print "*** WARNING: item referenced in id mapping file does NOT exist in portal. Will add new item instead of updating."
+        
+        # Determine if item should be loaded based on specified tags
+        if not specified_ops_types:
+            do_load_item = True
+        else:
+            os.chdir(os.path.join(usercontentpath,"items", item_dir))
+            iteminfo = json.load(open('item.json'))
+            item_tags = iteminfo.get('tags')
+            do_load_item = tags_exist(specified_ops_types, item_tags)
+            if not do_load_item:
+                print "\t   -Skipping item. Item tags do not match user specified criteria."
+            
+        # Add/Update item
+        if do_load_item:
+            item, old_source_id = load_item(portal, os.path.join(usercontentpath,"items", item_dir), overwrite_id)
+            newitems.append(item)
+            old_source_ids.append(old_source_id)
+        
+            # Reassign item to correct folder
+            if os.path.exists(os.path.join(usercontentpath, "folders.json")):
+                os.chdir(usercontentpath)
+                foldersInfo = json.load(open('folders.json'))
+                folderName = publish_get_folder_name_for_item(item, foldersInfo)
+    
+                if folderName is not None:
+                    portaladmin.reassign_item(item['id'], portal.logged_in_user()['username'], folderName)           
+            
+        n = n + 1
 
     return newitems, old_source_ids
 
-#def publish_user_items(portal, contentpath, old_hostname, new_hostname, new_port, specified_ops_types):
-#    ''' Publish all items for current user '''
-#    # Returns list of dictionaries of new items as well as a list of the
-#    # original item ids
-#    
-#    print "\n" + sectionBreak
-#    userName = portal.logged_in_user()["username"]
-#    print "Publishing items for user '" + userName + "'...\n"
-#    itemfolder = os.path.join(contentpath,userName,"items")
-#
-#    #EL this assumes that everything in the itemFolder is a folder
-#    itemfolders = os.listdir(itemfolder)
-#    
-#    # ------------------------------------------------------------------------
-#    # Add items
-#    # ------------------------------------------------------------------------
-#    newitems_all = []
-#    old_source_ids_all = []
-#    
-#    for item_folder_name in itemfolders:
-#        load_item = False
-#        item_folder_path = os.path.join(itemfolder, item_folder_name)
-#        print "-------------------------------------------------"
-#        print "item_folder_path: " + item_folder_path
-#        
-#        if not specified_ops_types:
-#            load_item = True
-#        
-#        if specified_ops_types:
-#            print "specified_ops_types: " + str(specified_ops_types)
-#            
-#            # Get the item's json file
-#            os.chdir(item_folder_path)
-#            item = json.load(open("item.json"))
-#            tags = item.get("tags")
-#            
-#            print "item tags: " + str(tags)
-#            #print "b4 function: specified_ops_types: " + str(specified_ops_types)
-#            
-#            load_item = tags_exist(specified_ops_types, tags)
-#            print "found: " + str(load_item)
-#            #print "after function: specified_ops_types: " + str(specified_ops_types)
-#            #print "after function: tags: " + str(tags)
-#        
-#        if load_item:
-#            
-#            # Load the item contained in the specified item folder
-#            newitems, old_source_ids = load_items(portal, item_folder_path)
-#
-#            # Append the lists of new items and the original source ids to lists
-#            # containing all of the users items
-#            newitems_all.extend(newitems)
-#            old_source_ids_all.extend(old_source_ids)
-#            
-#    return newitems_all, old_source_ids_all
-
-#def publish_user_items(portal, contentpath, old_hostname, new_hostname, new_port):
-#    ''' Publish all items for current user '''
-#    # Returns list of dictionaries of new items as well as a list of the
-#    # original item ids
-#    
-#    print "\n" + sectionBreak
-#    userName = portal.logged_in_user()["username"]
-#    print "Publishing items for user '" + userName + "'...\n"
-#    itemfolder = os.path.join(contentpath,userName,"items")
-#
-#    #EL this assumes that everything in the itemFolder is a folder
-#    itemfolders = os.listdir(itemfolder)
-#    
-#    # ------------------------------------------------------------------------
-#    # Add items
-#    # ------------------------------------------------------------------------
-#    newitems, old_source_ids = load_items(portal, itemfolder)
-#
-#    return newitems, old_source_ids
-
 def publish_user_groups(portal,contentpath, userinfo, users):
-    #MF print portal.logged_in_user["username"]
     
     username = userinfo['target_username']
     password = userinfo['target_password']
     userfoldername = userinfo['username']
     
-    groupfolder = os.path.join(contentpath + "/" + userfoldername + "/groups")
+    groupfolder = os.path.join(contentpath, userfoldername, 'groups')
     groupfolders = os.listdir(groupfolder)
     
     numTotalGroupFolders = len(groupfolders)
     if numTotalGroupFolders == 0:
-        print "\nUser '" + username + "' does not own any groups."
+        print "\nUser '{}' does not own any groups.".format(username)
     else:
-        print "\nCreating " + str(numTotalGroupFolders) + " group(s) for user '" + username + "'..."
+        print "\nCreating '{}' group(s) for user '{}'...".format(str(numTotalGroupFolders), username)
     
     groupcount = 0
     groupsprocessed = 0
@@ -676,8 +643,16 @@ def publish_user_groups(portal,contentpath, userinfo, users):
         group = json.load(open("group.json"))
         group_users = json.load(open("group_users.json"))
         
-        print "... group " + str(group['title'])
-        groupId = portal.create_group(group,group['thumbfile'])
+        # Check if group to add already exists
+        groupId = getGroupID(portal, username, str(group['title']))
+        
+        # Create group if it doesn't exist
+        if not groupId:
+            print "... group '" + str(group['title']) + "'"
+            groupId = portal.create_group(group,group['thumbfile'])
+        else:
+            print "... group '" + str(group['title']) + "' already exists."
+            
         destGroupID_GroupName[groupId] = str(group['title']) #EL Track new group id and group name for later use
         
         print "...... adding users to group"
@@ -1074,8 +1049,28 @@ def val_arg_ops_types(specified_ops_types):
         
     return is_valid, values_to_use
 
+def read_userfile(contentpath):
+    # Create dictionary of users based on contents of userfile.txt file.
+    # The "userfile.txt" file contains user name from source portal,
+    # user name for target portal and the password for the target user name
+    all_users = {}
+    userfile = open(os.path.join(contentpath,'userfile.txt'),'r')
+    lineOne = True
+    for line in userfile:
+        # Skip the header info line
+        if lineOne:
+            lineOne = False
+            continue
+        username,target_username,target_password = line.rstrip().split(',')
+        
+        all_users[username] = {'username': username,
+                               'target_username': target_username,
+                               'target_password': target_password}
+    userfile.close()
+    
+    return all_users
+
 def val_arg_users(specified_users, contentpath):
-    all_users = {}          # Contains all users in the userfile.txt file.
     values_to_use = {}      # Contains users that that will be published
     exclude_users_list = [] # Contains users that should be excluded from publishing
     include_users_list = []
@@ -1085,23 +1080,23 @@ def val_arg_users(specified_users, contentpath):
     else:
         specified_users = specified_users.strip()
     
-    # Create dictionary of users based on contents of userfile.txt file.
-    # The "userfile.txt" file contains user name and full name of user,
-    # i.e. userx,User X. Dictionary key is user name, dictionary value
-    # is password; in this case set the password the same as user name.
-    userfile = open(os.path.join(contentpath,'userfile.txt'),'r')
-    lineOne = True
-    for line in userfile:
-        # Skip the first line since it contains header info
-        if lineOne:
-            lineOne = False
-            continue
-        username,target_username,target_password = line.rstrip().split(',')
-        all_users[username] = {'username': username,
-                               'target_username': target_username,
-                               'target_password': target_password}
-    userfile.close()
-
+    ## Create dictionary of users based on contents of userfile.txt file.
+    ## The "userfile.txt" file contains user name and full name of user,
+    ## i.e. userx,User X. Dictionary key is user name, dictionary value
+    ## is password; in this case set the password the same as user name.
+    #userfile = open(os.path.join(contentpath,'userfile.txt'),'r')
+    #lineOne = True
+    #for line in userfile:
+    #    # Skip the first line since it contains header info
+    #    if lineOne:
+    #        lineOne = False
+    #        continue
+    #    username,target_username,target_password = line.rstrip().split(',')
+    #    all_users[username] = {'username': username,
+    #                           'target_username': target_username,
+    #                           'target_password': target_password}
+    #userfile.close()
+    all_users = read_userfile(contentpath)
     
     # if there are no specified users then we should post content for
     # all users so return dictionary of all users
@@ -1244,6 +1239,55 @@ def share_template_items(portal, item_ids, group_ids):
         
     return func_results
 
+def tags_exist(find_tags, tags_to_search):
+    '''Determines if specific "OpsServer" values exist in list of tags'''
+    found = False
+    
+    DEBUG = False
+    
+    # Create list of possible "OpsServer" type tag prefixes; i.e. in case someone didn't
+    # specify the correct prefix.
+    ops_type_flags = ["opsserver", "opsservers", "opserver", "opservers", "opssrver", "opssrvr"]
+    
+    # Convert find_tags to lower case and remove and leading/trailing spaces
+    find_tags_mod = [element.lower().strip().encode("ascii") for element in list(find_tags)]
+    
+    # Convert tags_to_search to lower case and remove and leading/trailing spaces
+    tags_to_search_mod = [element.lower().strip().encode("ascii") for element in list(tags_to_search)]
+    
+    if DEBUG:
+        print "In tags_exist function: "
+        print "\tfind_tags_mod: " + str(find_tags_mod)
+        print "\ttags_to_search_mod: " + str(tags_to_search_mod)
+        print "\tops_type_flags: " + str(ops_type_flags)
+    
+    # Loop through tags to search and look for the find tags
+    for search in tags_to_search_mod:
+        search = search.replace(" ","")
+        
+        if DEBUG:
+            print "\tsearch: " + search
+            
+        if search.find(":") > -1:
+            
+            if DEBUG:
+                print "\tI'm in the find : if statement"
+                
+            element1 = search.split(":")[0]
+            element2 = search.split(":")[1]
+            
+            if DEBUG:
+                print "\t\telement1: " + element1
+                print "\t\telement2: " + element2
+                
+            if element1 in ops_type_flags:
+                if element2 in find_tags_mod:
+                    found = True
+                    
+    if DEBUG:
+        print "\tfound: " + str(found)
+        
+    return found
 
 #def val_portal_connection_props(portal_address, username, password):
 #    portal_con = Portal(portal_address, username, password)

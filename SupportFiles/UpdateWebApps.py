@@ -54,11 +54,13 @@ config_files = findFilePath(root_path, 'briefingbook_config.js', returnFirst=Fal
 config2_files = findFilePath(root_path, 'Config.js', returnFirst=False)
 index_files = findFilePath(root_path, 'index.html', returnFirst=False)
 csv_files = findFilePath(root_path, '*.csv', returnFirst=False)
+erb_files = findFilePath(root_path, '*.erb', returnFirst=False)
 
 files_to_update.extend(config_files)
 files_to_update.extend(config2_files)
 files_to_update.extend(index_files)
 files_to_update.extend(csv_files)
+files_to_update.extend(erb_files)
 
 # ------------------------------------------------------------------------------------
 # Create dictionary of search/replace values
