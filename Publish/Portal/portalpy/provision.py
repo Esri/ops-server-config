@@ -424,6 +424,37 @@ class JSONDeserializer(object):
 
         return items
 
+    def deserialize_item(self, path):
+        """ Deserialize an item from JSON. """
+
+        if not os.path.exists(path):
+            _log.warn('Path being deserialized doesn\'t exist: ' + path)
+            return
+        
+        item_path = os.path.join(path, 'item.json')
+        item = self.from_file(item_path)
+
+        thumbnail_path = None
+        thumbnail = item.get('thumbnail')
+        if thumbnail:
+            thumbnail_filename = os.path.basename(thumbnail)
+            thumbnail_path = os.path.join(path, thumbnail_filename)
+
+        data_path = None
+        data_dir = os.path.join(path, 'data')
+        
+        if os.path.exists(data_dir):
+            data_filename = item.get('name')
+            if not data_filename:
+                data_filename = 'data'
+            data_path = os.path.join(data_dir, data_filename)
+
+        metadata_path = os.path.join(path, 'metadata.xml')
+        if not os.path.exists(metadata_path):
+            metadata_path = None
+
+        return (item, thumbnail_path, data_path, metadata_path)
+
     def from_file(self, path):
         with open(path, 'r') as infile:
             return json.load(infile)
@@ -592,104 +623,46 @@ def load_items(portal, path, f='json', cls=None, **kw):
 
     return items, source_ids
 
-def tags_exist(find_tags, tags_to_search):
-    '''Determines if specific "OpsServer" values exist in list of tags'''
-    found = False
-    
-    DEBUG = False
-    
-    # Create list of possible "OpsServer" type tag prefixes; i.e. in case someone didn't
-    # specify the correct prefix.
-    ops_type_flags = ["opsserver", "opsservers", "opserver", "opservers", "opssrver", "opssrvr"]
-    
-    # Convert find_tags to lower case and remove and leading/trailing spaces
-    find_tags_mod = [element.lower().strip().encode("ascii") for element in list(find_tags)]
-    
-    # Convert tags_to_search to lower case and remove and leading/trailing spaces
-    tags_to_search_mod = [element.lower().strip().encode("ascii") for element in list(tags_to_search)]
-    
-    if DEBUG:
-        print "In tags_exist function: "
-        print "\tfind_tags_mod: " + str(find_tags_mod)
-        print "\ttags_to_search_mod: " + str(tags_to_search_mod)
-        print "\tops_type_flags: " + str(ops_type_flags)
-    
-    # Loop through tags to search and look for the find tags
-    for search in tags_to_search_mod:
-        search = search.replace(" ","")
-        
-        if DEBUG:
-            print "\tsearch: " + search
-            
-        if search.find(":") > -1:
-            
-            if DEBUG:
-                print "\tI'm in the find : if statement"
-                
-            element1 = search.split(":")[0]
-            element2 = search.split(":")[1]
-            
-            if DEBUG:
-                print "\t\telement1: " + element1
-                print "\t\telement2: " + element2
-                
-            if element1 in ops_type_flags:
-                if element2 in find_tags_mod:
-                    found = True
-                    
-    if DEBUG:
-        print "\tfound: " + str(found)
-        
-    return found
+def load_item(portal, path, overwrite_id=None, f='json', cls=None, **kw):
+    """ Load item stored on disk into the portal.
+        Pass existing item id (overwrite_id) if updating item;
+        otherwise item is added.
+    """
 
-def load_items_based_on_tags(portal, path, tags, f='json', cls=None, **kw):
-    """ Load items stored on disk into the portal. """
-    # Created EL 6/18/2013
-    items, source_ids = [], []
-    
-    # Deserialize the items, and then loop over them one at a time to
-    # add them to the portal
+    # Deserialize the item, and add the item
+    # or update an existing item
     deserializer = _select_deserializer(f, cls, **kw)
-    ditems = deserializer.deserialize_items(path)
-    for ditem_tuple in ditems:
-        load_item = False
-        
-        ditem = ditem_tuple[0]
-        thumbnail = ditem_tuple[1]
-        data = ditem_tuple[2]
-        metadata = ditem_tuple[3]
-        
-        if not tags:
-            load_item = True
-        else:
-            item_tags = ditem.get('tags')
-            load_item = tags_exist(tags, item_tags)
-            
-        if load_item:
-            # Pop out some important item properties, which shouldn't be included
-            # in the item dict passed to the add_item function
-            source_id = ditem.pop('id', None)
-            ditem.pop('owner')
-            ditem.pop('thumbnail')
+    ditem_tuple = deserializer.deserialize_item(path)
     
-            print "Loading item: " + source_id
-            
-            # Remove any properties that have no entry
-            for property in list(ditem.keys()):
-                if ditem[property] is None:
-                    del ditem[property]
-    
-            # Add the item, returns the item id in portal
-            # TODO Consider duplicates (any case for updating)
-            id = portal.add_item(ditem, data, thumbnail, metadata)
-    
-            # If an ID was returned, add results to return objects
-            if id:
-                item = dict(id=id, owner=portal.logged_in_user()['username'], **ditem)
-                items.append(item)
-                source_ids.append(source_id)
+    ditem = ditem_tuple[0]
+    thumbnail = ditem_tuple[1]
+    data = ditem_tuple[2]
+    metadata = ditem_tuple[3]
 
-    return items, source_ids
+    # Pop out some important item properties, which shouldn't be included
+    # in the item dict passed to the add_item function
+    source_id = ditem.pop('id', None)
+    ditem.pop('owner')
+    ditem.pop('thumbnail')
+
+    # Remove any properties that have no entry
+    for property in list(ditem.keys()):
+        if ditem[property] is None:
+            del ditem[property]
+
+    # Add/Update the item, returns the item id in portal
+    if not overwrite_id:
+        id = portal.add_item(ditem, data, thumbnail, metadata)
+    else:
+        portal.update_item(overwrite_id, ditem, data, metadata, thumbnail)
+        id = overwrite_id
+
+    # If an ID was returned, add results to return objects
+    if id:
+        item = dict(id=id, owner=portal.logged_in_user()['username'], **ditem)
+
+    return item, source_id
+
 
 def save_groups(portal, groups, path, f='json', cls=None, **kw):
     """ Save groups in the portal to disk. """
