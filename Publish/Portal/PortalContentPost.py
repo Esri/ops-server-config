@@ -227,7 +227,6 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     # Only create users if this is not an online organization
     if portaladmin.properties()['id'] == '0123456789ABCDEF': # All portals have this id.
         for username, userinfo in users.iteritems():
-           #print '   - Creating user "{}" if it does not exist...'.format(userinfo['target_username'])
            create_user(portaladmin, contentpath, userinfo)
     else:
         print '\tThis is an online organization. Users must already have been created.'
@@ -241,7 +240,7 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     for username, userinfo in users.iteritems():
        print '\nUser: ' + userinfo['target_username']
        create_user_folders(portaladmin, contentpath, userinfo)
-    
+
     # ------------------------------------------------------------------------
     # Create groups and add users to groups
     # ------------------------------------------------------------------------
@@ -249,9 +248,8 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     print "Creating groups ...\n"
     
     for username, userinfo in users.iteritems():
-        portal = Portal(portaladdress, userinfo['target_username'], userinfo['target_password'])
-        newGroups = publish_user_groups(portal, contentpath, userinfo, users)
- 
+        newGroups = publish_user_groups(portaladmin, contentpath, userinfo, users)
+    
     # ------------------------------------------------------------------------
     # Publish Items and Update their sharing info
     # ------------------------------------------------------------------------
@@ -264,19 +262,15 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
         username = userinfo['target_username']
         password = userinfo['target_password']
         userfoldername = userinfo['username']
-    
-        # ---------------------------------------
-        # Sign into portal as the user
-        # ---------------------------------------
-        portal = Portal(portaladdress, username, password)
         
         # ---------------------------------------
         # Publish all the users' items
         # ---------------------------------------
         #NOTE: must execute with portal object signed in as item owner.
         usercontentpath = os.path.join(contentpath, userfoldername)
-        newItems, origItemSourceIDs = publish_user_items(portal, usercontentpath, source_hostname,
-                                new_hostname, new_port, specified_ops_types, portaladmin, id_mapping_file)
+        
+        newItems, origItemSourceIDs = publish_user_items(portaladmin, username, usercontentpath, source_hostname,
+                                new_hostname, new_port, specified_ops_types, id_mapping_file)
         
         # Dump info about new items to JSON to use for resetting IDs of related items
         dump_newItem_info(newItems, origItemSourceIDs, os.path.join(portalLogPath, username))
@@ -287,13 +281,13 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
         # ---------------------------------------
         #NOTE: must execute with portal object signed in as item owner.
         userItemsPath = os.path.join(contentpath, userfoldername, "items")
-        share_items(portal, userItemsPath, newItems, origItemSourceIDs, originGroupToDestGroups)
+        share_items(portaladmin, userItemsPath, newItems, origItemSourceIDs, originGroupToDestGroups)
     
     
     # Dump info about all items (old, new ids) into json
     os.chdir(portalLogPath)
     json.dump(origIDToNewID, open('oldID_newID.json','w'))
-    
+
     # ------------------------------------------------------------------------
     # Post add processing: Update URLs and item ids
     # ------------------------------------------------------------------------
@@ -343,17 +337,6 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
 def dump_newItem_info(newItems, origItemSourceIDs, userLogPath):
     # Used for resetting the various ids in 'related' items in target portal
     
-    # newItems - object returned by provision.Load_items function
-    # origItemSourceIDs - object returned by provision.Load_items function
-    # userLogPath - folder to write JSON files
-    
-    # Set json file paths
-    #oldID_JsonFile = "old_item_ids.json"
-    #oldID_JSONPath = os.path.join(userLogPath, oldID_JsonFile)
-    
-    #newItems_JsonFile = "new_items.json"
-    #newItems_JsonPath = os.path.join(userLogPath, newItems_JsonFile)
-    
     oldID_newItem_JsonFile = "oldID_newItem.json"
     oldID_newItem_JsonFilePath = os.path.join(userLogPath, oldID_newItem_JsonFile)
     
@@ -381,10 +364,6 @@ def dump_newItem_info(newItems, origItemSourceIDs, userLogPath):
         d["oldID"] = oldID
         d["newItem"] = newItems[x]
         
-        #d2["oldID"] = oldID
-        #d2["newID"] = newID
-        #d2["type"] = itemType
-        
         oldID_newItem.append(d)
         
         d_new_info = {"id": newID, "type": itemType, "owner": itemOwner}
@@ -394,12 +373,9 @@ def dump_newItem_info(newItems, origItemSourceIDs, userLogPath):
         origIDToNewID[oldID] = dict(d_new_info)
         
     # Dump info out to JSON files
-    #json.dump(origItemSourceIDs, open(oldID_JsonFile,'w'))
-    #json.dump(newItems, open(newItems_JsonFile,'w'))
     json.dump(oldID_newItem, open(oldID_newItem_JsonFile,'w'))
     json.dump(oldID_newID, open(oldID_newID_JsonFile,'w'))
-    
-    #return oldID_newItem_JsonFile, newItems_JsonFile, oldID_JsonFile
+
     return oldID_newID_JsonFilePath, oldID_newItem_JsonFilePath
 
 def share_items(portal, userItemsPath, newItems, origItemSourceIDs, originGroupToDestGroups):
@@ -538,8 +514,7 @@ def create_user_folders(portaladmin, contentpath, userinfo):
             else:
                 print '   - Folder "{}" already exists.'.format(foldername)
 
-
-def publish_user_items(portal, usercontentpath, old_hostname, new_hostname, new_port, specified_ops_types, portaladmin, id_mapping_file):
+def publish_user_items(portal, username, usercontentpath, old_hostname, new_hostname, new_port, specified_ops_types, id_mapping_file):
     ''' Publish all items for current user '''
     # Returns list of dictionaries of new items as well as a list of the
     # original item ids
@@ -547,8 +522,7 @@ def publish_user_items(portal, usercontentpath, old_hostname, new_hostname, new_
     existing_portal_ids = []
     
     print "\n" + sectionBreak
-    userName = portal.logged_in_user()["username"]
-    print "Publishing items for user '" + userName + "'...\n"
+    print "Publishing items for user '" + username + "'...\n"
     
     # Load 'id mapping' file if specified. Since this supports overwrite
     # capability, let's also create a list of all current item ids to verify that item
@@ -561,7 +535,7 @@ def publish_user_items(portal, usercontentpath, old_hostname, new_hostname, new_
         id_mapping = json.load(open(filename))
         
         # Create list of existing portal items
-        existing_portal_items = portaladmin.search()
+        existing_portal_items = portal.search()
         for existing_portal_item in existing_portal_items:
             existing_portal_ids.append(existing_portal_item['id'])
         
@@ -572,6 +546,7 @@ def publish_user_items(portal, usercontentpath, old_hostname, new_hostname, new_
     for item_dir in item_dirs:
         overwrite_id = None
         do_load_item = False
+        foldername = None
         
         print "\n\tPublishing item {} ({}/{})...".format(item_dir, n, len(item_dirs))
         
@@ -600,16 +575,15 @@ def publish_user_items(portal, usercontentpath, old_hostname, new_hostname, new_
         if do_load_item:
             item, old_source_id = load_item(portal, os.path.join(usercontentpath,"items", item_dir), overwrite_id)
             newitems.append(item)
-            old_source_ids.append(old_source_id)
-        
-            # Reassign item to correct folder
+            old_source_ids.append(old_source_id)         
+
+            # Reassign item to target owner and folder
             if os.path.exists(os.path.join(usercontentpath, "folders.json")):
                 os.chdir(usercontentpath)
-                foldersInfo = json.load(open('folders.json'))
-                folderName = publish_get_folder_name_for_item(item, foldersInfo)
-    
-                if folderName is not None:
-                    portaladmin.reassign_item(item['id'], portal.logged_in_user()['username'], folderName)           
+                foldersinfo = json.load(open('folders.json'))
+                foldername = publish_get_folder_name_for_item(item, foldersinfo)
+            
+            portal.reassign_item(item['id'], username, foldername)
             
         n = n + 1
 
@@ -650,6 +624,8 @@ def publish_user_groups(portal,contentpath, userinfo, users):
         if not groupId:
             print "... group '" + str(group['title']) + "'"
             groupId = portal.create_group(group,group['thumbfile'])
+            # Reassign group
+            portal.reassign_group(groupId, username)
         else:
             print "... group '" + str(group['title']) + "' already exists."
             
