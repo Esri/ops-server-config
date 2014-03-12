@@ -314,6 +314,7 @@ def getPortalPropsForServices(portal, agsServices):
         if props:
             outProps = copy.deepcopy(props)
             portalItems = props['portalItems']
+            print '-' * 40
             for i in range(len(portalItems)):
                 itemID = portalItems[i]['itemID']
                 itemType = portalItems[i]['type']
@@ -323,6 +324,9 @@ def getPortalPropsForServices(portal, agsServices):
                         itemID + '; ' + itemType + ') that does not exist.'
                     outProps['portalItems'][i]['itemExists'] = False
                     continue
+                else:
+                    print '       Service "' + service + '" has an associated item (' + \
+                    itemID + '; ' + itemType + ')'
                 outProps['portalItems'][i]['itemExists'] = True
                 tags = item['tags']
                 owner = item['owner']

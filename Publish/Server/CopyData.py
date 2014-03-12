@@ -237,8 +237,12 @@ try:
         # ----------------------------------------
         print "- Determining which databases to copy..."
         
-        # Get list of all SDE connection files on server
-        destDBPaths = findFilePath(DestinationDBFolder, "*.sde", False)
+        # Get list of all workspaces in destination folder files
+        # (these could be file or enterprise geodatabases)
+        arcpy.env.workspace = DestinationDBFolder
+        destDBPathsSDE = arcpy.ListWorkspaces("*", "SDE")
+        destDBPathsFGDB = arcpy.ListWorkspaces("*", "FileGDB")
+        destDBPaths = destDBPathsSDE + destDBPathsFGDB
         
         # Create dictionary where destination db name is key and
         # path to workspace is value.
@@ -249,7 +253,9 @@ try:
         # Get list of all workspaces in staging db folder
         # (these could be file or enterprise geodatabases)
         arcpy.env.workspace = StagingDBFolder
-        srcDBPaths = arcpy.ListWorkspaces()
+        srcDBPathsSDE = arcpy.ListWorkspaces("*", "SDE")
+        srcDBPathsFGDB = arcpy.ListWorkspaces("*", "FileGDB")
+        srcDBPaths = srcDBPathsSDE + srcDBPathsFGDB
     
         # Create dictionary where source db name is key and
         # path to workspace is value.    

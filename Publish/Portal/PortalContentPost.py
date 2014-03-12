@@ -1,14 +1,11 @@
 
 
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-# MFportalcontent.py
+# PortalContentPost.py
 # -------------------------------------------------------
-# Various tools for copying Portal by either direct copy
-# or through an intermediate file system by extract/post.
+# Script to publish portal content that was extracted
+# with the PortalContentExtract.py script.
 # -------------------------------------------------------
-# v1.0 - 11/**/2012
-# -------------------------------------------------------
-# - 12/11/2012 - MF - Copy and modify from BC portalcontent.py.
 #++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 import os, sys
@@ -439,6 +436,10 @@ def share_items(portal, userItemsPath, newItems, origItemSourceIDs, originGroupT
             #    everyone = True
             if sharing['access'].lower() == "public":
                 everyone = True
+                org = True
+            elif sharing['access'].lower() == "org":
+                everyone = False
+                org = True
             
             #EL TODO: should this function be located outside the if sharing statement...
             resp = portal.share_item(newID, new_group_ids, org, everyone)
@@ -930,9 +931,6 @@ def update_webapps(portal, id_map):
 def update_csv_items(portal, hostname_map):
     ''' Update URLs in CSV portal items '''
     
-    count = 0
-    filePaths = []
-    
     # Set query string for item search
     q = 'type:csv'
     
@@ -948,20 +946,20 @@ def update_csv_items(portal, hostname_map):
         
         # Download file from portal
         filePath = portal.item_datad(itemID)
-        filePaths.append(filePath)
         
+        # Determine if file has the search string and perform replace
         is_updated = False
         for host in hostname_map:
             if findInFile(filePath, host):
                 editFiles([filePath], host, hostname_map[host])
                 is_updated = True
-            
+        
+        # Upload the updated file back to the portal item
         if is_updated:
             portal.update_item(itemID, None, filePath)
-    
-    # Delete the files that were downloaded.   
-    if filePaths:
-        for filePath in filePaths:
+        
+        # Delete the downloaded file
+        if os.path.exists(filePath):
             os.remove(filePath)
 
 
