@@ -46,7 +46,7 @@ FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV',
                                    'CityEngine Web Scene', 'Windows Viewer Add In', 'Operations Dashboard Add In',
                                    'Microsoft Word', 'Microsoft Powerpoint', 'Microsoft Excel', 'PDF',
                                    'Image', 'Visio Document', 'ArcPad Package', 'Layer', 'Layer Package',
-                                   'Explorer Layer', 'KML'])
+                                   'Explorer Layer']) #'KML'
 
 RELATIONSHIP_TYPES = frozenset(['Map2Service', 'WMA2Code',
                                 'Map2FeatureCollection', 'MobileApp2Code', 'Service2Data',
