@@ -23,7 +23,7 @@ import urlparse
 import types
 import shutil
 from datetime import datetime, timedelta
-from portalpy import Portal, parse_hostname, portal_time, WebMap, normalize_url, unpack
+from portalpy import Portal, parse_hostname, portal_time, WebMap, normalize_url, unpack, TEXT_BASED_ITEM_TYPES
 from portalpy.provision import load_items, load_item
 from Utilities import findInFile, editFiles
 import logging
@@ -263,7 +263,6 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
         # ---------------------------------------
         # Publish all the users' items
         # ---------------------------------------
-        #NOTE: must execute with portal object signed in as item owner.
         usercontentpath = os.path.join(contentpath, userfoldername)
         
         newItems, origItemSourceIDs = publish_user_items(portaladmin, username, usercontentpath, source_hostname,
@@ -276,7 +275,6 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
         # Share the users' items with the
         # appropriate groups
         # ---------------------------------------
-        #NOTE: must execute with portal object signed in as item owner.
         userItemsPath = os.path.join(contentpath, userfoldername, "items")
         share_items(portaladmin, userItemsPath, newItems, origItemSourceIDs, originGroupToDestGroups)
     
@@ -286,42 +284,16 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     json.dump(origIDToNewID, open('oldID_newID.json','w'))
 
     # ------------------------------------------------------------------------
-    # Post add processing: Update URLs and item ids
+    # Post publishing processing: Update URLs and item ids
     # ------------------------------------------------------------------------
-    
     print "\n" + titleBreak
     print "Update URLs and Item IDs..."
-    print titleBreak
-    
-    # Update the urls in URL based items
-    print "\n" + sectionBreak
-    print "Update the URLs in URL based items...\n"
-    update_url_based_items(portaladmin, hostname_map)   
-    
-    print "\n" + sectionBreak
-    print "Update URLs within item properties...\n"    
-    update_items(portaladmin, hostname_map)
-    
-    # Update the urls and item ids in webmaps
-    print "\n" + sectionBreak
-    print "Update the URLs and item ids in webmaps...\n"
-    update_webmaps(portaladmin, hostname_map, origIDToNewID)
-    
-    # Update the urls and item ids in operation views
-    print "\n" + sectionBreak
-    print "Update the URLs and item ids in operation views...\n"
-    update_operationviews(portaladmin, hostname_map, origIDToNewID)
-    
-    # Update the item ids in URLs and with data
-    print "\n" + sectionBreak
-    print "Update the item ids in web app URLs and data...\n"
-    update_webapps(portaladmin, origIDToNewID)   
-    
-    # Update the URLs in any CSV portal items
-    print "\n" + sectionBreak
-    print "Update the URLs in CSV portal items...\n"
-    update_csv_items(portaladmin, hostname_map)
-    
+    print titleBreak + "\n"
+    update_post_publish(portaladmin, hostname_map, origIDToNewID)
+
+    # ------------------------------------------------------------------------
+    # Share items in default web apps template and default gallery
+    # ------------------------------------------------------------------------    
     # Share the items in the default web apps template and
     # default gallery template built-in group with the
     # 'OpsServer' user 'AFMI Web Application Templates' and
@@ -720,249 +692,90 @@ def publish_get_folder_name_for_item(item, folders):
             
     return folderName
 
-def update_url_based_items(portal, hostname_map):
-    '''Updates the URLs in URL based items'''
-    
-    if DEBUG:
-        print 'Function: update_url_based_items...'
-        print '\tvariable hostname_map: ' + str(hostname_map) + '\n'
-        
-    # ------------------------------------------------------------------------
-    # Replace hostname in URLs for URL based items (services)
-    # ------------------------------------------------------------------------
-    # EL, 6/18/2013: the "URL_ITEM_FILTER" does not capture all items with URLs
-    # such as web mapping application, so don't apply a filter
-    #url_items = portal.search(['id','type','url','title','owner'], portalpy.URL_ITEM_FILTER)
-    url_items = portal.search(['id','type','url','title','owner'])
-    for item in url_items:
-        url = item.get('url')
-        
-        if url:
-            print_item_info(item)
-            
-            url = normalize_url(url)
-            host = parse_hostname(url, include_port=True)
-            if host in hostname_map:
-                url = url.replace(host, hostname_map[host])
-                portal.update_item(item['id'], {'url': url})
+def update_post_publish(portal, hostname_map, id_map):
+    '''Replace server name and update item IDs referenced in items'''
 
-def update_items(portal, hostname_map):
-    ''' Update server names in item properties '''
-    
-    jsonPropertiesToUpdate = ['description', 'snippet', 'accessInformation', 'licenseInfo']
-    
     # Return all portal items
     items = portal.search()
     
-    if not items:
-        return
-
     for item in items:
-        print_item_info(item)
-        itemID = item.get('id')
-        
-        for jsonProperty in jsonPropertiesToUpdate:
-            is_updated = False
-            propertyValue = item.get(jsonProperty)
-            if propertyValue:
-                for host in hostname_map:
-                    if propertyValue.find(host) > -1:
-                        propertyValue = propertyValue.replace(host, hostname_map[host])
-                        is_updated = True
-        
-                if is_updated:
-                    portal.update_item(itemID, {jsonProperty: propertyValue})
-
-def update_webmaps(portal, hostname_map, id_map):
-    '''Update URLs and item ids in WebMaps'''
-    
-    if DEBUG:
-        print 'Function: update_webmaps...'
-        print '\tvariable hostname_map: ' + str(hostname_map)
-        print '\tvariable id_map: ' + str(id_map) + '\n'
-        
-    # ------------------------------------------------------------------------
-    # Replace hostname in URLs for Web Maps
-    # ------------------------------------------------------------------------
-    # 6/26/2013: Removed include_basemaps parameter; portalpy incorrectly
-    # setting exclude tags (i.e. -tags:basemap) in search criteria so basemaps
-    # were not being found.
-    #webmaps = portal.webmaps(include_basemaps=True)
-    webmaps = portal.webmaps()
-    
-    if not webmaps:
-        return
-    
-    for webmap in webmaps:
-        item, sharing, folder = portal.user_item(webmap.id)
-
-        print_item_info(item)
-        
-        is_update = False
-        
-        for url in webmap.urls(layers=True, basemap=True):
-            normalized_url = normalize_url(url)
-            host = parse_hostname(normalized_url, include_port=True)
-            if host in hostname_map:
-                new_url = normalized_url.replace(host, hostname_map[host])
-                webmap.data = webmap.data.replace(url, new_url)
-                is_update = True
-            
-        for item_id in webmap.item_ids():
-            if item_id in id_map:
-                webmap.data = webmap.data.replace(item_id, id_map[item_id]["id"])
-                is_update = True
-            else:
-                print "***ERROR: can't map item id '" + item_id + "' to new id."
-        
-        # Replace any other references to host names that may exist in the
-        # webmap. Examples are feature collections; for example, you can have
-        # renderers which have a URL to a portal symbol image or the author
-        # of the webmap may have added fields which store URLs to resources.
-        #
-        # NOTE: this code block won't handle cases where the port number
-        # is included in the URL; this is due to the fact that URLs can be
-        # stored in any user defined keys so we can't explicitly 'pull' the
-        # values for these keys.
-        for host in hostname_map:
-            if host in webmap.data:
-                is_update = True
-                webmap.data = webmap.data.replace(host, hostname_map[host])
-                
-        # If changes were made to URLs or item ids update the webmap
-        if is_update:
-            portal.update_webmap(webmap)
-
-def update_operationviews(portal, hostname_map, id_map):
-    '''Update URLs and item ids in OperationViews'''
-    
-    if DEBUG:
-        print 'Function: update_operationviews...'
-        print '\tvariable hostname_map: ' + str(hostname_map)
-        print '\tvariable id_map: ' + str(id_map) + '\n'
-        
-    opviews = portal.operationviews()
-
-    if not opviews:
-        return
-    
-    for opview in opviews:
-        item, sharing, folder = portal.user_item(opview.id)
         
         print_item_info(item)
-    
-        is_update = False
         
-        # Replace MapID values in map widgets
-        map_widgets = opview.map_widgets()
-        for map_widget in map_widgets:
-            map_id = map_widget['mapId']
-            if map_id in id_map:
-                opview.data = opview.data.replace(map_id, id_map[map_id]["id"])
-                is_update = True
-            else:
-                print "***ERROR: can't map map id '" + map_id + "' to new id."
+        # Replace host name/item ids in item json properties
+        update_item_properties(portal, item, hostname_map, id_map)
         
-        # Replace service item id values in standalone data sources
-        service_item_ids = opview.standalone_ds_service_item_ids()
-        for service_item_id in service_item_ids:
-            if service_item_id in id_map:
-                opview.data = opview.data.replace(service_item_id, id_map[service_item_id]["id"])
-                is_update = True
-            else:
-                print "***ERROR: can't map standalone data source service item id '" + service_item_id + "' to new id."               
-        
-        # Replace URL values in standalone data sources
-        for url in opview.standalone_ds_urls():
-           normalized_url = normalize_url(url)
-           host = parse_hostname(normalized_url, include_port=True)
-           if host in hostname_map:
-               new_url = normalized_url.replace(host, hostname_map[host])
-               opview.data = opview.data.replace(url, new_url)
-               is_update = True       
-        
-        if is_update:
-            portal.update_operationview(opview)
+        # Replace host name/item ids in item "data"
+        update_item_data(portal, item, hostname_map, id_map)
 
-def update_webapps(portal, id_map):
-    '''Update the item ids in web app URLs and data'''
+def update_item_properties(portal, item, hostname_map, id_map):
+    '''Replace host name/item ids in item json properties'''
     
-    items = portal.search(['id','type','url','title','owner'])
-
-    if not items:
-        return
-    
-    for item in items:
-        if item.get('type') == 'Web Mapping Application':
-            is_update_url = False
-            is_update_data = False
-            
-            new_url = None
-            new_data = None
-            
-            print_item_info(item)
-            
-            url = item.get('url')
-        
-            # Update ids in url (replace any old ids with new ids)
-            if url:
-                for old_id in id_map:
-                    if old_id in url:
-                        url = url.replace(old_id, id_map[old_id]["id"])
-                        item['url'] = url
-                        is_update_url = True
-             
-            # Update the items' data (replace any old ids with new ids)
-            item_data = portal.item_data(item.get('id'))
-            
-            if item_data:
-                
-                for old_id in id_map:
-                    if old_id in item_data:
-                        item_data = item_data.replace(old_id, id_map[old_id]["id"])
-                        is_update_data = True
-                
-                if is_update_data:
-                    item['text'] = item_data
-                    
-            if is_update_url or is_update_data:
-                portal.update_item(item.get('id'), item)    
-
-def update_csv_items(portal, hostname_map):
-    ''' Update URLs in CSV portal items '''
-    
-    # Set query string for item search
-    q = 'type:csv'
-    
-    # Perform search
-    items = portal.search(['id','type','url','title','owner'], q)
-    
-    if not items:
-        return
-    
-    for item in items:
-        print_item_info(item)
-        itemID = item.get('id')
-        
-        # Download file from portal
-        filePath = portal.item_datad(itemID)
-        
-        # Determine if file has the search string and perform replace
+    jsonPropsToUpdate = ['description', 'snippet', 'accessInformation', 'licenseInfo', 'url']
+    for jsonProp in jsonPropsToUpdate:
         is_updated = False
-        for host in hostname_map:
-            if findInFile(filePath, host):
-                editFiles([filePath], host, hostname_map[host])
-                is_updated = True
-        
-        # Upload the updated file back to the portal item
-        if is_updated:
-            portal.update_item(itemID, None, filePath)
-        
-        # Delete the downloaded file
-        if os.path.exists(filePath):
-            os.remove(filePath)
+        propertyValue = item.get(jsonProp)
+        if propertyValue:
+            for host in hostname_map:
+                if propertyValue.find(host) > -1:
+                    propertyValue = propertyValue.replace(host, hostname_map[host])
+                    is_updated = True
+    
+            for item_id in id_map:
+                if propertyValue.find(item_id) > -1:
+                    propertyValue = propertyValue.replace(item_id, id_map[item_id]["id"])
+                    is_updated = True
+            
+            if is_updated:
+                portal.update_item(item['id'], {jsonProp: propertyValue}) 
 
+def update_item_data(portal, item, hostname_map, id_map):
+    '''Replace host name/item ids in item data'''
 
+    if item['type'] in TEXT_BASED_ITEM_TYPES:
+        
+        itemdata = portal.item_data(item['id'])
+        
+        if itemdata:
+            
+            is_updated = False
+            
+            for host in hostname_map:
+                if itemdata.find(host) > -1:
+                    itemdata = itemdata.replace(host, hostname_map[host])
+                    is_updated = True
+        
+            for item_id in id_map:
+                if itemdata.find(item_id) > -1:
+                    itemdata = itemdata.replace(item_id, id_map[item_id]["id"])
+                    is_updated = True
+            
+            if is_updated:
+                portal.update_item(item['id'], {'text': itemdata})     
+
+    if item['type'] == 'CSV':
+        update_csv_item(portal, item, hostname_map)
+
+def update_csv_item(portal, item, hostname_map):
+    ''' Update URLs in CSV item '''
+    
+    # Download file from portal
+    filePath = portal.item_datad(item['id'])
+    
+    # Determine if file has the search string and perform replace
+    is_updated = False
+    for host in hostname_map:
+        if findInFile(filePath, host):
+            editFiles([filePath], host, hostname_map[host])
+            is_updated = True
+    
+    # Upload the updated file back to the portal item
+    if is_updated:
+        portal.update_item(item['id'], None, filePath)
+    
+    # Delete the downloaded file
+    if os.path.exists(filePath):
+        os.remove(filePath)
      
 def print_item_info(item):
     itemID = item.get('id')
