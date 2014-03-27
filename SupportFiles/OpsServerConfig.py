@@ -52,7 +52,10 @@ databasesToCreate = {"operations":[True,"Operations"], \
                     "political":[False, "Political"], \
                     "social":[False, "Social"], \
                     "rtds":[False, "RTDS"], \
-                    "currentoperations":[False, "CurrentOperations"]}
+                    "currentoperations":[False, "CurrentOperations"], \
+                    "military":[False, "Military"], \
+                    "information":[False, "Information"], \
+                    "workflow":[False, "Workflow"]}
 
 
 # ----------------------------------------------------------------------------
