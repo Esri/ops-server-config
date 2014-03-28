@@ -101,7 +101,7 @@ def getDBConnFileRootPath(dataDrive):
     return os.path.join(opsServerRootPath, *["DBConnections"])
 
 def getCacheRootPath(cacheDrive):
-    return makePath(cacheDrive, ["arcgisserver", "arcgiscache"])
+    return makePath(cacheDrive, ["arcgisserver", "directories", "arcgiscache"])
 
 # ----------------------------------------------------------------------------
 # Other functions

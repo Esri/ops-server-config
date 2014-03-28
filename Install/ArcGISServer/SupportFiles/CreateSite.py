@@ -43,10 +43,10 @@ def createSite(username, password, dataDrive, cacheDrive):
         
         agsCache = OpsServerConfig.getCacheRootPath(cacheDrive)
         
-        pathList = ["arcgisserver"]
-        agsData = makePath(dataDrive, pathList)
+        pathList = ["arcgisserver", "directories"]
+        agsData = makePath(serverDrive, pathList)
         
-        pathList = ["OpsServer", "arcgisserver", "config-store"]
+        pathList = ["arcgisserver", "config-store"]
         agsConfig = makePath(serverDrive, pathList)
     
         # Set up required properties for config store
