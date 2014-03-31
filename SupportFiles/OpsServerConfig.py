@@ -52,7 +52,10 @@ databasesToCreate = {"operations":[True,"Operations"], \
                     "political":[False, "Political"], \
                     "social":[False, "Social"], \
                     "rtds":[False, "RTDS"], \
-                    "currentoperations":[False, "CurrentOperations"]}
+                    "currentoperations":[False, "CurrentOperations"], \
+                    "military":[False, "Military"], \
+                    "information":[False, "Information"], \
+                    "workflow":[False, "Workflow"]}
 
 
 # ----------------------------------------------------------------------------
@@ -84,7 +87,7 @@ installOnlyPublishingFolders = {dataFolderDStoreName: r"\\afmcomstaging\data"}
 # ----------------------------------------------------------------------------
 # Set root path variables/root path functions
 
-postgreSQLRootPath = makePath("C", ["Program Files", "PostgreSQL"])
+postgreSQLRootPath = os.environ['ops_postgresqlInstallDIR']
 
 def getOpsServerRootPath(dataDrive):
     return makePath(dataDrive, ["OpsServer"])
@@ -98,7 +101,7 @@ def getDBConnFileRootPath(dataDrive):
     return os.path.join(opsServerRootPath, *["DBConnections"])
 
 def getCacheRootPath(cacheDrive):
-    return makePath(cacheDrive, ["arcgisserver", "arcgiscache"])
+    return makePath(cacheDrive, ["arcgisserver", "directories", "arcgiscache"])
 
 # ----------------------------------------------------------------------------
 # Other functions

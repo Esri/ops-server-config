@@ -13,7 +13,7 @@ set ops_AGSVersion=10.2
 set ops_PortalVersion=10.2
 
 REM Define PostgreSQL paths
-set ops_postgresqlInstallDIR="C:\Program Files\PostgreSQL\9.2"
+set ops_postgresqlInstallDIR=C:\PostgreSQL\9.2
 set ops_postgresqlDataDIR=%ops_postgresqlInstallDIR%\data
 
 REM Define path to Esri SoftwareAuthorization.exe
