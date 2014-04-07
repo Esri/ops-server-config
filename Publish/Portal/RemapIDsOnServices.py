@@ -229,10 +229,13 @@ def main():
                         new_id = findPortalItemID(server, serviceSearchStr, portal_url_items)
                         
                         if new_id:
-                            numIDsFoundForService = numIDsFoundForService + 1
-                            servicePortalItem['itemID'] = new_id
-                            portalItemIDsToDelete.append(orig_id)
-                            print '\t\tFound new item id - ' + new_id
+                            if (new_id <> orig_id):
+                                numIDsFoundForService = numIDsFoundForService + 1
+                                servicePortalItem['itemID'] = new_id
+                                portalItemIDsToDelete.append(orig_id)
+                                print '\t\tFound new item id - ' + new_id
+                            else:
+                                print '\t\tItem IDs match, not processing.'
                         else:
                             totalSuccess = False
                             print '\n\t**** ERROR: new item id not found.'
@@ -260,7 +263,7 @@ def main():
         if doDeleteItems:
             print
             #print '=' * 100
-            print '\n\n-Deleting portal items owned by ' + portal.logged_in_user()['username'] + ' that were remapped to original portal item...'
+            print '\n\n-Deleting portal items that were remapped to original portal item...'
             
             if len(portalItemIDsToDelete) == 0:
                 print '\n**** ERROR: No portal items to delete; which means there were no portal items '
