@@ -22,7 +22,12 @@ set ops_softwareAuthExePath="C:\Program Files\Common Files\ArcGIS\bin\SoftwareAu
 REM Define path to ConfigureWebAdaptor.exe
 set ops_ConfWebAdaptorExePath="C:\Program Files (x86)\Common Files\ArcGIS\WebAdaptor\IIS\Tools\ConfigureWebAdaptor.exe"
 
-set sectionBreak=========================================================================
+REM ---------------------------------------------------------------------
+REM Set the names of ArcGIS Server Web Adaptor and Portal for ArcGIS Web Adaptor
+set ops_WebAdaptor_AGS=ags
+set ops_WebAdaptor_Portal=arcgis
+
+set sectionBreak===================================================================================
 set ops_tempInstallDir=C:\OpsServerInstallTemp
 cls
 

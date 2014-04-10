@@ -153,7 +153,7 @@ def main():
             protocol = 'http'
         
         # Create portal object
-        portal_address = '{}://{}/arcgis'.format(protocol, server)
+        portal_address = '{}://{}:7443/arcgis'.format(protocol, server)
         portal = Portal(portal_address, adminuser, password)
         if not portal:
             raise Exception('ERROR: Could not create "portal" object.')

@@ -109,7 +109,7 @@ echo.
 echo       5. Close the web browser.
 echo.
 echo.
-set execute=%ops_webBrowserExePath% https://%ops_FQDN%/arcgis/home
+set execute=%ops_webBrowserExePath% https://%ops_FQDN%/%ops_WebAdaptor_Portal%/home
 echo %execute%
 echo.
 %execute%
@@ -215,7 +215,7 @@ echo.
 echo    4. For "Password" and "Repeat Password" property specify: %ops_passWord%
 echo.
 echo.
-echo    5. For "Full Name" property specify: GeoEvent Server Administrator, Secondary
+echo    5. For "Full Name" property specify: GeoEvent Server Administrator, Primary
 echo.
 echo.
 echo    6. Select all "Roles Available" ^(i.e. Administrator, Publisher, and User^) and
@@ -240,7 +240,7 @@ echo.
 echo    4. On the "Edit ArcGIS Server" dialog, click in the "URL" text box and
 echo       specify the URL to the ArcGIS Server:
 echo.
-echo       https^://%ops_FQDN%/arcgis/
+echo       https^://%ops_FQDN%/%ops_WebAdaptor_AGS%/
 echo.
 echo.
 echo    5. Generate a token:

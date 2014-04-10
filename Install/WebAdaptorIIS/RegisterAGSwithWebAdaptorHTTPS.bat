@@ -12,7 +12,7 @@ echo %sectionBreak%
 echo Register ArcGIS Server with the Web Adaptor for IIS ^(HTTPS^)...
 echo.
 
-set execute=%ops_ConfWebAdaptorExePath% /m server /w https://%ops_FQDN%/arcgis/webadaptor /g https://%ops_FQDN%:6443 ^
+set execute=%ops_ConfWebAdaptorExePath% /m server /w https://%ops_FQDN%/%ops_WebAdaptor_AGS%/webadaptor /g https://%ops_FQDN%:6443 ^
 /u %ops_userName% /p %ops_passWord% /a true
 
 if exist %ops_ConfWebAdaptorExePath% (

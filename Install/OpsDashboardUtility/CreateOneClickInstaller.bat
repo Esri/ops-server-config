@@ -42,7 +42,7 @@ echo         displayed, click "OK".
 echo.
 echo.
 set execute=START /WAIT %ops_softwareRoot%\OpsDashboardUtility\OperationsDashboardUtility.exe ^
-/outPut %ops_outputFolder% /url https://%ops_FQDN%/arcgis ^
+/outPut %ops_outputFolder% /url https://%ops_FQDN%/%ops_WebAdaptor_Portal% ^
 /certpath %ops_softwareRoot%\OpsDashboardUtility\Certificate\DefenseSolutions.pfx ^
 /password esripassword /CertType selfsigned /authentMode Token
 echo %execute%
