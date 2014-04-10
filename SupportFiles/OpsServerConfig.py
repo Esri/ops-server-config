@@ -87,7 +87,12 @@ installOnlyPublishingFolders = {dataFolderDStoreName: r"\\afmcomstaging\data"}
 # ----------------------------------------------------------------------------
 # Set root path variables/root path functions
 
-postgreSQLRootPath = os.environ['ops_postgresqlInstallDIR']
+def getPostgreSQLRootPath():
+    try:
+        postgreSQLRootPath = os.environ['ops_postgresqlInstallDIR']
+        return postgreSQLRootPath
+    except KeyError, e:
+        return None
 
 def getOpsServerRootPath(dataDrive):
     return makePath(dataDrive, ["OpsServer"])

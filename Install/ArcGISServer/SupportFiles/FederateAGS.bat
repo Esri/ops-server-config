@@ -32,7 +32,7 @@ echo.
 echo.
 echo    6. For "Server URL" property specify^:
 echo.
-echo       https^://%ops_FQDN%/arcgis
+echo       https^://%ops_FQDN%/%ops_WebAdaptor_AGS%
 echo.
 echo.
 echo    7. For "Administration URL" property specify^:
@@ -79,12 +79,12 @@ echo.
 echo       NOTE: make sure to include the %%20 characters within the URL to represent the spaces
 echo             in the service URL.
 echo.
-echo       https^://%ops_FQDN%/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%%20Web%%20Map%%20Task
+echo       https^://%ops_FQDN%/%ops_WebAdaptor_AGS%/rest/services/Utilities/PrintingTools/GPServer/Export%%20Web%%20Map%%20Task
 echo.
 echo.
 echo.   3. Change the "Geometry" service URL to:
 echo.
-echo       https^://%ops_FQDN%/arcgis/rest/services/Utilities/Geometry/GeometryServer
+echo       https^://%ops_FQDN%/%ops_WebAdaptor_AGS%/rest/services/Utilities/Geometry/GeometryServer
 echo.
 echo.
 echo    ^-^-^-^-^-^- Save Changes to Portal Configuration ^-^-^-^-^-^-
@@ -99,7 +99,7 @@ echo    3. Close web browser.
 echo.
 echo.
 PING 127.0.0.1 -n 60 > nul
-set execute=%ops_webBrowserExePath% https://%ops_FQDN%/arcgis/home/signin.html?
+set execute=%ops_webBrowserExePath% https://%ops_FQDN%/%ops_WebAdaptor_Portal%/home/signin.html?
 echo %execute%
 echo.
 %execute%

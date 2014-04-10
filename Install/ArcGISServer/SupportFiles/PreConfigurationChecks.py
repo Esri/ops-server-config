@@ -30,7 +30,7 @@ from Utilities import editFiles
 serverName = OpsServerConfig.serverName
 serverPort = OpsServerConfig.serverPort
 dbsForOpsServer = OpsServerConfig.databasesToCreate
-rootPostgreSQLPath = OpsServerConfig.postgreSQLRootPath
+rootPostgreSQLPath = OpsServerConfig.getPostgreSQLRootPath()
 
 siteExistsCheck = True
 dbExistsCheck = True

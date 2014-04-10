@@ -34,7 +34,7 @@ from Utilities import findFilePath
 
 servername = OpsServerConfig.serverName
 dbsToCreate = OpsServerConfig.databasesToCreate
-rootPostgreSQLPath = OpsServerConfig.postgreSQLRootPath
+rootPostgreSQLPath = OpsServerConfig.getPostgreSQLRootPath()
 
 createLocalEnvFolders = True
 createEnterpriseGDBs = True

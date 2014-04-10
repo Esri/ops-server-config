@@ -10,7 +10,7 @@ echo.
 echo    NOTE: a 4 minute delay has been added to give the portal service time to restart.
 echo.
 PING 127.0.0.1 -n 240 > nul
-set execute=%ops_ConfWebAdaptorExePath% /m portal /w https://%ops_FQDN%/arcgis/webadaptor /g http://%ops_FQDN%:7080 ^
+set execute=%ops_ConfWebAdaptorExePath% /m portal /w https://%ops_FQDN%/%ops_WebAdaptor_Portal%/webadaptor /g http://%ops_FQDN%:7080 ^
 /u %ops_userName% /p %ops_passWord%
 
 if exist %ops_ConfWebAdaptorExePath% (
