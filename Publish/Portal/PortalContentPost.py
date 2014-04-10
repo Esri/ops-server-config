@@ -33,7 +33,7 @@ import copy
 logging.basicConfig()
 
 # For now hard-code the server name of the source ArcGIS Server machine
-source_hostname = "afmcomstaging.esri.com"
+source_hostname = "afmiedev.esri.com"
 #port = '6080' #Use 6080 or None
 #new_hostname = "holistic35.esri.com"
 new_hostname = ""
