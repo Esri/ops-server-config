@@ -16,7 +16,7 @@ echo.
 echo.
 echo --Installing GeoEvent Processor Extension...
 echo.
-set execute=msiexec /I %ops_softwareRoot%\GeoEvent\setup.msi PASSWORD=%ops_passWord% /qb
+set execute=msiexec /I %ops_softwareRoot%\ArcGISGeoEventProcessor\SetupFiles\setup.msi PASSWORD=%ops_passWord% /qb
 echo %execute%
 echo.
 %execute%
@@ -55,7 +55,7 @@ echo.
 echo.
 echo --Copying Ops Server Data folder/files...
 echo.
-set execute=START /WAIT robocopy %ops_softwareRoot%\GeoEvent\OpsServerConfig\Data\ %ops_destPathData% *.* /S
+set execute=START /WAIT robocopy %ops_softwareRoot%\GeoEventOpsServerConfig\Data\ %ops_destPathData% *.* /S
 echo %execute%
 echo.
 %execute%
@@ -70,7 +70,7 @@ echo.
 echo.
 echo --Copying Ops Server set of %ops_destPath% folders/files...
 echo.
-set execute=START /WAIT robocopy %ops_softwareRoot%\GeoEvent\OpsServerConfig\ProgramData\GeoEventProcessor\ %ops_destPath% *.* /S
+set execute=START /WAIT robocopy %ops_softwareRoot%\GeoEventOpsServerConfig\ProgramData\Esri\GeoEventProcessor\ %ops_destPath% *.* /S
 echo %execute%
 echo.
 %execute%
@@ -85,7 +85,7 @@ echo.
 echo.
 echo --Copying Ops Server set of %ops_destPath% folders/files...
 echo.
-set execute=START /WAIT robocopy %ops_softwareRoot%\GeoEvent\OpsServerConfig\deploy\ %ops_destPath% *.* /S
+set execute=START /WAIT robocopy %ops_softwareRoot%\GeoEventOpsServerConfig\Program_Files\ArcGIS\Server\GeoEventProcessor\deploy\ %ops_destPath% *.* /S
 echo %execute%
 echo.
 %execute%
@@ -100,7 +100,7 @@ echo.
 echo.
 echo --Copying Esri CA cert to %ops_destPath% folder...
 echo.
-set execute=START /WAIT robocopy %ops_softwareRoot%\GeoEvent\OpsServerConfig\security\ %ops_destPath% *.* /S
+set execute=START /WAIT robocopy %ops_softwareRoot%\GeoEventOpsServerConfig\Program_Files\ArcGIS\Server\GeoEventProcessor\jre\lib\security\ %ops_destPath% *.* /S
 echo %execute%
 echo.
 %execute%

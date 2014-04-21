@@ -238,9 +238,10 @@ echo       for the "OpsServer" entry.
 echo.
 echo.
 echo    4. On the "Edit ArcGIS Server" dialog, click in the "URL" text box and
-echo       specify the URL to the ArcGIS Server:
+echo       specify the URL to the ArcGIS Server ^(connect through port inorder
+echo       to connect to ArcGIS Server primary site administrator^):
 echo.
-echo       https^://%ops_FQDN%/%ops_WebAdaptor_AGS%/
+echo       https^://%ops_FQDN%:6443/arcgis/
 echo.
 echo.
 echo    5. Generate a token:
