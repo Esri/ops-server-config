@@ -33,10 +33,12 @@ doRegDataStores = True
 doPublishServiceDefs = True
 doUnregDataStores = True
 
-publishingDBServer = OpsServerConfig.publishingDBServer
+#publishingDBServer = OpsServerConfig.publishingDBServer
 databases = OpsServerConfig.databasesToCreate
 dbuser = "sde"
 installOnlyPublishingFolders = OpsServerConfig.installOnlyPublishingFolders
+installOnlyPublishingDBServers = OpsServerConfig.installOnlyPublishingDBServers
+dataFolderDStoreName = OpsServerConfig.dataFolderDStoreName
 
 # Used for testing the unregister data stores function
 #dataStorePaths = ['/fileShares/OpsEnvironment_InstallOnly',
@@ -51,7 +53,7 @@ installOnlyPublishingFolders = OpsServerConfig.installOnlyPublishingFolders
 #                 '/enterpriseDatabases/UTDS_InstallOnly']
 
 
-installOnlyClientFolders = OpsServerConfig.installOnlyPublishingFolders
+#installOnlyClientFolders = OpsServerConfig.installOnlyPublishingFolders
 
 # ---------------------------------------------------------------------
 # Check arguments
@@ -208,25 +210,27 @@ def registerDataStores():
  
     regNameAppend = "_InstallOnly"
     
-    # Register folder
-    
-    # Get data folder based on the existing folder data store
-    for regName in installOnlyPublishingFolders.keys():
-        searchPath = "/fileShares/" + regName
+    # Register folders
+    for pubFolderServerName in installOnlyPublishingFolders.keys():
+        
+        registrationName = dataFolderDStoreName + "_" + pubFolderServerName + regNameAppend
+        
+        # Get data folder based on the existing folder data store
+        searchPath = "/fileShares/" + dataFolderDStoreName
         success, item = DataStore.getitem(serverFQDN, serverPort, userName, passWord, searchPath, useSSL)
         
         if not success:
             registerSuccessful = False
             print "ERROR: Could not find existing data store item " + searchPath + \
-                    ". Can't register temp data store " + regName + regNameAppend
+                    ". Can't register temp data store " + registrationName
         else:
-            pubFolderPath = installOnlyPublishingFolders[regName]
             serverFolderPath = item['info']['path'].encode('ascii')
-            
+            pubFolderPath = installOnlyPublishingFolders[pubFolderServerName]
             dsPath, dsItem = DataStore.create_replicated_folder_item(
-                                regName + regNameAppend, pubFolderPath, serverFolderPath)
+                                registrationName, pubFolderPath, serverFolderPath)
             
-            print "\n\tFolder: Publisher - " + pubFolderPath + "; Server - " + serverFolderPath
+            print "\n\n\tServer: " + pubFolderServerName
+            print "\t\tFolder: Publisher - " + pubFolderPath + "; Server - " + serverFolderPath
             print "\t\t" + dsPath
             
             # Add data store path to list of data stores to unregister
@@ -244,34 +248,37 @@ def registerDataStores():
     # Register databases
     for db in databases:
         isManaged = databases[db][0]
-        registrationName = databases[db][1]
         
         if not isManaged:
-            print "\n\tDatabase: " + db
+            print "\n\n\tDatabase: " + db
             
-            # Create the publishing database connection string
-            pub_db_conn = DataStore.create_postgresql_db_connection_str(
-                                    publishingDBServer, db, dbuser, passWord)
-            
-            # Create the server database connection string
-            server_db_conn = DataStore.create_postgresql_db_connection_str(
-                                    server, db, dbuser, passWord)
-            
-            # Create the data store item
-            dsPath, dsItem = DataStore.create_replicated_entdb_item(
-                                    registrationName + regNameAppend, pub_db_conn, server_db_conn)
-            print "\t\t" + dsPath
-            
-            # Add data store path to list of data stores to unregister
-            dataStorePaths.append(dsPath)
-            
-            # Register the data store item
-            success, response = DataStore.register(serverFQDN, serverPort, userName, passWord, dsItem, useSSL)
-            if success:
-                print "\tDone."
-            else:
-                registerSuccessful = False
-                print "ERROR:" + str(response)
+            for publishingDBServer in installOnlyPublishingDBServers:
+                
+                registrationName = databases[db][1] + "_" + publishingDBServer + regNameAppend
+                
+                # Create the publishing database connection string
+                pub_db_conn = DataStore.create_postgresql_db_connection_str(
+                                        publishingDBServer, db, dbuser, passWord)
+                
+                # Create the server database connection string
+                server_db_conn = DataStore.create_postgresql_db_connection_str(
+                                        server, db, dbuser, passWord)
+                
+                # Create the data store item
+                dsPath, dsItem = DataStore.create_replicated_entdb_item(
+                                        registrationName, pub_db_conn, server_db_conn)
+                print "\t\t" + dsPath
+                
+                # Add data store path to list of data stores to unregister
+                dataStorePaths.append(dsPath)
+                
+                # Register the data store item
+                success, response = DataStore.register(serverFQDN, serverPort, userName, passWord, dsItem, useSSL)
+                if success:
+                    print "\tDone."
+                else:
+                    registerSuccessful = False
+                    print "ERROR:" + str(response)
                     
     return registerSuccessful, dataStorePaths     
 

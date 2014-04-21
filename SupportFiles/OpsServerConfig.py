@@ -78,11 +78,14 @@ publishingFolder = r"\\disldb\development\Commercial\OPSServer\LandOps\Server\St
 # 'Registration Name' for data folder data store
 dataFolderDStoreName = "OpsServerData"
 
-# Make sure the dictionary key value matches the registered data store path value
-# minus the '/fileShares/' part of the path. The publishing scripts use this
-# key to find the existing registered folder data store to extract the
-# server path.
-installOnlyPublishingFolders = {dataFolderDStoreName: r"\\afmcomstaging\data"}
+# 'Publishing' path for temporary folder data stores
+#installOnlyPublishingFolders = {dataFolderDStoreName: r"\\afmiedev\data"}
+
+# Key is name of server where data folder is located; Value is path to "data" folder
+installOnlyPublishingFolders = {"afmiedev": r"\\afmiedev\data", "afmcomstaging": r"\\afmcomstaging\data"}
+
+# 'Publishing' server names for temporary database data stores
+installOnlyPublishingDBServers = ["afmiedevdb", "afmcomstaging"]
 
 # ----------------------------------------------------------------------------
 # Set root path variables/root path functions
