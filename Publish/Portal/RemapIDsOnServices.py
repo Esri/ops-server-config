@@ -268,16 +268,27 @@ def main():
             if len(portalItemIDsToDelete) == 0:
                 print '\n**** ERROR: No portal items to delete; which means there were no portal items '
                 print '\t     owned by ' + portal.logged_in_user()['username'] + ' that were remapped to original portal item.\n'
-                
+            
+            # Get list of all portal ids so we can verify that the portal item exists before we delete
+            portal_items = portal.search(['id'])
+            
             for portalItemID in portalItemIDsToDelete:
+                itemFound = False
                 print '  -Deleting id ' + portalItemID + '...'
-                results = portal.delete_item(portalItemID, portal.logged_in_user()['username'])
-                if results:
-                    print '\tDone.'
-                else:
-                    totalSuccess = False
-                    print '**** ERROR: Deletion of service was not successful.'
-   
+                
+                # Delete if item exists
+                for portal_item in portal_items:
+                    if portal_item['id'] == portalItemID:
+                        itemFound = True
+                        results = portal.delete_item(portalItemID, portal.logged_in_user()['username'])
+                        if results:
+                            print '\tDone.'
+                        else:
+                            totalSuccess = False
+                            print '**** ERROR: Deletion of service was not successful.'
+                if not itemFound:
+                    print '\tItem ' + portalItemID + ' does not exist. Skipping...'
+                    
     except:
         totalSuccess = False
         
