@@ -238,10 +238,17 @@ echo       for the "OpsServer" entry.
 echo.
 echo.
 echo    4. On the "Edit ArcGIS Server" dialog, click in the "URL" text box and
-echo       specify the URL to the ArcGIS Server ^(connect through port inorder
-echo       to connect to ArcGIS Server primary site administrator^):
+echo       specify the URL to the ArcGIS Server:
 echo.
-echo       https^://%ops_FQDN%:6443/arcgis/
+echo       https^://%ops_FQDN%/%ops_WebAdaptor_AGS%/
+echo.
+echo.
+echo       **********  WARNING  **********  WARNING  **********
+echo       If you change the authentication method to Integrated Windows
+echo       Authentication ^(IWA^) or PKI you will have to alter how you
+echo       sign in to ArcGIS Server and modify the GeoEvent Processor
+echo       configuration.
+echo       **********  WARNING  **********  WARNING  **********
 echo.
 echo.
 echo    5. Generate a token:
