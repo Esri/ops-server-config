@@ -19,7 +19,7 @@ if len(sys.argv) <> 5:
     print '\n' + scriptName + ' <RootFolderToSearch> <OldServerName> <NewServerName> <IDJsonFile>'
     print '\nWhere:'
     print '\n\t<RootFolderToSearch> (required): the path of the root folder to search for web files to edit.'
-    print '\n\t<OldServerName> (required): the old server name, for example afmcomstaging.esri.com'
+    print '\n\t<OldServerName> (required): the old server name'
     print '\n\t<NewServerName> (required): the new server name where web apps will running on'
     print '\n\t<IDJsonFile> (required): the file path to the .json file containing the old and new portal item ids.'
     print '\t\t\t(i.e. the file named "oldID_newID.json" that is created by the PublishContentPost.py script within'
