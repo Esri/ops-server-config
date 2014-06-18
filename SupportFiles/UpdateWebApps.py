@@ -47,20 +47,17 @@ if not os.path.isfile(id_map_file):
     sys.exit(1) 
     
 # ------------------------------------------------------------------------------------
-# Find all briefingbook_config.js and index.html files
+# Create list of files to update
 # ------------------------------------------------------------------------------------
 files_to_update = []
-config_files = findFilePath(root_path, 'briefingbook_config.js', returnFirst=False)
-config2_files = findFilePath(root_path, 'Config.js', returnFirst=False)
-index_files = findFilePath(root_path, 'index.html', returnFirst=False)
-csv_files = findFilePath(root_path, '*.csv', returnFirst=False)
-erb_files = findFilePath(root_path, '*.erb', returnFirst=False)
 
-files_to_update.extend(config_files)
-files_to_update.extend(config2_files)
-files_to_update.extend(index_files)
-files_to_update.extend(csv_files)
-files_to_update.extend(erb_files)
+files_to_update.extend(findFilePath(root_path, '*.js', returnFirst=False))
+files_to_update.extend(findFilePath(root_path, '*.html', returnFirst=False))
+files_to_update.extend(findFilePath(root_path, '*.json', returnFirst=False))
+files_to_update.extend(findFilePath(root_path, '*.csv', returnFirst=False))
+files_to_update.extend(findFilePath(root_path, '*.erb', returnFirst=False))
+
+total_files = len(files_to_update)
 
 # ------------------------------------------------------------------------------------
 # Create dictionary of search/replace values
@@ -90,10 +87,10 @@ if is_debug:
 section_break = '-' * 120
 
 if is_edit:
+    n = 1
     for myfile in files_to_update:
         print section_break
-        print 'Editing file: ' + myfile
-            
+        print 'Editing file: {} ({} of {})'.format(myfile, n, total_files)  
         for line in fileinput.FileInput(myfile,inplace=1):
             # Also remove the newline character from end of line, otherwise
             # when "line" is printed below an extra newline character
@@ -103,7 +100,7 @@ if is_edit:
             #!!! NOTE: you must print line to screen for "inplace" option to work
             print line
         print '\tDone.' 
-
+        n = n + 1
 print '\n\nDone updating values in files.'
 
 
