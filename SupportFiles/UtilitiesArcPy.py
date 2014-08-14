@@ -2,13 +2,17 @@
 import sys, os, traceback
 import arcpy
      
-def uploadServiceDefinition(sdFilePath, agsPubConnectionFile):
+def uploadServiceDefinition(sdFilePath, agsPubConnectionFile, startService=True):
     success = True
     pymsg = ""
     
     try:
-        
-        arcpy.UploadServiceDefinition_server(sdFilePath, agsPubConnectionFile)
+        if startService:
+            startService = "STARTED"
+        else:
+            startService = "STOPPED"
+            
+        arcpy.UploadServiceDefinition_server(sdFilePath, agsPubConnectionFile, in_startupType=startService, in_cluster='default')
         
     except:
         success = False
