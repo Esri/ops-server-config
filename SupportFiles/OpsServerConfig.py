@@ -43,7 +43,7 @@ serverDrive = 'c'       # Drive where software will be installed
 
 # Syntax: ["databasename": [Managed (True or False), AGS registration name]
 # 'AGS registration name' is "label" given to the data store.
-databasesToCreate = {"operations":[True,"Operations"], \
+databasesToCreate = {"operations":[False,"Operations"], \
                     "utds":[False, "UTDS"], \
                     "economic":[False, "Economic"], \
                     "imagery":[False, "Imagery"], \
@@ -55,7 +55,8 @@ databasesToCreate = {"operations":[True,"Operations"], \
                     "currentoperations":[False, "CurrentOperations"], \
                     "military":[False, "Military"], \
                     "information":[False, "Information"], \
-                    "workflow":[False, "Workflow"]}
+                    "workflow":[False, "Workflow"], \
+                    "emergencymanagement":[False, "EmergencyManagement"]}
 
 
 # ----------------------------------------------------------------------------
