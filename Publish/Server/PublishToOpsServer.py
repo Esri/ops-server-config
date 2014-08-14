@@ -58,16 +58,20 @@ dataFolderDStoreName = OpsServerConfig.dataFolderDStoreName
 # ---------------------------------------------------------------------
 # Check arguments
 # ---------------------------------------------------------------------
-if len(sys.argv) < 6:
+if len(sys.argv) < 8:
     print "\n" + scriptName + " <Server_FullyQualifiedDomainName> <Server_Port> <User_Name> " + \
-                            "<Password> <Use_SSL: Yes|No> "
+                            "<Password> <Use_SSL: Yes|No> <Start_Service: Yes|No>"
     print "\t\t<Service_Definition_Root_Folder_Path> {OwnersToPublish} {OpsServerTypesToPublish}"
+    
     print "\nWhere:"
-    print "\n\t<Server_FullyQualifiedDomainName> (required parameter) Fully qualified domain name of ArcGIS Server."
-    print "\n\t<Server_Port> (required parameter) ArcGIS Server port number; if not using server port enter '#'"
-    print "\n\t<User_Name> (required parameter) ArcGIS Server site administrator user name."
-    print "\n\t<Password> (required parameter) ArcGIS Server site administrator password."
+    print "\n\t<Server_FullyQualifiedDomainName> (required) Fully qualified domain name of ArcGIS Server."
+    print "\n\t<Server_Port> (required) ArcGIS Server port number; if not using server port enter '#'"
+    print "\n\t<User_Name> (required) ArcGIS Server site administrator user name."
+    print "\n\t<Password> (required) ArcGIS Server site administrator password."
     print '\n\t<Use_SSL: Yes|No> (required) Flag indicating if ArcGIS Server requires HTTPS.'
+    
+    print '\n\t<Start_Service: Yes|No> (required) Flag indicating if the service should be started after publishing.'
+    
     print "\n\t<Service_Definition_Root_Folder_Path> (required parameter) is the path of the root folder"
     print "\t\tcontaing the service definition (.sd) files to upload (publish)."
     
@@ -97,17 +101,18 @@ serverPort = sys.argv[2]
 userName = sys.argv[3]
 passWord = sys.argv[4]
 useSSL = sys.argv[5]
-rootSDFolderPath = sys.argv[6]
+startService = sys.argv[6]
+rootSDFolderPath = sys.argv[7]
 
-if len(sys.argv) > 7:
-    specified_users = sys.argv[7]
+if len(sys.argv) > 8:
+    specified_users = sys.argv[8]
     if specified_users.strip().lower() == '#':
         specified_users = None
         
-if len(sys.argv) > 8:
-    as_specified_ops_types = sys.argv[8]
-    
 if len(sys.argv) > 9:
+    as_specified_ops_types = sys.argv[9]
+    
+if len(sys.argv) > 10:
     print "You entered too many script parameters."
     sys.exit(1)
 
@@ -116,6 +121,10 @@ if useSSL.strip().lower() in ['yes', 'ye', 'y']:
 else:
     useSSL = False
 
+if startService.strip().lower() in ['yes', 'ye', 'y']:
+    startService = True
+else:
+    startService = False
     
 if DEBUG:
     print "serverFQDN: " + str(serverFQDN)
@@ -367,11 +376,12 @@ try:
         print "---------------------------------------------------------------------------"
         print
         
+        i = 1
         for sdFilePath in sdFilePaths:
             doPublish = True
             owners = None
             tags = None
-            print "\n- Service Definition: " + sdFilePath + "..."
+            print "\n- Service Definition: " + sdFilePath + " (" + str(i) + " of " + str(numFilesFound) + ")..."
             
             # Extract info from portal info json file for the .sd file
             sdFolder = os.path.dirname(sdFilePath)
@@ -412,7 +422,7 @@ try:
             print "\tPublish service? " + str(doPublish)
             
             if doPublish:
-                results = uploadServiceDefinition(sdFilePath, agsPubConnectionFile)
+                results = uploadServiceDefinition(sdFilePath, agsPubConnectionFile, startService)
                 if results[0]:
                     print "\tDone.\n"
                 else:
@@ -421,7 +431,9 @@ try:
                     print "\t*ERROR encountered:"
                     print results[1]
                     print "\n\t**********************************************\n"
-        
+
+            i = i + 1
+            
     # ---------------------------------------------------------------------
     # Unregister data stores
     # ---------------------------------------------------------------------
