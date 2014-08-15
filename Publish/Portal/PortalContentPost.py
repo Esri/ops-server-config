@@ -451,6 +451,10 @@ def create_user(portaladmin,contentpath,userinfo):
         role = userproperties["role"]
         email = userproperties["email"]
         
+        # Check for null email
+        if not email:
+            email = username + '@no_email_in_user_profile.org'
+
         # Create user
         portaladmin.signup(username,password,fullname,email)
         
