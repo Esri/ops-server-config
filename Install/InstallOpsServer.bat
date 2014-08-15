@@ -12,6 +12,10 @@ REM ---------------------------------------------------------------------
 set ops_AGSVersion=10.2
 set ops_PortalVersion=10.2
 
+REM Define ArcGIS Data Store Path
+REM NOTE: must have "\" at end of path
+set ops_agsDataStoreDIR=C:\AGSDataStore\
+
 REM Define PostgreSQL paths
 set ops_postgresqlInstallDIR=C:\PostgreSQL\9.2
 set ops_postgresqlDataDIR=%ops_postgresqlInstallDIR%\data
@@ -340,6 +344,16 @@ if "%ops_change_ags_security%"=="YES" (
 REM Register ArcGIS Server with the web adaptor as HTTPS
 if "%ops_register_ags_https%"=="YES" (
     Call %~dp0WebAdaptorIIS\RegisterAGSwithWebAdaptorHTTPS.bat
+)
+
+REM Install ArcGIS Data Store
+if "%ops_install_ags_datastore%"=="YES" (
+    Call %~dp0ArcGISDataStore\InstallAGSDataStore.bat
+)
+
+REM Create ArcGIS Data Store
+if "%ops_create_ags_datastore%"=="YES" (
+    Call %~dp0ArcGISDataStore\SupportFiles\CreateAGSDataStore.bat
 )
 
 REM Install Portal Related Software
