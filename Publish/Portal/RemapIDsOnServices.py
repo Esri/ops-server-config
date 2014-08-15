@@ -237,8 +237,7 @@ def main():
                             else:
                                 print '\t\tItem IDs match, not processing.'
                         else:
-                            totalSuccess = False
-                            print '\n\t**** ERROR: new item id not found.'
+                            print '\n\t**** WARNING: new item id not found.'
                     
                     servicePortalProps['portalItems'] = servicePortalItems
                     info['portalProperties'] = servicePortalProps
@@ -247,8 +246,7 @@ def main():
                         print '\n\n\t- Updating portal item information stored within service JSON (service will be restarted automatically)...'
                         
                         if numIDsFoundForService == 0:
-                            totalSuccess = False
-                            print '\n\t**** ERROR: there were no new ids found for this service so there is no need to update the service JSON info.'
+                            print '\n\t**** WARNING: there were no new ids found for this service so there is no need to update the service JSON info.'
                             continue
                         
                         success, status = editServiceInfo(server, port, adminuser, password, folder, serviceNameType, info)
