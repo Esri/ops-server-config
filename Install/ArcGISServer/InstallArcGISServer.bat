@@ -25,16 +25,20 @@ Call %ops_ChkErrLevelFile% %ERRORLEVEL%
 REM ---------------------------------------------------------------------
 REM "Install" PostgreSQL client libraries to ArcGIS Server bin folder
 REM ---------------------------------------------------------------------
-echo.
-echo --Copying PostgreSQL client libraries to ArcGIS Server bin folder...
-echo.
-set execute=START /WAIT robocopy %ops_softwareRoot%\Database\PostgreSQL_9.2.2\Windows\64bit\ ^
-"C:\Program Files\ArcGIS\Server\bin" *.*
-
-echo %execute%
-echo.
-%execute%
-Call %ops_ChkErrLevelFile% %ERRORLEVEL% ROBOCOPY
+rem Commented out 08 Aug 2014; AGS 10.3 installer installs postgreSQL client
+rem library files to allow AGS to connect to ArcGIS Data Store. This library
+rem files are backward compatible.
+rem
+rem echo.
+rem echo --Copying PostgreSQL client libraries to ArcGIS Server bin folder...
+rem echo.
+rem set execute=START /WAIT robocopy %ops_softwareRoot%\Database\PostgreSQL_9.2.2\Windows\64bit\ ^
+rem "C:\Program Files\ArcGIS\Server\bin" *.*
+rem 
+rem echo %execute%
+rem echo.
+rem %execute%
+rem Call %ops_ChkErrLevelFile% %ERRORLEVEL% ROBOCOPY
 
 REM ---------------------------------------------------------------------
 REM "Install" geometry library to PostgreSQL lib folder
