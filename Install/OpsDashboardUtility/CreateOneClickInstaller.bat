@@ -44,7 +44,7 @@ echo.
 set execute=START /WAIT %ops_softwareRoot%\OpsDashboardUtility\OperationsDashboardUtility.exe ^
 /outPut %ops_outputFolder% /url https://%ops_FQDN%/%ops_WebAdaptor_Portal% ^
 /certpath %ops_softwareRoot%\OpsDashboardUtility\Certificate\DefenseSolutions.pfx ^
-/password esripassword /CertType selfsigned /authentMode Token
+/password esripassword /CertType selfsigned
 echo %execute%
 echo.
 echo It will take a couple of minutes for the OperationsDashboardUtility.exe to complete.
@@ -57,12 +57,12 @@ PING 127.0.0.1 -n 20 > nul
 REM -----------------------------------
 REM Copy One-click installer
 REM -----------------------------------
-set ops_destPath="C:\Program Files\ArcGIS\Portal\webapps\docroot\opsdashboard"
+set ops_destPath="C:\Program Files\ArcGIS\Portal\apps\dashboard-win"
 echo.
 echo.
 echo --Copying Ops Dashboard One-click installer files to %ops_destPath%...
 echo.
-set execute=START /WAIT robocopy %ops_outputFolder%\opsdashboard %ops_destPath% *.* /S
+set execute=START /WAIT robocopy %ops_outputFolder%\dashboard-win %ops_destPath% *.* /S
 echo %execute%
 echo.
 %execute%
@@ -75,7 +75,7 @@ REM -----------------------------------
 set ops_destPath="C:\Program Files\ArcGIS\Portal\webapps\docroot\help\en\operations-dashboard"
 echo.
 echo.
-echo --Copying Ops Dashboard help filesOne-click to %ops_destPath%...
+echo --Copying Ops Dashboard help files to %ops_destPath%...
 echo.
 set execute=START /WAIT robocopy %ops_outputFolder%\operations-dashboard %ops_destPath% *.* /S
 echo %execute%
