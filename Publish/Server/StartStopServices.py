@@ -10,6 +10,7 @@ sys.path.append(os.path.join(os.path.dirname(
 
 from AGSRestFunctions import getServiceList
 from AGSRestFunctions import stopStartServices
+from AGSRestFunctions import getServiceStatus
 
 validTypes = ["MapServer", "ImageServer", "GeometryServer", "GeocodeServer", "GPServer"]
 userServiceStr = None
@@ -19,10 +20,9 @@ scriptName = os.path.basename(sys.argv[0])
 # ---------------------------------------------------------------------
 # Check arguments
 # ---------------------------------------------------------------------
-serviceParam = '{folder//}service.type'
 
 if len(sys.argv) < 7:
-    print '\n' + scriptName + ' <Server_Name> <Server_Port> <User_Name> <Password> <Use_SSL: Yes|No> <Start|Stop> {' + serviceParam + ',...}'
+    print '\n' + scriptName + ' <Server_Name> <Server_Port> <User_Name> <Password> <Use_SSL: Yes|No> <Start|Stop> {{folder/}service.type,...| Service_List_File}'
     print '\nWhere:'
     print '\n\t<Server_Name> (required) server name.'
     print '\n\t<Server_Port> (required) server port; if not using server port enter #'
@@ -31,9 +31,11 @@ if len(sys.argv) < 7:
     print '\n\t<Use_SSL: Yes|No> (required) Flag indicating if ArcGIS Server requires HTTPS.'
     print '\n\t<Start|Stop> (required) action to perform.'
     
-    print '\n\t{' + serviceParam + ',...} (optional) to Start|Stop specific services, specify'
-    print '\t\tcomma delimited list of services using.'
-    print '\t\tWhere:'
+    print '\n\t{{folder/}service.type,...| Service_List_File} (optional) to Start|Stop specific services, specify'
+    print '\t\tcomma delimited list of services or specify a path to a file containing {{folder/}service.type entries.'
+    print '\t\tIf specifying file, each {{folder/}service.type entry must be on a separate line.'
+    
+    print '\n\t\tWhere:'
     print '\t\t\t{:<8}{}'.format('folder', '- (optional) is name of folder service resides')
     print '\t\t\t{:<8}{}'.format('service', '- (required) is name of service')
     print '\t\t\t{:<8}{}'.format('type', '- (required) is the type of of service; valid values are:')
@@ -42,9 +44,9 @@ if len(sys.argv) < 7:
     
     print '\n\t\tExamples:'
     print '\t\t\tMyServices.MapServer'
-    print '\t\t\tUtilities//Geometry.GeometryServer'
-    print '\t\t\tMyServices.MapServer,Utilities//Geometry.GeometryServer'
-    print '\t\t\t"MyServices.MapServer, Utilities//Geometry.GeometryServer"'
+    print '\t\t\tUtilities/Geometry.GeometryServer'
+    print '\t\t\tMyServices.MapServer,Utilities/Geometry.GeometryServer'
+    print '\t\t\t"MyServices.MapServer, Utilities/Geometry.GeometryServer"\n'
     sys.exit(1)
 
 serverName = sys.argv[1]
@@ -63,7 +65,21 @@ else:
     
 # Perform some checks on the user specified service list
 if userServiceStr is not None:
-    serviceList = userServiceStr.replace(" ", ",").split(",")
+    
+    serviceList = []
+    
+    # Read in the user specified serivces
+    if os.path.exists(userServiceStr):
+        f = open(userServiceStr, 'r')
+        for service in f:
+            serviceList.append(service.strip())
+        f.close()
+        if len(serviceList) == 0:
+            print "Error: The specfied Service_List_File " + userServiceStr + " is empty.\n"
+            sys.exit(1)
+    else:
+        serviceList = userServiceStr.replace(" ", ",").split(",")
+    
     # if userServiceStr had more than one space between service values then there
     # will be 0-length string elements, so remove any elements with
     # 0-length strings.
@@ -71,7 +87,7 @@ if userServiceStr is not None:
     
     # Make sure each service element has "." separator
     if len(serviceList) <> str(serviceList).count("."):
-        print "Error: There are missing '.' delimiters between service name and type."
+        print "Error: There are missing '.' delimiters between service name and type.\n"
         sys.exit(1)
         
     # Make sure each service element has a valid service "type"
@@ -81,7 +97,7 @@ if userServiceStr is not None:
             notValidTypes.append(x)
     if len(notValidTypes) > 0:
         print "Error: You have specified invalid 'type' values: " + str(notValidTypes)
-        print "Valid values are: " + str(validTypes)
+        print "Valid values are: " + str(validTypes) + "\n"
         sys.exit(1)
 
 if serverPort.strip() == '#':
@@ -97,7 +113,7 @@ for validAction in validActionList:
         break
 if not isActionValid:
     print "User specified action '" + serviceAction + " is not valid."
-    print "Valid actions are:" + str(validActionList)
+    print "Valid actions are:" + str(validActionList) + "\n"
     sys.exit(1)
 
 try:
@@ -106,9 +122,9 @@ try:
     # ---------------------------------------------------------------------
     # Print header
     # ---------------------------------------------------------------------
-    print
-    print "Start time: " + str(startTime)
-    print
+    #print
+    #print "Start time: " + str(startTime)
+    #print
  
     # ---------------------------------------------------------------------
     # Get list of all services/or user specified list
@@ -116,24 +132,54 @@ try:
     if not serviceList:
         serviceList = getServiceList(serverName, serverPort, userName, passWord, useSSL)
     
+        # 6/20/2014 - Let's not add the geometry service to this list.
         # Append Geometry service to list
-        serviceList.append(u'Utilities//Geometry.GeometryServer')
+        #serviceList.append(u'Utilities//Geometry.GeometryServer')
     
     if len(serviceList) == 0:
         print "\t*ERROR: No services to " + serviceAction.title() + "."
         
+    # ---------------------------------------------------------------------
+    # Filter the service list and remove services that are already at the requested state
+    # ---------------------------------------------------------------------
+    
+    if len(serviceList) > 0:
+        
+        actionStatusMap = {"STOP":"STOPPED", "START":"STARTED"}
+        modServiceList = []
+    
+        print "\n{}".format("-" * 110)
+        print "- Check status of specified services...\n"
+        
+        for service in serviceList:
+            folder = None
+            serviceNameAndType = service
+            service = service.replace("//", "/")
+            if service.find("/") > 0:
+                folder = service.split("/")[0]
+                serviceNameAndType = service.split("/")[1]
+            
+            serviceStatus = getServiceStatus(serverName, serverPort, userName, passWord, folder, serviceNameAndType)
+            realTimeState = serviceStatus.get("realTimeState")
+            if realTimeState:
+                if realTimeState.upper() == actionStatusMap[serviceAction.upper()]:
+                    print "{:.<70}already at requested state '{}'.".format(service, realTimeState)
+                else:
+                    print "{:.<70}will {} the service.".format(service, serviceAction.lower())
+                    modServiceList.append(service)
+            else:
+                print "{:.<70}{}".format(service, serviceStatus)
+
         
     # ---------------------------------------------------------------------
     # Start/Stop all services
     # ---------------------------------------------------------------------
-    if len(serviceList) > 0:
-        print "- Will attempt to " + serviceAction.lower() + " the following services..."
-        for service in serviceList:
-            print "\t" + service
+    if len(modServiceList) > 0:
+        print "\n{}".format("-" * 110)
+        print "- Will attempt to " + serviceAction.lower() + " the specified services...\n"
         
-        print "\n- Working..."
         stopStartServices(serverName, serverPort, userName, passWord, \
-                          serviceAction.title(), serviceList, useSSL)
+                          serviceAction.title(), modServiceList, useSSL)
         
             
 except:
