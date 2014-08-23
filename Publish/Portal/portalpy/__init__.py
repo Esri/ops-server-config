@@ -1072,6 +1072,10 @@ class Portal(object):
         """ Returns members of the specified group. """
         return self.con.post('community/groups/' + id + '/users',
                              self._postdata())
+    
+    def group_items(self, id):
+        """ Returns the items shared with the specified group id. """
+        return self.con.post('content/groups/' + id, self._postdata())['items']
 
     def create_group(self, group, thumbnail=None):
         """ Creates a group, optionally with a thumbnail. """
