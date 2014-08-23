@@ -31,6 +31,7 @@ import arcpy
 from Utilities import makePath
 from Utilities import changeOwnership
 from Utilities import findFilePath
+from Utilities import findInFile
 
 servername = OpsServerConfig.serverName
 dbsToCreate = OpsServerConfig.databasesToCreate
@@ -145,48 +146,35 @@ def createDataStores(agsServerAccount, password, dataDrive):
 	    connectionFilePath = findFilePath(rootPostgreSQLPath, "pg_hba.conf")
             
             print "\n\t-Updating PostgreSQL connection file to allow remote" + \
-                    " connections to environment databases..."
+                    " connections to databases..."
             print "\t\tFile: " + connectionFilePath 
-            
-            # Create a copy of the database list since the next operation
-            # may remove items from the list
-            dbsToConnectPostreSQLFile = list(dbsToConnect)
-            
-            # Determine if database entry already exists in file
-            hbaFile = open(connectionFilePath, 'r')
-            for fileLine in hbaFile:
-                fileLine = fileLine.strip() #Remove trailing newline character
-                for dbConnect in dbsToConnectPostreSQLFile:
-                    connectionString = "host  " + dbConnect.lower() + "  all  0.0.0.0/0  md5"
-                    if connectionString == fileLine:
-                        #Entry already exists in file so remove entry from list
-                        dbsToConnectPostreSQLFile.remove(dbConnect)
-                        print "\t\tConnection info for database '" + dbConnect + "' already exists."
-            hbaFile.close()
-            
-            if len(dbsToConnectPostreSQLFile) == 0:
-                print "\t\tAll required connection entries already exist in file."
-            else:
-                #Append database entries
+            	    
+	    # Create list of PostgreSQL connection entries
+	    postgreSQLConnEntries = []
+	    for dbToConnect in dbsToConnect:
+		postgreSQLConnEntries.append("host {} all 0.0.0.0/0 md5".format(dbToConnect.lower()))	#IPv4
+		postgreSQLConnEntries.append("host {} all ::/0 md5".format(dbToConnect.lower()))  	#IPv6
+
+	    # Determine if connection entry already exists in file
+	    for postgreSQLConnEntry in postgreSQLConnEntries:
+		if findInFile(connectionFilePath, postgreSQLConnEntry):
+		    #Entry already exists in file so remove entry from list
+		    postgreSQLConnEntries.remove(postgreSQLConnEntry)	    
+
+	    # Add connection entries
+	    if len(postgreSQLConnEntries) > 0:
                 hbaFile = open(connectionFilePath, 'a')
-                for dbConnect in dbsToConnectPostreSQLFile:
-                    print "\t\tAppending connection info for database '" + dbConnect + "'..."
-                    hbaFile.write("host  " + dbConnect.lower() + "  all  0.0.0.0/0  md5" + '\n')
+                for postgreSQLConnEntry in postgreSQLConnEntries:
+                    hbaFile.write("{}\n".format(postgreSQLConnEntry))
                 hbaFile.close()
-                
+
                 # Reload config file
                 print "\n\t-Reloading connection file..."
-#                os.popen("”C:\Program files\PostgreSQL\9.0\bin\pg_ctl.exe” -D “C:\Program Files\PostgreSQL\9.0\data” reload")
-		
 		exeFile = findFilePath(rootPostgreSQLPath, "pg_ctl.exe")
-		
-		# Create path to "data" folder
 		confFolder = os.path.dirname(connectionFilePath)
-		
-		# "Build" command line string and execute.
 		exeCommand = "”" + exeFile + "” -D “" + confFolder + "” reload"
-		os.popen(exeCommand)
-	    
+		os.popen(exeCommand)		
+		
             print "\t\tDone."
 
         # ---------------------------------------------------------------------
