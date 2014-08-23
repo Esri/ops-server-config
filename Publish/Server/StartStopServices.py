@@ -159,7 +159,7 @@ try:
                 folder = service.split("/")[0]
                 serviceNameAndType = service.split("/")[1]
             
-            serviceStatus = getServiceStatus(serverName, serverPort, userName, passWord, folder, serviceNameAndType)
+            serviceStatus = getServiceStatus(serverName, serverPort, userName, passWord, folder, serviceNameAndType, useSSL)
             realTimeState = serviceStatus.get("realTimeState")
             if realTimeState:
                 if realTimeState.upper() == actionStatusMap[serviceAction.upper()]:
