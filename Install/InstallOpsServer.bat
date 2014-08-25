@@ -387,6 +387,12 @@ if "%ops_configure_geoevent%"=="YES" (
     Call %~dp0GeoEvent\SupportFiles\ConfigureGeoEvent.bat
 )
 
+REM Install Message Simulator - Copy Message Simulator files and
+REM create a Windows Scheduled Task
+if "%ops_install_message_simulator%"=="YES" (
+    Call %~dp0MessageSimulator\InstallMessageSimulator.bat
+)
+
 goto end
 
 :end
