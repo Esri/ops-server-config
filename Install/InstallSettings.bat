@@ -197,6 +197,10 @@ REM Configure GeoEvent Processor Extension for ArcGIS Server - create new admini
 REM user, reset ArcGIS Server connection for registered data store
 set ops_configure_geoevent=YES
 
+REM Install Message Simulator - Copy Message Simulator files and
+REM creates a Windows Scheduled Task
+set ops_install_message_simulator=YES
+
 REM ---------------------------------------------------------------------
 REM END Set User Editable Variables
 REM ---------------------------------------------------------------------
