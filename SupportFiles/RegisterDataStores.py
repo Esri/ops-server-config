@@ -16,6 +16,13 @@ import httplib, urllib, json
 
 import OpsServerConfig
 from Utilities import makePath
+from DataStore import create_shared_folder_item
+from DataStore import create_replicated_folder_item
+from DataStore import register
+from DataStore import create_managed_entdb_item
+from DataStore import create_shared_entdb_item
+from DataStore import create_replicated_entdb_item
+from DataStore import create_postgresql_db_connection_str
 
 serverName = OpsServerConfig.serverName
 serverPort = OpsServerConfig.serverPort
@@ -25,7 +32,7 @@ regDatabases = True
 
 def registerDataStores(sharedDataStoreConfig, forInstallPurposeOnly, username, password, dataDrive):
     
-    success = True
+    successRegister = True
     
     sharedDBConfig = sharedDataStoreConfig
     sharedFolderConfig = sharedDataStoreConfig
@@ -39,9 +46,7 @@ def registerDataStores(sharedDataStoreConfig, forInstallPurposeOnly, username, p
         installOnlyClientFolders = OpsServerConfig.installOnlyPublishingFolders
         dbsToRegister = OpsServerConfig.databasesToCreate
         
-        print
-        print "\t-Register Data Stores with Site..."
-        print
+        print "\n\t-Register Data Stores with Site...\n"
         
         # ---------------------------------------------------------------------
         # Register Folders by just using paths
@@ -55,55 +60,31 @@ def registerDataStores(sharedDataStoreConfig, forInstallPurposeOnly, username, p
             
             for registrationName, clientFolderPath in clientFolderPaths.items():
                 
+		# Create folder data store item
                 if sharedFolderConfig:
                     sharedStr = "shared"
-                    clientPath = None
+		    dsPath, dsItem = create_shared_folder_item(registrationName, environmentData, serverName)
+		    
                 else:
                     sharedStr = "replicated"
-                    clientPath = clientFolderPath
-                    
-                print "\t\t-Registering folder " + environmentData + \
-                    " with site as " + registrationName + " (" + sharedStr + ")..."
-                
-                # Create dictionary with JSON items common to all database cases
-                # (i.e., managed, and non-managed shared and replicated)
-                commonJSON = {'path':'/fileShares/' + registrationName, \
-                            'type':'folder', \
-                            'id':None, \
-                            'clientPath':clientPath}
-                
-                if sharedFolderConfig:
-                    # Shared
-                    
-                    commonJSON["info"] = {"dataStoreConnectionType":"shared", \
-                                          "hostname":serverName, \
-                                          "path":environmentData}
-                    
-                else:
-                    # Replicated
-                 
-                    commonJSON["info"] = {"dataStoreConnectionType":"replicated", \
-                                          "path":environmentData}
-                
-                itemJson = json.dumps(commonJSON)
-                itemName = registrationName
-                senditem(itemJson,itemName, username, password)
-                print "\t\tDone."
-                print
-    
-        # ---------------------------------------------------------------------
-        # Register databases
-        # (NOTE: Assumes database password is the same as that used to install
-        # arcgis server)
-        # ---------------------------------------------------------------------    
-        if regDatabases:
-            
-            # Create database connection string template
-            dbConnectionTemplateString = "SERVER=serverReplaceString;" + \
-                "INSTANCE=sde:postgresql:serverReplaceString;DBCLIENT=postgresql;" + \
-                "DB_CONNECTION_PROPERTIES=serverReplaceString;DATABASE=dbReplaceString;USER=sde;PASSWORD=" + \
-                password + ";VERSION=sde.DEFAULT;AUTHENTICATION_MODE=DBMS"
-    
+                    dsPath, dsItem = create_replicated_folder_item(registrationName, clientFolderPath, environmentData)
+
+		# Register the data store item
+		print "\t\t-Registering folder " + environmentData + " with site as " + registrationName + " (" + sharedStr + ")..."
+		success, response = register(serverName, serverPort, username, password, dsItem, useSSL=False)
+		if success:
+		    print "\t\tDone.\n"
+		else:
+		    successRegister = False
+		    print "ERROR:" + str(response)
+
+        ## ---------------------------------------------------------------------
+        ## Register databases
+        ## (NOTE: Assumes database password is the same as that used to install
+        ## arcgis server)
+        ## ---------------------------------------------------------------------
+	if regDatabases:
+        
             for db in dbsToRegister:
                 
                 isManaged = dbsToRegister[db][0]
@@ -118,69 +99,52 @@ def registerDataStores(sharedDataStoreConfig, forInstallPurposeOnly, username, p
                 
                 if continueRegister:
                     
+		    success, server_db_conn = create_postgresql_db_connection_str(
+                                        serverName, serverPort, username, password,
+                                        serverName, db, 'sde', password, useSSL=False)
+		    if not success:
+			successRegister = False
+			print "ERROR: error encountered while creating server database connection string -"
+			print str(server_db_conn)
+		    
                     if forInstallPurposeOnly:
                         registrationName = registrationName + "_InstallOnly"
                     
                     managedStr = ""
                     if isManaged:
                         managedStr = "Managed"
+			dsPath, dsItem = create_managed_entdb_item(registrationName, server_db_conn)
+			
                     else:
                         managedStr = "Non-managed"
                         if sharedDBConfig:
                             managedStr = managedStr + " - shared"
+			    dsPath, dsItem = create_shared_entdb_item(registrationName, server_db_conn)
+			    
                         else:
                             managedStr = managedStr + " - replicated"
-                    
-                    print "\t\t-Registering " + db + " database with site as " + \
-                        registrationName + " (" + managedStr + ")..."
-                    
-                    # Replace database place holder with name of database
-                    connStr = dbConnectionTemplateString.replace("dbReplaceString", db)
-                    clientConnStr = dbConnectionTemplateString.replace("dbReplaceString", db)
-                    
-                    # Replace server name place holder with name of server
-                    connStr = connStr.replace("serverReplaceString", serverName)
-                    clientConnStr = clientConnStr.replace("serverReplaceString", clientServerName)
-                    
-                    # Create dictionary with JSON items common to all database cases
-                    # (i.e., managed, and non-managed shared and replicated)
-                    commonJSON = {'path':'/enterpriseDatabases/' + registrationName, \
-                                  'type':'egdb', \
-                                  'id':None, \
-                                  'clientPath':None}
-                   
-                    if isManaged:
-                        # Managed
-                        
-                        commonJSON["info"] = {'connectionString': connStr, \
-                                              "isManaged":True, \
-                                              "dataStoreConnectionType":"serverOnly"}
-                        
-                    else:
-                        
-                        if sharedDBConfig:
-                            # Shared
-                            
-                            commonJSON["info"] = {'connectionString': connStr, \
-                                                  "isManaged":False, \
-                                                  "dataStoreConnectionType":"shared"}
-                            
-                        else:
-                            # Replicated
-                         
-                            commonJSON["info"] = {'clientConnectionString': clientConnStr, \
-                                                'connectionString': connStr, \
-                                                "isManaged":False, \
-                                                "dataStoreConnectionType":"replicated"}
-                    
-                    itemJson = json.dumps(commonJSON)
-                    itemName = db.upper() + " DB"
-                    senditem(itemJson,itemName, username, password)
-                    print "\t\tDone."
-                    print
+			    
+			    success, publisher_db_conn = create_postgresql_db_connection_str(
+                                        serverName, serverPort, username, password,
+                                        clientServerName, db, 'sde', password, useSSL=False)
+			    if not success:
+				successRegister = False
+				print "ERROR: error encountered while creating publisher database connection string -"
+				print str(publisher_db_conn)
+			
+			    dsPath, dsItem = create_replicated_entdb_item(registrationName, publisher_db_conn, server_db_conn)
+			    
+                    print "\t\t-Registering " + db + " database with site as " + registrationName + " (" + managedStr + ")..."
+		    success, response = register(serverName, serverPort, username, password, dsItem, useSSL=False)
+		    if success:
+			print "\t\tDone.\n"
+		    else:
+			successRegister = False
+			print "ERROR:" + str(response)
+		    
 
     except:
-        success = False
+        successRegister = False
         
         # Get the traceback object
         tb = sys.exc_info()[2]
@@ -196,123 +160,7 @@ def registerDataStores(sharedDataStoreConfig, forInstallPurposeOnly, username, p
         
     finally:
         # Return success flag
-        return success
-    
-    
-def senditem(itemJson,itemName, username, password):
-    # Get a token
-
-    token = getToken(username, password, serverName, serverPort)
-    if token == "":
-        print "Could not generate a token with the username and password provided."
-        return
-    
-    # Construct URL to Register a folder http://server:port/arcgis/admin/data/registerItem
-    dataItemURL = "/arcgis/admin/data/registerItem"
-        
-    headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-
-
-    params = urllib.urlencode({'token': token, 'f': 'json', 'item':itemJson})
-    #params = itemJson
-    
-    # Connect to URL and post parameters    
-    httpConn = httplib.HTTPConnection(serverName, serverPort)
-    httpConn.request("POST", dataItemURL, params, headers)
-    
-    # Read response
-    response = httpConn.getresponse()
-    if (response.status != 200):
-        httpConn.close()
-        print "Error while attempting to register the data store."
-        return
-    else:
-        data = response.read()
-        httpConn.close()
-        
-        # Check that data returned is not an error object
-        if not assertJsonSuccess(data):          
-            print "Error returned by operation. " + data
-        else:
-            print "\t\t" + itemName + " Add successfully!"
-        
-def getToken(username, password, serverName, serverPort):
-    # Token URL is typically http://server[:port]/arcgis/admin/generateToken
-    tokenURL = "/arcgis/admin/generateToken"
-    
-    # URL-encode the token parameters
-    params = urllib.urlencode({'username': username, 'password': password, 'client': 'requestip', 'f': 'json'})
-    
-    headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-    
-    # Connect to URL and post parameters
-    httpConn = httplib.HTTPConnection(serverName, serverPort)
-    httpConn.request("POST", tokenURL, params, headers)
-    
-    # Read response
-    response = httpConn.getresponse()
-    if (response.status != 200):
-        httpConn.close()
-        print "Error while fetching tokens from admin URL. Please check the URL and try again."
-        return
-    else:
-        data = response.read()
-        httpConn.close()
-        
-        # Check that data returned is not an error object
-        if not assertJsonSuccess(data):            
-            return
-        
-        # Extract the toke from it
-        token = json.loads(data)       
-        return token['token']
-    
-#A function that checks that the input JSON object
-#  is not an error object.    
-def assertJsonSuccess(data):
-    obj = json.loads(data)
-    if 'status' in obj and obj['status'] == "error":
-        print "Error: JSON object returns an error. " + str(obj)
-        return False
-    else:
-        return True
-
-def unregisterDataStoreItem(username, password, itemPath):
-    # Get a token
-
-    token = getToken(username, password, serverName, serverPort)
-    if token == "":
-        print "Could not generate a token with the username and password provided."
-        return
-    
-    # Construct URL to Register a folder http://server:port/arcgis/admin/data/registerItem
-    dataItemURL = "/arcgis/admin/data/unregisterItem"
-        
-    headers = {"Content-type": "application/x-www-form-urlencoded", "Accept": "text/plain"}
-
-    params = urllib.urlencode({'token': token, 'f': 'json', 'itemPath':itemPath})
-    
-    # Connect to URL and post parameters    
-    httpConn = httplib.HTTPConnection(serverName, serverPort)
-    httpConn.request("POST", dataItemURL, params, headers)
-    
-    # Read response
-    response = httpConn.getresponse()
-    if (response.status != 200):
-        httpConn.close()
-        print "Error while attempting to unregister the data store '" + \
-            itemPath + "'."
-        return
-    else:
-        data = response.read()
-        httpConn.close()
-        
-        # Check that data returned is not an error object
-        if not assertJsonSuccess(data):          
-            print "Error returned by operation. " + data
-        else:
-            print "\t\t" + itemPath + " unregistered successfully!"
-            print "\t\tDone."
+        return successRegister
     
 # Script start
 if __name__ == "__main__":

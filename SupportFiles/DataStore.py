@@ -6,6 +6,7 @@ from AGSRestFunctions import registerDataItem as _register
 from AGSRestFunctions import unregisterDataItem as _unregister
 from AGSRestFunctions import validateDataItem as _validateitem
 from AGSRestFunctions import getDataItemInfo as _getdataiteminfo
+from AGSRestFunctions import getDBConnectionStrFromStr
 
 # JSON keys
 _itemkey                = 'item'
@@ -35,15 +36,21 @@ _postgres_db_conn_template_str = "SERVER=serverReplaceStr;" + \
     "INSTANCE=sde:postgresql:serverReplaceStr;DBCLIENT=postgresql;" + \
     "DB_CONNECTION_PROPERTIES=serverReplaceStr;DATABASE=dbReplaceStr;USER=userReplaceStr;PASSWORD=" + \
     "passwordReplaceStr;VERSION=sde.DEFAULT;AUTHENTICATION_MODE=DBMS"
-            
-def create_postgresql_db_connection_str(dbservername, dbname, username, password):
-    ''' Create PostgreSQL database connection string '''
+
+def create_postgresql_db_connection_str(server, port, user, password, dbservername, dbname, dbusername, dbpassword, useSSL=True, token=None):
+    ''' Create PostgreSQL database connection string.
+        Parameters server, port, user, password, useSSL and token are to connect to ArcGIS Server site
+        to encrypt database password.
+    '''
     db_conn_str = _postgres_db_conn_template_str.replace('serverReplaceStr', dbservername)
     db_conn_str = db_conn_str.replace('dbReplaceStr', dbname)
-    db_conn_str = db_conn_str.replace('userReplaceStr', username)
-    db_conn_str = db_conn_str.replace('passwordReplaceStr', password)
+    db_conn_str = db_conn_str.replace('userReplaceStr', dbusername)
+    db_conn_str = db_conn_str.replace('passwordReplaceStr', dbpassword)
     
-    return db_conn_str
+    # Encrypt the database password
+    success, results = getDBConnectionStrFromStr(server, port, user, password, db_conn_str, useSSL, token)
+    
+    return success, results
 
 def create_shared_folder_item(name, publisher_folder_path, publisher_folder_hostname=None):
     '''Create shared folder data item.
