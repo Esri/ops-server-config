@@ -41,6 +41,7 @@ http://resources.arcgis.com/en/help/main/10.1/#/Scripting_ArcGIS_Server_administ
 import urllib
 import urllib2
 import json
+import time
     
 def gentoken(server, port, adminUser, adminPass, useSSL=True, expiration=60):
     #Re-usable function to get a token required for Admin changes
@@ -880,3 +881,63 @@ def getServiceManifest(server, port, adminUser,  adminPass, folder, serverNameAn
     serviceManifest = json.loads(urllib2.urlopen(URL).read())
     
     return serviceManifest
+
+def getDBConnectionStrFromStr(server, port, adminUser, adminPass, dbConnectionString, useSSL=True, token=None):
+    ''' Returns encrypted db connection string given the db connection string.
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    If a token exists, you can pass one in for use.  
+    '''    
+    # Created: Eric L
+    
+    in_param_dict = dict()
+    in_param_dict['in_connDataType'] = 'CONNECTION_STRING'
+    in_param_dict['in_inputData'] = dbConnectionString
+    
+    return _getDBConnectionString(server, port, adminUser, adminPass, in_param_dict, useSSL, token=None)
+    
+def _getDBConnectionString(server, port, adminUser, adminPass, in_param_dict, useSSL=True, token=None):
+    ''' Executes "Get Database Connecting String" gp service task.
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    If a token exists, you can pass one in for use.  
+    '''    
+    # Created: Eric L
+
+    results = None
+    job_results = None
+    
+    # Get and set the token
+    if token is None:    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
+    
+    # Submit the job
+    item_encode = urllib.urlencode(in_param_dict)            
+    URL = "{}{}{}/arcgis/rest/services/System/PublishingTools/GPServer/Get%20Database%20Connection%20String/submitJob?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)    
+    submit_results = json.loads(urllib2.urlopen(URL, item_encode).read())
+
+    job_status = submit_results['jobStatus']
+    job_id = submit_results['jobId']
+    job_URL = "{}{}{}/arcgis/rest/services/System/PublishingTools/GPServer/Get%20Database%20Connection%20String/jobs/{}?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), job_id, token)
+    
+    # Check for job completion
+    while job_status == 'esriJobSubmitted':
+        time.sleep(2)
+        job_results = json.loads(urllib2.urlopen(job_URL).read())
+        job_status = job_results['jobStatus']
+    
+    # Check job completion status
+    if job_status == 'esriJobFailed':
+        success = False
+        msgs = job_results['messages']
+        results = []
+        for msg in msgs:
+            if msg['type'] == 'esriJobMessageTypeError':
+                results.append(msg['description'])
+    
+    if job_status == 'esriJobSucceeded':
+        success = True
+        param_URL = job_results['results']['out_connectionString']['paramUrl']
+        job_results_URL = "{}{}{}/arcgis/rest/services/System/PublishingTools/GPServer/Get%20Database%20Connection%20String/jobs/{}/{}?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), job_id, param_URL, token)
+        out_connection_string = json.loads(urllib2.urlopen(job_results_URL).read())
+        results = out_connection_string['value'].encode('ascii')
+    
+    return success, results

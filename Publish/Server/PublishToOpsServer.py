@@ -266,13 +266,23 @@ def registerDataStores():
                 registrationName = databases[db][1] + "_" + publishingDBServer + regNameAppend
                 
                 # Create the publishing database connection string
-                pub_db_conn = DataStore.create_postgresql_db_connection_str(
-                                        publishingDBServer, db, dbuser, passWord)
+                success, pub_db_conn = DataStore.create_postgresql_db_connection_str(
+                                        serverFQDN, serverPort, userName, passWord,
+                                        publishingDBServer, db, dbuser, passWord, useSSL)
+                if not success:
+                    registerSuccessful = False
+                    print "ERROR: error encountered while creating publishing database connection string -"
+                    print str(pub_db_conn)
                 
                 # Create the server database connection string
-                server_db_conn = DataStore.create_postgresql_db_connection_str(
-                                        server, db, dbuser, passWord)
-                
+                success, server_db_conn = DataStore.create_postgresql_db_connection_str(
+                                        serverFQDN, serverPort, userName, passWord,
+                                        server, db, dbuser, passWord, useSSL)
+                if not success:
+                    registerSuccessful = False
+                    print "ERROR: error encountered while creating server database connection string -"
+                    print str(server_db_conn)
+                    
                 # Create the data store item
                 dsPath, dsItem = DataStore.create_replicated_entdb_item(
                                         registrationName, pub_db_conn, server_db_conn)
