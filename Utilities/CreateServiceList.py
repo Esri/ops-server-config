@@ -12,17 +12,24 @@
 import sys, os, traceback, datetime, ast, copy, json
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])), 'Publish' + os.path.sep + 'Portal'))
+sys.path.append(os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])), 'SupportFiles'))
+
 
 from portalpy import Portal
 import logging
+import urlparse
+from AGSRestFunctions import getServicePortalProps
+from AGSRestFunctions import getServiceList
 
 scriptName = sys.argv[0]
 exitErrCode = 1
 sectionBreak = '=' * 175
 sectionBreak1 = '-' * 175
-print_prefix = '\t\t\t\t{}'
+print_prefix = '\t\t\t\t{}:{}'
 
 logging.basicConfig()
+
+service_portal_ids = None
 
 def check_args():
     # ---------------------------------------------------------------------
@@ -90,11 +97,17 @@ def searchPortal(portal, owner, group=None):
     return all_items
 
 def print_item_info2(item):
-    print '{:<30}{:<35}{:<85}{:<25}'.format(item.get('type'), item.get('id'), '"{}"'.format(item.get('title')), item.get('owner'))
+    print '{:<30}{:<32}   {:<115}{:<25}'.format(item.get('type'), item.get('id'), '"{}"'.format(item.get('title')), item.get('owner'))
 
 def print_webmap_info(item):
-    print '\t\t{:<14}{:<35}{:<85}{:<25}'.format(item.get('type'), item.get('id'), '"{}"'.format(item.get('title')), item.get('owner'))
+    print '{:<30}{:<14}{:<32}   {:<100}{:<25}'.format('', item.get('type'), item.get('id'), '"{}"'.format(item.get('title')), item.get('owner'))
 
+def print_webmapapp_webmap_info(item):
+    print '{:<16}{:<14}{:<32}   {:<115}{:<25}'.format('', item.get('type'), item.get('id'), '"{}"'.format(item.get('title')), item.get('owner'))
+    
+def print_opview_webmap_info(item):
+    print '{:<16}{:<14}{:<32}   {:<115}{:<25}'.format('', item.get('type'), item.get('id'), '"{}"'.format(item.get('title')), item.get('owner'))
+    
 def get_webmap_service_urls(portal, item):
     
     urls = []
@@ -114,7 +127,7 @@ def get_webmap_service_urls(portal, item):
     
     return urls
 
-def get_opview_service_urls(portal, item):
+def get_opview_service_urls(portal, item, service_portal_ids):
     print_service_prefix = '\t\t\t\t{}'
     urls = []
     opview = portal.operationview(item['id'])
@@ -122,26 +135,35 @@ def get_opview_service_urls(portal, item):
     # Get URLs for stand alone data sources referenced in the operations view
     standalone_ds_urls = opview.standalone_ds_urls()
     if standalone_ds_urls:
-        print '\t\tStand alone datasources:'
+        print '\n\t\tStand alone datasources:'
     for url in standalone_ds_urls:
         urls.append(url)
-        print print_service_prefix.format(url)
+        #print print_service_prefix.format(url)
+        p_item_id = _get_item_id(url, service_portal_ids)
+        print '\n{:<30}{:<14}{:<32}   {:<101}{:<25}'.format('','Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
+        print '{:<30}{:<14}{:>32}   {:<100}'.format('','','URL:', url)
         
     # Get URLs for services referenced in all web maps in the operations view
     mapwidgets = opview.map_widgets()
     for mapwidget in mapwidgets:
+        print '\n'
         webmap_id = mapwidget['mapId']
         webmap_item = portal.item(webmap_id)
-        print
-        print_webmap_info(webmap_item)
+        
+        #print_webmap_info(webmap_item)
+        print_opview_webmap_info(webmap_item)
         webmap_service_urls = get_webmap_service_urls(portal, webmap_item)
         for url in webmap_service_urls:
             urls.append(url)
-            print print_service_prefix.format(url)
-            
+            #print print_service_prefix.format(url)
+            p_item_id = _get_item_id(url, service_portal_ids)
+            print '\n{:<30}{:<14}{:<32}   {:<101}{:<25}'.format('','Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
+            print '{:<30}{:<14}{:>32}   {:<101}'.format('','','URL:', url)
+                                
     return urls
 
-def get_webapp_service_urls(portal, item):
+def get_webapp_service_urls(portal, item, service_portal_ids):
+
     print_service_prefix = '\t\t\t\t{}'
     webmap_urls = []
     url = item.get('url')
@@ -172,13 +194,17 @@ def get_webapp_service_urls(portal, item):
                         webmap = webmap.replace(' ', '')
                         webmap_ids = webmap.split(',')
                         for webmap_id in webmap_ids:
+                            print '\n'
                             webmap_item = portal.item(webmap_id)
-                            print
-                            print_webmap_info(webmap_item)
+                            #print_webmap_info(webmap_item)
+                            print_webmapapp_webmap_info(webmap_item)
                             wm_urls = get_webmap_service_urls(portal, webmap_item)
                             for wm_url in wm_urls:
-                                print print_service_prefix.format(wm_url)
-                            
+                                #print print_service_prefix.format(wm_url)
+                                p_item_id = _get_item_id(wm_url, service_portal_ids)
+                                print '\n{:<30}{:<14}{:<32}   {:<101}{:<25}'.format('','Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
+                                print '{:<30}{:<14}{:>32}   {:<100}'.format('','','URL:',wm_url)
+                        
                             webmap_urls.extend(wm_urls)
             else:
                 print '\n**** WARNING: can''t determine what data sources are referenced in this item.\n'
@@ -195,14 +221,63 @@ def _remove_layer_number(url):
             break
     return url
 
+def get_service_portal_ids(server, port, user, password):
+    
+    service_portal_ids = None
+    
+    # Get list of services on specified ArcGIS Server
+    service_list = getServiceList(server, port, user, password)
+    if len(service_list) > 0:
+        service_portal_ids = {}
+    
+    # Get ids for all portal items assocatied with each AGS service
+    for service in service_list:
+        parsed_service = service.split('//')
+        folder = None
+        if len(parsed_service) == 1:
+            service_name_type = parsed_service[0]
+        else:
+            folder = parsed_service[0]
+            service_name_type = parsed_service[1]
+        
+        service_portal_prop = getServicePortalProps(server, port, user, password, folder, service_name_type)
+        service_portal_items = service_portal_prop['portalItems']
+        root_service = service.split('.')[0].replace('//', '/')
+        
+        for service_portal_item in service_portal_items:
+            service_portal_ids['{}/{}'.format(root_service,
+                service_portal_item['type'])] = service_portal_item['itemID'].encode('ascii')
+
+    return service_portal_ids
+
+def _get_item_id(url, service_portal_ids):
+    for s in service_portal_ids:
+        if url.find(s) > 0:
+            return service_portal_ids[s]    
+
+def _get_item_owner(portal, item_id):
+    if item_id:
+        item = _get_item(portal, item_id)
+        if item:
+            return item.get('owner')
+
+def _get_item_title(portal, item_id):
+    if item_id:
+        item = _get_item(portal, item_id)
+        if item:
+            return item.get('title')
+
+def _get_item(portal, item_id):
+    if item_id:
+        item = portal.item(item_id)
+        return item
+
 def main():
     
     totalSuccess = True
     out_file = None
     
-    # -------------------------------------------------
     # Check arguments
-    # -------------------------------------------------
     results = check_args()
     if not results:
         sys.exit(exitErrCode)
@@ -220,9 +295,16 @@ def main():
 
         if not portal.logged_in_user():
             raise Exception('\nERROR: Could not sign in with specified credentials.')
-
-        # Find portal items
+        
+        # Get portal items
         items = searchPortal(portal, owner, group)
+        
+        # Get portal item ids for all AGS services
+        urlparts = urlparse.urlparse(portal_url)
+        server = urlparts.hostname
+        # NOTE: call to following function assumes AGS server is using
+        # same username and password as portal
+        service_portal_ids = get_service_portal_ids(server, 6443, user, password)
         
         all_urls = []
         services = []
@@ -233,31 +315,35 @@ def main():
         if items:
             
             for item in items:
-                print '-' * 170
+                print '-' * 200
                     
                 if 'Service' in item.get('typeKeywords'):
                     if not 'Service Definition' in item.get('typeKeywords'):
                         print_item_info2(item)
                         url = item.get('url')
                         all_urls.append(url)
-                        print print_prefix.format(url)
-        
+                        p_item_id = _get_item_id(url, service_portal_ids)
+                        print '\n\t\t{:<14}{:<32}   {:<115}{:<25}'.format('Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
+                        print '\t\t{:<14}{:>32}   {:<115}'.format('','URL:',url)
+                        
                 elif item.get('type') == 'Web Map':
                     print_item_info2(item)
                     urls = get_webmap_service_urls(portal, item)
                     for url in urls:
                         all_urls.append(url)
-                        print print_prefix.format(url)
+                        p_item_id = _get_item_id(url, service_portal_ids)
+                        print '\n\t\t{:<14}{:<32}   {:<115}{:<25}'.format('Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
+                        print '\t\t{:<14}{:>32}   {:<115}'.format('','URL:',url)
                         
                 elif item.get('type') == 'Operation View':
                     print_item_info2(item)
-                    urls = get_opview_service_urls(portal, item)
+                    urls = get_opview_service_urls(portal, item, service_portal_ids)
                     for url in urls:
                         all_urls.append(url)      
         
                 elif item.get('type') == 'Web Mapping Application':
                     print_item_info2(item)
-                    urls = get_webapp_service_urls(portal, item)
+                    urls = get_webapp_service_urls(portal, item, service_portal_ids)
                     for url in urls:
                         all_urls.append(url)
                         
@@ -278,7 +364,7 @@ def main():
                         service = url.split('/rest/services/')[1]
                         if not service in services:
                             services.append(service)
-
+        
         if len(services) > 0:
             services.sort()
             out_file = open(output_file, access_mode)
