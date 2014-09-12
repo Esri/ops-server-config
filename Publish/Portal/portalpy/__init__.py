@@ -84,7 +84,7 @@ class Portal(object):
     }
 
     def __init__(self, url, username=None, password=None, key_file=None,
-                 cert_file=None, expiration=60, referer=None, proxy_host=None,
+                 cert_file=None, expiration=160, referer=None, proxy_host=None,
                  proxy_port=None, connection=None, workdir=tempfile.gettempdir()):
         """ The Portal constructor. Requires URL and optionally username/password."""
         self.url = url
