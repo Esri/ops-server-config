@@ -319,24 +319,27 @@ def getPortalPropsForServices(portal, agsServices):
                 itemID = portalItems[i]['itemID']
                 itemType = portalItems[i]['type']
                 item = portal.item(itemID)
+                
                 if not item:
+                    outProps['portalItems'][i]['itemExists'] = False
                     print 'ERROR: Service "' + service + '" is associated with a portal item (' + \
                         itemID + '; ' + itemType + ') that does not exist.'
-                    outProps['portalItems'][i]['itemExists'] = False
+                    outProps['portalItems'][i]['itemInfo'] = None
+                    outProps['portalItems'][i]['itemSharing'] = None
+                    outProps['portalItems'][i]['itemGroups'] = None
                     continue
                 else:
+                    groups = []
+                    outProps['portalItems'][i]['itemExists'] = True
                     print '       Service "' + service + '" has an associated item (' + \
                     itemID + '; ' + itemType + ')'
-                outProps['portalItems'][i]['itemExists'] = True
-                tags = item['tags']
-                owner = item['owner']
-                if tags:
-                    allTags.extend(tags)
-                    outProps['portalItems'][i]['tags'] = tags
-                    outProps['portalItems'][i]['owner'] = owner
-                
-            uniqueTags = list(set(allTags))
-            outProps['tags'] = uniqueTags
+                    item_info, item_sharing, item_folder_id = portal.user_item(itemID)
+                    outProps['portalItems'][i]['itemInfo'] = item_info
+                    outProps['portalItems'][i]['itemSharing'] = item_sharing
+                    group_ids = item_sharing['groups']
+                    for group_id in group_ids:
+                        groups.append(portal.group(group_id))
+                    outProps['portalItems'][i]['itemGroups'] = groups
         
             allServicesProps[service] = outProps
     
@@ -443,7 +446,9 @@ def main():
     # Get the portal properties for each portal item referenced by the service
     # according to the services' json info
     #portal = Portal('https://' + server + '/arcgis', adminuser, password)
-    portal = Portal('https://' + server + '/arcgis', adminuser, '**************')
+    #portal = Portal('https://' + server + '/arcgis', adminuser, '**************')
+    portal = Portal('https://' + server + ':7443/arcgis', adminuser, password)
+    
     props = getPortalPropsForServices(portal, agsServices)
     
     # Get list of item ids for all specified users
