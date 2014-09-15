@@ -24,14 +24,13 @@ scriptName = os.path.basename(sys.argv[0])
 filePattern = "*.sd"
 totalSuccess = True
 specified_users = None
-as_specified_ops_types = None
-specified_ops_types = None
+specified_groups = None
 
 doFindSDFiles = True
-doCreateAGSConnFile = True
-doRegDataStores = True
+doCreateAGSConnFile = False
+doRegDataStores = False
 doPublishServiceDefs = True
-doUnregDataStores = True
+doUnregDataStores = False
 
 #publishingDBServer = OpsServerConfig.publishingDBServer
 databases = OpsServerConfig.databasesToCreate
@@ -61,38 +60,29 @@ dataFolderDStoreName = OpsServerConfig.dataFolderDStoreName
 if len(sys.argv) < 8:
     print "\n" + scriptName + " <Server_FullyQualifiedDomainName> <Server_Port> <User_Name> " + \
                             "<Password> <Use_SSL: Yes|No> <Start_Service: Yes|No>"
-    print "\t\t<Service_Definition_Root_Folder_Path> {OwnersToPublish} {OpsServerTypesToPublish}"
+    print "\t\t<Service_Definition_Root_Folder_Path> {OwnersToPublish} {GroupsToPublish}"
     
-    print "\nWhere:"
-    print "\n\t<Server_FullyQualifiedDomainName> (required) Fully qualified domain name of ArcGIS Server."
-    print "\n\t<Server_Port> (required) ArcGIS Server port number; if not using server port enter '#'"
-    print "\n\t<User_Name> (required) ArcGIS Server site administrator user name."
-    print "\n\t<Password> (required) ArcGIS Server site administrator password."
-    print '\n\t<Use_SSL: Yes|No> (required) Flag indicating if ArcGIS Server requires HTTPS.'
-    
+    print '\nWhere:'
+    print '\n\t<Server_FullyQualifiedDomainName> (required) Fully qualified domain name of ArcGIS Server.'
+    print '\n\t<Server_Port> (required) ArcGIS Server port number; if not using server port enter #'
+    print '\n\t<User_Name> (required) ArcGIS Server site administrator user name.'
+    print '\n\t<Password> (required) ArcGIS Server site administrator password.'
+    print '\n\t<Use_SSL: Yes|No> (required) Flag indicating if you want to connect to ArcGIS Server using HTTPS.'
     print '\n\t<Start_Service: Yes|No> (required) Flag indicating if the service should be started after publishing.'
+    print '\n\t<Service_Definition_Root_Folder_Path> (required parameter) is the path of the root folder containg the service definition (.sd) files to upload (publish).'
     
-    print "\n\t<Service_Definition_Root_Folder_Path> (required parameter) is the path of the root folder"
-    print "\t\tcontaing the service definition (.sd) files to upload (publish)."
-    
-    print '\n\t{OwnersToPublish} (optional parameter):'
+    print '\n\t{Owners_To_Publish} (optional parameter):'
     print '\t\t-By default, all services are published regardless of the owner.'
-    print '\t\t-Specify # placeholder character if you want to publish services for all owners and you are'
-    print '\t\t   specifying {OpsServerTypesToPublish} values'
-    print '\t\t-To publish services for only specific owners specify comma delimited list of owner names, i.e. owner1,owner2,...'
-    print '\t\t-To publish services for ALL owners except specific owners, specify comma delimited '
-    print '\t\t   list of owners to exclude with "-" prefix, i.e. -owner1,owner2,...'
-    print '\t\t-Owner names are case sensitive (i.e. names must match exactly)'
+    print '\t\t-Specify # placeholder character if you want to publish services for all owners and you are specifying {Groups_To_Publish} values'
+    print '\t\t-To publish services for only specific owners specify pipe "|" delimited list of owner names, i.e. "Owner|Owner|...".'
+    print '\t\t-To publish services for ALL owners except specific owners, specify pipe "|" delimited list of owners to exclude with "-" prefix, i.e. "-Owner|Owner|...".'
+    print '\t\t-NOTE: Owner names are case sensitive.'
+    print '\t\t-NOTE: Parameter value MUST be surrounded by double-quotes.'
     
-    print '\n\t{OpsServerTypesToPublish} (optional parameter):'
-    print '\t\t-To post content for specific Ops Server types specify type value, i.e.'
-    print '\t\t   ' + str(valid_ops_types)  + '; you can specify more then one type,'
-    print '\t\t   i.e, Land,Maritime,...'
-
-    print '\n\tNOTES:'
-    print '\t\t(1) To include spaces in any of the parameter lists, surround the list with double-quotes,'
-    print '\t\t i.e., "value1, value2, ..."'
-    print '\t\t(2) {OwnersToPublish} values i.e., owner names are case sensitive (i.e. names must match exactly)'
+    print '\n\t{Groups_To_Publish} (optional parameter):'
+    print '\t\t-To publish services shared with specific portal groups specify a pipe "|" delimited list of groups using the syntax "GroupOwner:GroupTitle|GroupOwner:GroupTitle|...".'
+    print '\t\t-NOTE: GroupOwner and GroupTitle values are case sensitive.'
+    print '\t\t-NOTE: Parameter value MUST be surrounded by double-quotes.'
     print
     sys.exit(1)
 
@@ -110,7 +100,8 @@ if len(sys.argv) > 8:
         specified_users = None
         
 if len(sys.argv) > 9:
-    as_specified_ops_types = sys.argv[9]
+    specified_groups = sys.argv[9]
+    specified_groups = [group.strip() for group in specified_groups.split('|')]
     
 if len(sys.argv) > 10:
     print "You entered too many script parameters."
@@ -132,26 +123,17 @@ if DEBUG:
     print "userName: " + str(userName)
     print "passWord: " + str(passWord)
     if specified_users:
-        print "specifiedUsers: " + str(specified_users)
-    if as_specified_ops_types:
-        print "as_specified_ops_types: " + str(as_specified_ops_types)      
-
+        print "specifiedUsers: " + str(specified_users)    
+    if specified_groups:
+        print "specified_groups: " + str(specified_groups)
+        
 excludeUsers = None
 includeUsers = None
 if specified_users:
     if specified_users.find('-') == 0:
-        excludeUsers = specified_users.replace('-', '', 1).replace(' ', '').split(',')
+        excludeUsers = specified_users.replace('-', '', 1).replace(' ', '').split('|')
     else:
-        includeUsers = specified_users.replace(' ', '').split(',')
-                    
-# Check if specified ops server types are valid
-if as_specified_ops_types:
-    results, specified_ops_types = OpsServerConfig.validateOpsTypes(as_specified_ops_types)
-    if not results:
-        print "Parameter {OpsServerTypesToPublish}: '" + str(as_specified_ops_types) + \
-        "' does not contain valid value(s)."
-        print "Valid {OpsServerTypesToPublish} values are: " + str(valid_ops_types)
-        sys.exit(1)
+        includeUsers = specified_users.replace(' ', '').split('|')
 
 server = serverFQDN.split('.')[0]
 
@@ -318,6 +300,7 @@ def unregisterDataStores(dataStorePaths):
                 
     return unregisterSuccessful
 
+
 try:
     startTime = datetime.now()
     success = True
@@ -398,15 +381,30 @@ try:
             fileNameNoExt = os.path.splitext(os.path.basename(sdFilePath))[0]
             os.chdir(sdFolder)
             p_info = json.load(open(fileNameNoExt + '_p_info.json'))
-            tags = p_info['tags']
             portalItems = p_info.get('portalItems')
             
+            # Get all the portal item owners for this service from the JSON
+            owners = []
             if portalItems:
-                owners = []
                 for item in portalItems:
-                    if item.get('owner'):
-                        owners.append(item['owner'])
+                    itemInfo = item.get('itemInfo')
+                    if itemInfo:
+                        owner = itemInfo.get('owner')
+                        if owner:
+                            owners.append(owner.encode('ascii'))
                 owners = list(set(owners))
+            
+            # Get the shared portal groups for all the portal items associated
+            # with this service from the JSON
+            groups = []
+            for item in portalItems:
+                itemGroups = item.get('itemGroups')
+                if itemGroups:
+                    for itemGroup in item['itemGroups']:
+                        groupOwner = itemGroup['owner']
+                        groupTitle = itemGroup['title']
+                    groups.append('{}:{}'.format(groupOwner, groupTitle).encode('ascii'))
+            groups = list(set(groups))
             
             # Evaluate if the service should be published based on owners
             if specified_users:
@@ -421,16 +419,19 @@ try:
                         if user in owners:
                             doPublish = True
             
-            # If service passed "owner" test, evaluate if the service should
-            # be published based on tag values
-            if specified_ops_types:
-                if doPublish:
-                    doPublish = OpsServerConfig.hasOpsTypeTags(specified_ops_types, tags)
+            # Evaluate if the service should be published based on group membership
+            if doPublish:
+                if specified_groups:
+                    doPublish = False
+                    for specified_group in specified_groups:
+                        if specified_group in groups:
+                            doPublish = True
             
-            print '\tTags: ' + str(tags)
             print '\tOwners: ' + str(owners)
+            print '\tGroups: ' + str(groups)
             print "\tPublish service? " + str(doPublish)
             
+            # Set to false just to test logic
             if doPublish:
                 results = uploadServiceDefinition(sdFilePath, agsPubConnectionFile, startService)
                 if results[0]:

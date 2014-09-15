@@ -27,8 +27,8 @@ from portalpy import Portal, parse_hostname, portal_time, WebMap, normalize_url,
 from portalpy.provision import load_items, load_item
 from Utilities import findInFile, editFiles
 import logging
-import OpsServerConfig
 import copy
+from Utilities import findFilePath
 
 logging.basicConfig()
 
@@ -61,15 +61,13 @@ destGroupID_GroupName = {}
 # Store original item id and new item id
 origIDToNewID = {}
 
-# Store list of valid Ops Server type values
-valid_ops_types = OpsServerConfig.valid_ops_types
-
 def main():
 
     scriptName = sys.argv[0]
 
     specified_users = None
-    specified_ops_types = None
+    #specified_ops_types = None
+    specified_groups = None
     id_mapping_file = None
     
     # ---------------------------------------------------------------------
@@ -100,7 +98,7 @@ def main():
         print '\t\t-To post content for specific Ops Server types specify type value, i.e.'
         print '\t\t   ' + str(valid_ops_types)  + '; you can specify more then one type,'
         print '\t\t   i.e, Land,Maritime,...'
-        print '\t\t-Specify # placeholder character if you do not want to use this parameter by need'
+        print '\t\t-Specify # placeholder character if you do not want to use this parameter and need'
         print '\t\t   to specify the {IdMappingFile} parameter value.'
         
         print '\n\t{IdMappingFile} (optional): JSON file containing mapping between source and target portal item ids.'
@@ -127,7 +125,8 @@ def main():
     if len(sys.argv) > 5:
         specified_users = sys.argv[5]
     if len(sys.argv) > 6:
-        specified_ops_types = sys.argv[6]
+        specified_groups = sys.argv[6]
+        specified_groups = [group.strip() for group in specified_groups.split('|')]
     if len(sys.argv) > 7:
         id_mapping_file = sys.argv[7]
     if len(sys.argv) > 8:
@@ -141,8 +140,8 @@ def main():
         print "contentpath: " + str(contentpath)
         if specified_users:
             print "specifiedUsers: " + str(specified_users)
-        if specified_ops_types:
-            print "specifiedOpsTypes: " + str(specified_ops_types)
+        if specified_groups:
+            print "specifiedOpsTypes: " + str(specified_groups)
         if id_mapping_file:
             print "id_mapping_file: " + str(id_mapping_file)
     
@@ -160,18 +159,6 @@ def main():
     if DEBUG:
         print "Users to publish: " + str(users.keys())
     
-    
-    # Check if specified ops server types are valid
-    if specified_ops_types == "#":
-        specified_ops_types = None
-    if specified_ops_types:
-        results, specified_ops_types = val_arg_ops_types(specified_ops_types)
-        if not results:
-            print "Parameter {OpsServersToPost}: '" + str(specified_ops_types) + \
-            "' does not contain valid value(s)."
-            print "Valid {OpsServersToPost} values are: " + str(valid_ops_types)
-            sys.exit(1)
-    
     # Check if specified id mapping file exists
     if id_mapping_file:
         if not os.path.exists(id_mapping_file):
@@ -184,13 +171,13 @@ def main():
     hostname_map = {source_hostname: new_hostname}
         
     # Publish content to target portal
-    publish_portal(target_portal_address, contentpath, adminuser, adminpassword, users, hostname_map, specified_ops_types, id_mapping_file)
+    publish_portal(target_portal_address, contentpath, adminuser, adminpassword, users, hostname_map, specified_groups, id_mapping_file)
     
     os.chdir(contentpath) #TODO: EL, do we need this?
     
-    print "\nDONE: Finished posting content to portal."
+    
 
-def print_script_header(portal, portal_processing, users, specified_ops_types):
+def print_script_header(portal, portal_processing, users, specified_groups):
     print titleBreak
     print "                               Portal Content " + portal_processing
     print titleBreak
@@ -198,22 +185,44 @@ def print_script_header(portal, portal_processing, users, specified_ops_types):
     print "Portal URL: \t\t\t\t" + portal.url
     print "Signed in as: \t\t\t\t" + portal.logged_in_user()['username'] + " (Role: " + portal.logged_in_user()['role'] + ")"
     print "Posting content for users: \t\t" + str(users.keys())
-    print "Posting items with 'OpsServer'"
-    print "\ttags containing: \t\t" + str(specified_ops_types)
+    print "Posting items shared with the following groups:"
+    print str(specified_groups)
 
     
 #POST
-def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hostname_map, specified_ops_types, id_mapping_file):
+def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hostname_map, specified_groups, id_mapping_file):
     os.chdir(contentpath)
     
     portal_properties = json.load(open("portal_properties.json"))
     portaladmin = Portal(portaladdress, adminuser, adminpassword)
     
-    print_script_header(portaladmin, portal_processing, users, specified_ops_types)
+    print_script_header(portaladmin, portal_processing, users, specified_groups)
 
     # Create Portal log folder for this portal
     portalLogPath = os.path.join(contentpath, portalLogFolder, get_servername_from_url(portaladmin.url))
     makeFolder(portalLogPath)
+    
+    # ------------------------------------------------------------------------
+    # Get info about the groups on disk to filter items based on group membership
+    # ------------------------------------------------------------------------
+    # Get the groups on disk
+    grps_on_disk = get_groups_on_disk(contentpath)
+    
+    # Validate that each specified group is valid
+    if specified_groups:
+        invalid_specified_groups = []
+        for specified_group in specified_groups:
+            found = False
+            for grp in grps_on_disk.itervalues():
+                if specified_group == grp:
+                    found = True
+            if not found:
+               invalid_specified_groups.append(specified_group)
+               
+        if len(invalid_specified_groups) > 0:
+            print '\n***ERROR: the following specified groups do not exist; NOTE: group owner and group title must match exactly including case:\n'
+            print invalid_specified_groups
+            return
     
     # ------------------------------------------------------------------------
     # Create users
@@ -266,7 +275,7 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
         usercontentpath = os.path.join(contentpath, userfoldername)
         
         newItems, origItemSourceIDs = publish_user_items(portaladmin, username, usercontentpath, source_hostname,
-                                new_hostname, new_port, specified_ops_types, id_mapping_file)
+                                new_hostname, new_port, specified_groups, id_mapping_file, grps_on_disk)
         
         # Dump info about new items to JSON to use for resetting IDs of related items
         dump_newItem_info(newItems, origItemSourceIDs, os.path.join(portalLogPath, username))
@@ -301,8 +310,21 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     print "\n" + sectionBreak
     print "Share the items in the default web apps and gallery template groups..."
     share_templates(portaladdress, users['OpsServer']['target_username'], users['OpsServer']['target_password'])
-    
 
+    print "\nDONE: Finished posting content to portal."
+    
+def get_groups_on_disk(contentpath):
+    groups_on_disk_info = {}
+    group_json_files = findFilePath(contentpath, 'group.json', returnFirst=False)
+    for group_json_file in group_json_files:
+        os.chdir(os.path.dirname(group_json_file))
+        group_json = json.load(open('group.json'))
+        groups_on_disk_info[group_json['id']] = '{}:{}'.format(group_json['owner'], group_json['title'])
+        
+    return groups_on_disk_info
+
+    
+    
 def dump_newItem_info(newItems, origItemSourceIDs, userLogPath):
     # Used for resetting the various ids in 'related' items in target portal
     
@@ -491,7 +513,7 @@ def create_user_folders(portaladmin, contentpath, userinfo):
             else:
                 print '   - Folder "{}" already exists.'.format(foldername)
 
-def publish_user_items(portal, username, usercontentpath, old_hostname, new_hostname, new_port, specified_ops_types, id_mapping_file):
+def publish_user_items(portal, username, usercontentpath, old_hostname, new_hostname, new_port, specified_groups, id_mapping_file, grps_on_disk):
     ''' Publish all items for current user '''
     # Returns list of dictionaries of new items as well as a list of the
     # original item ids
@@ -537,17 +559,35 @@ def publish_user_items(portal, username, usercontentpath, old_hostname, new_host
                     overwrite_id = None
                     print "*** WARNING: item referenced in id mapping file does NOT exist in portal. Will add new item instead of updating."
         
-        # Determine if item should be loaded based on specified tags
-        if not specified_ops_types:
+        ## Determine if item should be loaded based on specified tags
+        #if not specified_ops_types:
+        #    do_load_item = True
+        #else:
+        #    os.chdir(os.path.join(usercontentpath,"items", item_dir))
+        #    iteminfo = json.load(open('item.json'))
+        #    item_tags = iteminfo.get('tags')
+        #    do_load_item = tags_exist(specified_ops_types, item_tags)
+        #    if not do_load_item:
+        #        print "\t   -Skipping item. Item tags do not match user specified criteria."
+        
+        # Determine if item should be loaded base on specified group parameters
+        if not specified_groups:
             do_load_item = True
         else:
             os.chdir(os.path.join(usercontentpath,"items", item_dir))
-            iteminfo = json.load(open('item.json'))
-            item_tags = iteminfo.get('tags')
-            do_load_item = tags_exist(specified_ops_types, item_tags)
+            sharing_info = json.load(open('sharing.json'))
+            item_groups = sharing_info.get('groups')
+            for item_group in item_groups:
+                grp_on_disk = grps_on_disk.get(item_group)
+                if grp_on_disk:
+                    for specified_group in specified_groups:
+                        if specified_group == grp_on_disk:
+                            do_load_item = True
+
             if not do_load_item:
-                print "\t   -Skipping item. Item tags do not match user specified criteria."
-            
+                print "\t   -Skipping item. Item groups do not match user specified group criteria."       
+        
+        
         # Add/Update item
         if do_load_item:
             item, old_source_id = load_item(portal, os.path.join(usercontentpath,"items", item_dir), overwrite_id)
@@ -801,44 +841,44 @@ def val_arg_content_path(contentpath):
             is_valid = True
     return is_valid
 
-def val_arg_ops_types(specified_ops_types):
-    
-    is_valid = True
-    values_to_use = []
-    ops_type_all = "all"
-    
-    # Create copy of valid value list (so we can alter values) and convert to lower case
-    valid_values = [element.lower().strip() for element in list(valid_ops_types)]
-    
-    # Convert user specified list of ops types to list and convert
-    # to lower case and remove any leading or trailing "whitespace"
-    # this handles cases where user entered spaces between
-    # values i.e. "Land, Maritime".
-    specified_values = [element.lower().strip() for element in specified_ops_types.split(",")]
-    
-    if DEBUG:
-        print "specified_values: " + str(specified_values)
-
-    # If user specified "all" then return list containing only this value
-    if ops_type_all.lower() in specified_values:
-        #values_to_use.append(ops_type_all.lower())
-        values_to_use = list(valid_ops_types)
-        #print "values_to_use:  " + str(values_to_use)
-        return True, values_to_use
-    
-    # Check if user specified valid ops types
-    for ops_type in specified_values:
-        if ops_type not in valid_values:
-            return False, values_to_use
-        values_to_use.append(ops_type)
-    
-    # If the user has specified at least one valid value then add "all" to list
-    # so that the load function will publish items that have the "all" to addition
-    # to the items with the other tags specified.
-    if len(values_to_use) > 0:
-        values_to_use.append(ops_type_all)
-        
-    return is_valid, values_to_use
+#def val_arg_ops_types(specified_ops_types):
+#    
+#    is_valid = True
+#    values_to_use = []
+#    ops_type_all = "all"
+#    
+#    # Create copy of valid value list (so we can alter values) and convert to lower case
+#    valid_values = [element.lower().strip() for element in list(valid_ops_types)]
+#    
+#    # Convert user specified list of ops types to list and convert
+#    # to lower case and remove any leading or trailing "whitespace"
+#    # this handles cases where user entered spaces between
+#    # values i.e. "Land, Maritime".
+#    specified_values = [element.lower().strip() for element in specified_ops_types.split(",")]
+#    
+#    if DEBUG:
+#        print "specified_values: " + str(specified_values)
+#
+#    # If user specified "all" then return list containing only this value
+#    if ops_type_all.lower() in specified_values:
+#        #values_to_use.append(ops_type_all.lower())
+#        values_to_use = list(valid_ops_types)
+#        #print "values_to_use:  " + str(values_to_use)
+#        return True, values_to_use
+#    
+#    # Check if user specified valid ops types
+#    for ops_type in specified_values:
+#        if ops_type not in valid_values:
+#            return False, values_to_use
+#        values_to_use.append(ops_type)
+#    
+#    # If the user has specified at least one valid value then add "all" to list
+#    # so that the load function will publish items that have the "all" to addition
+#    # to the items with the other tags specified.
+#    if len(values_to_use) > 0:
+#        values_to_use.append(ops_type_all)
+#        
+#    return is_valid, values_to_use
 
 def read_userfile(contentpath):
     # Create dictionary of users based on contents of userfile.txt file.
