@@ -93,13 +93,12 @@ def main():
         #print '\t\t   (to include spaces in this list surround with double-quotes, i.e. "user1, user2,...")'
         print '\t\t-To post content for ALL users except specific users, specify comma delimited '
         print '\t\t   list of users to exclude with "-" prefix, i.e. -user1,user2,...'
-        
-        print '\n\t{OpsServerTypesToPost} (optional):'
-        print '\t\t-To post content for specific Ops Server types specify type value, i.e.'
-        print '\t\t   ' + str(valid_ops_types)  + '; you can specify more then one type,'
-        print '\t\t   i.e, Land,Maritime,...'
-        print '\t\t-Specify # placeholder character if you do not want to use this parameter and need'
-        print '\t\t   to specify the {IdMappingFile} parameter value.'
+ 
+        print '\n\t{GroupsToPost} (optional):'
+        print '\t\t-To post content shared with specific portal groups specify a pipe "|" delimited list of groups using the syntax "GroupOwner:GroupTitle|GroupOwner:GroupTitle|...".'
+        print '\t\t-Specify # placeholder character if you do not want to use this parameter and need to specify the {IdMappingFile} parameter value.'
+        print '\t\t-NOTE: GroupOwner and GroupTitle values are case sensitive.'
+        print '\t\t-NOTE: Parameter value MUST be surrounded by double-quotes.'
         
         print '\n\t{IdMappingFile} (optional): JSON file containing mapping between source and target portal item ids.'
         print '\t\t-Provides "overwrite" capability. If IdMappingFile is specified, the script will'
