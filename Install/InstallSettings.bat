@@ -158,8 +158,7 @@ set ops_install_server=YES
 REM Create the ArcGIS Server site, create the SDE geodatabases, SDE connection files
 set ops_create_ags_site=YES
 
-REM Install GeoEvent Processor Extension for ArcGIS Server and copy various
-REM Ops Server configured GeoEvent files. 
+REM Install Geoevent Extension for ArcGIS Server
 set ops_install_geoevent=YES
 
 REM Install the ArcGIS WebAdaptor for IIS
@@ -177,6 +176,10 @@ set ops_install_ags_datastore=YES
 REM Create ArcGIS Data Store
 set ops_create_ags_datastore=YES
 
+REM Install Message Simulator - Copy Message Simulator files and
+REM creates a Windows Scheduled Task
+set ops_install_message_simulator=YES
+
 REM Install Portal for ArcGIS
 set ops_install_portal=YES
 
@@ -193,13 +196,9 @@ REM Federate ArcGIS Server site with portal, set hosted server,
 REM set SSL properties, and reset Utility service URLs
 set ops_federate_ags=YES
 
-REM Configure GeoEvent Processor Extension for ArcGIS Server - create new administrator
+REM Configure GeoEvent Extension for ArcGIS Server - create new administrator
 REM user, reset ArcGIS Server connection for registered data store
 set ops_configure_geoevent=YES
-
-REM Install Message Simulator - Copy Message Simulator files and
-REM creates a Windows Scheduled Task
-set ops_install_message_simulator=YES
 
 REM ---------------------------------------------------------------------
 REM END Set User Editable Variables
