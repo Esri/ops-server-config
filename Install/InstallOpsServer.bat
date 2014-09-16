@@ -326,7 +326,7 @@ if "%ops_create_ags_site%"=="YES" (
     Call %~dp0ArcGISServer\CreateArcGISServerSite.bat
 )
 
-REM Install ArcGIS GeoEvent Processor Extension for ArcGIS Server
+REM Install ArcGIS GeoEvent Extension for ArcGIS Server
 if "%ops_install_geoevent%"=="YES" (
     Call %~dp0GeoEvent\InstallGeoEvent.bat
 )
@@ -356,6 +356,12 @@ if "%ops_create_ags_datastore%"=="YES" (
     Call %~dp0ArcGISDataStore\SupportFiles\CreateAGSDataStore.bat
 )
 
+REM Install Message Simulator - Copy Message Simulator files and
+REM create a Windows Scheduled Task
+if "%ops_install_message_simulator%"=="YES" (
+    Call %~dp0MessageSimulator\InstallMessageSimulator.bat
+)
+
 REM Install Portal Related Software
 if "%ops_install_portal%"=="YES" (
     Call %~dp0Portal\InstallPortal.bat
@@ -382,15 +388,9 @@ if "%ops_federate_ags%"=="YES" (
     Call %~dp0ArcGISServer\SupportFiles\FederateAGS.bat
 )
 
-REM Configure GeoEvent Processor Extension for ArcGIS Server
+REM Configure GeoEvent Extension for ArcGIS Server
 if "%ops_configure_geoevent%"=="YES" (
     Call %~dp0GeoEvent\SupportFiles\ConfigureGeoEvent.bat
-)
-
-REM Install Message Simulator - Copy Message Simulator files and
-REM create a Windows Scheduled Task
-if "%ops_install_message_simulator%"=="YES" (
-    Call %~dp0MessageSimulator\InstallMessageSimulator.bat
 )
 
 goto end
