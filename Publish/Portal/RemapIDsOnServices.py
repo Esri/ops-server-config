@@ -9,7 +9,7 @@
 #History:       2013/09/06:   Initial code.
 #
 #==============================================================================
-import sys, os, traceback, datetime, ast, copy, json
+import sys, os, traceback, datetime, ast, copy, json, time
 from portalpy import Portal
 
 # Add "Root folder"\SupportFiles to sys path inorder to import
@@ -185,6 +185,7 @@ def main():
         totalNumIDsNotFound = 0
         
         for service in services:
+            time.sleep(0.5)
             print '\t' + ('-' * 75)
             print '\tService: ' + service
             
@@ -269,8 +270,10 @@ def main():
             
             # Get list of all portal ids so we can verify that the portal item exists before we delete
             portal_items = portal.search(['id'])
+            time.sleep(5)
             
             for portalItemID in portalItemIDsToDelete:
+                time.sleep(2)
                 itemFound = False
                 print '  -Deleting id ' + portalItemID + '...'
                 
