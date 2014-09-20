@@ -29,7 +29,7 @@ URL_BASED_ITEM_TYPES = frozenset(['Feature Service', 'Map Service',
                                   'Image Service', 'Web Mapping Application','WMS','WMTS', 'Geodata Service',
                                   'Globe Service','Geometry Service', 'Geocoding Service',
                                   'Network Analysis Service', 'Geoprocessing Service','Mobile Application',
-                                  'Document Link', 'KML'])
+                                  'Document Link', 'KML', 'Workflow Manager Service'])
 
 TEXT_BASED_ITEM_TYPES = frozenset(['Web Map', 'Feature Service', 'Map Service',
                                    'Image Service', 'Feature Collection', 'Feature Collection Template',
@@ -44,14 +44,16 @@ FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV',
                                    'Locator Package', 'Workflow Manager Package', 'Code Sample',
                                    'Desktop Application Template', 'Desktop Add In', 'Explorer Add In',
                                    'CityEngine Web Scene', 'Windows Viewer Add In', 'Operations Dashboard Add In',
-                                   'Microsoft Word', 'Microsoft Powerpoint', 'Microsoft Excel', 'PDF',
-                                   'Image', 'Visio Document', 'ArcPad Package', 'Layer', 'Layer Package',
-                                   'Explorer Layer']) #'KML'
+                                   'Microsoft Word', 'Microsoft Powerpoint', 'Microsoft PowerPoint', 'Microsoft Excel', 'PDF',
+                                   'Image', 'Visio Document', 'ArcPad Package', 'Web Scene',
+                                   'Pro Map', 'CAD Drawing', 'iWork Keynote', 'iWork Pages', 'iWork Numbers',
+                                   'Basemap Package', 'Project Package', 'Task File', 'Layout',
+                                   'Rule Package', 'Desktop Application']) #'KML'
 
 RELATIONSHIP_TYPES = frozenset(['Map2Service', 'WMA2Code',
                                 'Map2FeatureCollection', 'MobileApp2Code', 'Service2Data',
                                 'Service2Service', 'Map2AppConfig', 'Item2Attachment',
-                                'Item2Report'])
+                                'Item2Report', 'Listed2Provisioned'])
 
 RELATIONSHIP_DIRECTIONS = frozenset(['forward', 'reverse'])
 
