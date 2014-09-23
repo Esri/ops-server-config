@@ -158,9 +158,6 @@ set ops_install_server=YES
 REM Create the ArcGIS Server site, create the SDE geodatabases, SDE connection files
 set ops_create_ags_site=YES
 
-REM Install Geoevent Extension for ArcGIS Server
-set ops_install_geoevent=YES
-
 REM Install the ArcGIS WebAdaptor for IIS
 set ops_install_webadaptor=YES
 
@@ -196,9 +193,12 @@ REM Federate ArcGIS Server site with portal, set hosted server,
 REM set SSL properties, and reset Utility service URLs
 set ops_federate_ags=YES
 
+REM Install Geoevent Extension for ArcGIS Server
+set ops_install_geoevent=YES
+
 REM Configure GeoEvent Extension for ArcGIS Server - create new administrator
 REM user, reset ArcGIS Server connection for registered data store
-set ops_configure_geoevent=YES
+REM set ops_configure_geoevent=YES
 
 REM ---------------------------------------------------------------------
 REM END Set User Editable Variables
