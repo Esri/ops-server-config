@@ -336,7 +336,7 @@ if "%ops_install_webadaptor%"=="YES" (
     Call %~dp0WebAdaptorIIS\InstallWebAdaptor.bat
 )
 
-REM Change ArcGIS security config to "HTTPS Only"
+REM Change ArcGIS security configuration
 if "%ops_change_ags_security%"=="YES" (
     Call %~dp0ArcGISServer\SupportFiles\ChangeAGSSecurityConfig.bat
 )
