@@ -14,7 +14,7 @@ set ops_PortalVersion=10.3
 
 REM Define ArcGIS Data Store Path
 REM NOTE: must have "\" at end of path
-set ops_agsDataStoreDIR=C:\AGSDataStore\
+set ops_agsDataStoreDIR=C:\arcgisdatastore\
 
 REM Define PostgreSQL paths
 set ops_postgresqlInstallDIR=C:\PostgreSQL\9.2
