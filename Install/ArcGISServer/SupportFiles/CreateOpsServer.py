@@ -100,7 +100,10 @@ try:
         
         # Register local data stores
         if registerDataStores:
+            sleepTime = 60
             if success:
+                print 'Delaying data store registration {} seconds to allow any previous processes to complete...'.format(sleepTime)
+                time.sleep(sleepTime)
                 success = RegisterDataStores.registerDataStores(
                                                 sharedDSConfig, False,
                                                 userName, passWord, dataDrive)
