@@ -37,20 +37,23 @@ _postgres_db_conn_template_str = "SERVER=serverReplaceStr;" + \
     "DB_CONNECTION_PROPERTIES=serverReplaceStr;DATABASE=dbReplaceStr;USER=userReplaceStr;PASSWORD=" + \
     "passwordReplaceStr;VERSION=sde.DEFAULT;AUTHENTICATION_MODE=DBMS"
 
-def create_postgresql_db_connection_str(server, port, user, password, dbservername, dbname, dbusername, dbpassword, useSSL=True, token=None):
+def create_postgresql_db_connection_str(server, port, user, password, dbservername, dbname, dbusername, dbpassword, useSSL=True, token=None, encrypt_dbpassword=True):
     ''' Create PostgreSQL database connection string.
         Parameters server, port, user, password, useSSL and token are to connect to ArcGIS Server site
         to encrypt database password.
     '''
+    success = True
+    
     db_conn_str = _postgres_db_conn_template_str.replace('serverReplaceStr', dbservername)
     db_conn_str = db_conn_str.replace('dbReplaceStr', dbname)
     db_conn_str = db_conn_str.replace('userReplaceStr', dbusername)
     db_conn_str = db_conn_str.replace('passwordReplaceStr', dbpassword)
     
     # Encrypt the database password
-    success, results = getDBConnectionStrFromStr(server, port, user, password, db_conn_str, useSSL, token)
+    if encrypt_dbpassword:
+        success, db_conn_str = getDBConnectionStrFromStr(server, port, user, password, db_conn_str, useSSL, token)
     
-    return success, results
+    return success, db_conn_str
 
 def create_shared_folder_item(name, publisher_folder_path, publisher_folder_hostname=None):
     '''Create shared folder data item.
