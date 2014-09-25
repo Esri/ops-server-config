@@ -151,10 +151,12 @@ def createDataStores(agsServerAccount, password, dataDrive):
             	    
 	    # Create list of PostgreSQL connection entries
 	    postgreSQLConnEntries = []
-	    for dbToConnect in dbsToConnect:
-		postgreSQLConnEntries.append("host {} all 0.0.0.0/0 md5".format(dbToConnect.lower()))	#IPv4
-		postgreSQLConnEntries.append("host {} all ::/0 md5".format(dbToConnect.lower()))  	#IPv6
-
+	#    for dbToConnect in dbsToConnect:
+	#	postgreSQLConnEntries.append("host {} all 0.0.0.0/0 md5".format(dbToConnect.lower()))	#IPv4
+	#	postgreSQLConnEntries.append("host {} all ::/0 md5".format(dbToConnect.lower()))  	#IPv6
+	    postgreSQLConnEntries.append("host all all 0.0.0.0/0 md5")	#IPv4
+	    postgreSQLConnEntries.append("host all all ::/0 md5")  	#IPv6
+		
 	    # Determine if connection entry already exists in file
 	    for postgreSQLConnEntry in postgreSQLConnEntries:
 		if findInFile(connectionFilePath, postgreSQLConnEntry):
