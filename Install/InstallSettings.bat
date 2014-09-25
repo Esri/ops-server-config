@@ -205,3 +205,5 @@ REM END Set User Editable Variables
 REM ---------------------------------------------------------------------
 Call %~dp0..\SupportFiles\BatchFiles\CheckExistence.bat %ops_softwareRoot% ^
 %ops_AGSAuthFile% %ops_PortalAuthFile% %ops_webBrowserExePath%
+
+Call %~dp0..\SupportFiles\BatchFiles\Checks\CheckServerName.bat %ops_FQDN%
