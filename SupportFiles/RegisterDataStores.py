@@ -101,7 +101,7 @@ def registerDataStores(sharedDataStoreConfig, forInstallPurposeOnly, username, p
                     
 		    success, server_db_conn = create_postgresql_db_connection_str(
                                         serverName, serverPort, username, password,
-                                        serverName, db, 'sde', password, useSSL=False)
+                                        serverName, db, 'sde', password, useSSL=False, token=None, encrypt_dbpassword=False)
 		    if not success:
 			successRegister = False
 			print "ERROR: error encountered while creating server database connection string -"
@@ -126,7 +126,7 @@ def registerDataStores(sharedDataStoreConfig, forInstallPurposeOnly, username, p
 			    
 			    success, publisher_db_conn = create_postgresql_db_connection_str(
                                         serverName, serverPort, username, password,
-                                        clientServerName, db, 'sde', password, useSSL=False)
+                                        clientServerName, db, 'sde', password, useSSL=False, token=None, encrypt_dbpassword=False)
 			    if not success:
 				successRegister = False
 				print "ERROR: error encountered while creating publisher database connection string -"
