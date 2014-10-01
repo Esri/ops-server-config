@@ -5,7 +5,7 @@ set ops_ChkErrLevelFile=%~dp0..\..\..\SupportFiles\BatchFiles\CheckErrorLevel.ba
 echo.
 echo.
 echo %sectionBreak%
-echo Create the Portal for ArcGIS primary administrator account...
+echo Create the Portal for ArcGIS initial administrator account...
 echo.
 echo ^- When the web browser opens the "Initial Administrator Account Required" page...
 echo    ^(about a 2.5 minute delay has been added)
@@ -34,16 +34,25 @@ echo    2. Click "Create".
 echo.
 echo.
 echo    3. If creation of the admin account is successful,
-echo       you will be directed to the "Sign In" page.
+echo       the "Account Created" dialog will be displayed.
+echo       Click "OK" on this dialog.
 echo.
 echo.
-echo    4. Test if you can sign in.
+echo    4. When the "Web Adaptor Required" web page is displayed,
+echo       you can ignore the instructions on this web page instructing
+echo       you to install and config the web adaptor. The web adaptor has
+echo       already been installed and it will be configured for portal
+echo       automatically in subsequent steps.
 echo.
 echo.
-echo    5. Sign Out of the portal.
+echo    5. Test if you can sign in by clicking on the "Sign In" link located
+echo       in the upper-right of the web page.
 echo.
 echo.
-echo    6. Close the web browser.
+echo    6. Sign Out of the portal.
+echo.
+echo.
+echo    7. Close the web browser.
 echo.
 echo.
 PING 127.0.0.1 -n 160 > nul
