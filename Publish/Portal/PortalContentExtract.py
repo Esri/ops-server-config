@@ -243,6 +243,13 @@ def extract_groups_from_user_info(portal, userinfo, extractpath):
                 json.dump(group, open('group.json','w'))
                 json.dump(users, open('group_users.json','w'))
     
+def do_extract_item(portal, item_id):
+    extract = True
+    exclude_item_types = ["Code Attachment"]
+    item = portal.item(item_id)
+    if item['type'] in exclude_item_types:
+        extract = False
+    return extract
 
 def extract_items(portal,extractpath, username):
     '''Extract all items to a folder for a logged in user'''        
@@ -261,6 +268,9 @@ def extract_items(portal,extractpath, username):
         print "   - Root items:"
         for item in root_items:
             print "...... item '" + str(item['title']) + "' to folder '" + str(item['id']) + "'"
+            if not do_extract_item(portal, item['id']):
+                print "WARNING: Skipping extract of this item '" + str(item['title']) + "'"
+                continue
             extract_item(portal,item["id"],username,folder='')
             os.chdir(itempath)
     else:
@@ -281,6 +291,9 @@ def extract_items(portal,extractpath, username):
                 print "       Folder '" + folder_title + "'..."
                 for item in items:
                     print "........ item '" + str(item['title']) + "' to folder '" + str(item['id']) + "'"
+                    if not do_extract_item(portal, item['id']):
+                        print "WARNING: Skipping extract of this item '" + str(item['title']) + "'"
+                        continue
                     extract_item(portal,item["id"],username,folder=folder_id)
                     os.chdir(itempath)
             else:
