@@ -39,19 +39,6 @@ installOnlyPublishingFolders = OpsServerConfig.installOnlyPublishingFolders
 installOnlyPublishingDBServers = OpsServerConfig.installOnlyPublishingDBServers
 dataFolderDStoreName = OpsServerConfig.dataFolderDStoreName
 
-# Used for testing the unregister data stores function
-#dataStorePaths = ['/fileShares/OpsEnvironment_InstallOnly',
-#                  '/enterpriseDatabases/Economic_InstallOnly',
-#                 '/enterpriseDatabases/Imagery_InstallOnly',
-#                 '/enterpriseDatabases/Infrastructure_InstallOnly',
-#                 '/enterpriseDatabases/OperationsGEP_InstallOnly',
-#                 '/enterpriseDatabases/Physical_InstallOnly',
-#                 '/enterpriseDatabases/Political_InstallOnly',
-#                 '/enterpriseDatabases/RTDS_InstallOnly',
-#                 '/enterpriseDatabases/Social_InstallOnly',
-#                 '/enterpriseDatabases/UTDS_InstallOnly']
-
-
 #installOnlyClientFolders = OpsServerConfig.installOnlyPublishingFolders
 
 # ---------------------------------------------------------------------
@@ -227,13 +214,27 @@ def registerDataStores():
             # Add data store path to list of data stores to unregister
             dataStorePaths.append(dsPath)
             
+            # Delete data store if it already exists
+            unregisterSuccessful = True
+            itemExists, item = DataStore.getitem(serverFQDN, serverPort, userName, passWord, dsPath, useSSL)
+            if itemExists:
+                print "\t\tData store already exists. Will delete and re-register..."
+                success, response = DataStore.unregister(serverFQDN, serverPort, userName, passWord, dsPath, useSSL)
+                if success:
+                    print "\t\tDeleted successfully."
+                else:
+                    unregisterSuccessful = False
+                    print "\t\tCould not delete the existing data store. Will assume existing data store properties are correct and re-use for publishing."
+                    
+                        
             # Register the data store item
-            success, response = DataStore.register(serverFQDN, serverPort, userName, passWord, dsItem, useSSL)
-            if success:
-                print "\tDone."
-            else:
-                registerSuccessful = False
-                print "ERROR:" + str(response)
+            if unregisterSuccessful:
+                success, response = DataStore.register(serverFQDN, serverPort, userName, passWord, dsItem, useSSL)
+                if success:
+                    print "\tDone."
+                else:
+                    registerSuccessful = False
+                    print "ERROR:" + str(response)
                 
                 
     # Register databases
@@ -273,13 +274,28 @@ def registerDataStores():
                 # Add data store path to list of data stores to unregister
                 dataStorePaths.append(dsPath)
                 
+                # Delete data store if it already exists
+                unregisterSuccessful = True
+                itemExists, item = DataStore.getitem(serverFQDN, serverPort, userName, passWord, dsPath, useSSL)
+                if itemExists:
+                    print "\t\tData store already exists. Will delete and re-register..."
+                    success, response = DataStore.unregister(serverFQDN, serverPort, userName, passWord, dsPath, useSSL)
+                    if success:
+                        print "\t\tDeleted successfully."
+                    else:
+                        unregisterSuccessful = False
+                        print "\t\tCould not delete the existing data store. Will assume existing data store properties are correct and re-use for publishing."
+
+                
                 # Register the data store item
-                success, response = DataStore.register(serverFQDN, serverPort, userName, passWord, dsItem, useSSL)
-                if success:
-                    print "\tDone."
-                else:
-                    registerSuccessful = False
-                    print "ERROR:" + str(response)
+                if unregisterSuccessful:
+                    success, response = DataStore.register(serverFQDN, serverPort, userName, passWord, dsItem, useSSL)
+                    if success:
+                        print "\tDone."
+                    else:
+                        registerSuccessful = False
+                        print "ERROR:" + str(response)
+                    
                     
     return registerSuccessful, dataStorePaths     
 
@@ -299,7 +315,6 @@ def unregisterDataStores(dataStorePaths):
             print "ERROR:" + str(response)
                 
     return unregisterSuccessful
-
 
 try:
     startTime = datetime.now()
