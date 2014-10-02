@@ -27,10 +27,10 @@ specified_users = None
 specified_groups = None
 
 doFindSDFiles = True
-doCreateAGSConnFile = False
-doRegDataStores = False
+doCreateAGSConnFile = True
+doRegDataStores = True
 doPublishServiceDefs = True
-doUnregDataStores = False
+doUnregDataStores = True
 
 #publishingDBServer = OpsServerConfig.publishingDBServer
 databases = OpsServerConfig.databasesToCreate

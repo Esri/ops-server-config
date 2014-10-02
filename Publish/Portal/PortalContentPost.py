@@ -75,7 +75,7 @@ def main():
     # ---------------------------------------------------------------------   
     if len(sys.argv) < 5:
         print '\n' + scriptName + ' <PortalURL> <AdminUser> <AdminPassword> ' + \
-                    '<ContentFolderPath> {UsersToPost} {OpsServerTypesToPost} {IdMappingFile}'
+                    '<ContentFolderPath> {UsersToPost} {GroupsToPost} {IdMappingFile}'
         print '\nWhere:'
         print '\n\t<PortalURL> (required): URL of Portal to post content (i.e. https://fully_qualified_domain_name/arcgis)'
         
