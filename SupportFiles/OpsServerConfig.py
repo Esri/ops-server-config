@@ -43,21 +43,31 @@ serverDrive = 'c'       # Drive where software will be installed
 
 # Syntax: ["databasename": [Managed (True or False), AGS registration name]
 # 'AGS registration name' is "label" given to the data store.
-databasesToCreate = {"operations":[False,"Operations"], \
-                    "utds":[False, "UTDS"], \
+databasesToCreate = {"utds":[False, "UTDS"], \
                     "economic":[False, "Economic"], \
-                    "imagery":[False, "Imagery"], \
                     "infrastructure":[False, "Infrastructure"], \
-                    "physical":[False, "Physical"], \
                     "political":[False, "Political"], \
                     "social":[False, "Social"], \
                     "rtds":[False, "RTDS"], \
                     "currentoperations":[False, "CurrentOperations"], \
                     "military":[False, "Military"], \
                     "information":[False, "Information"], \
-                    "workflow":[False, "Workflow"], \
                     "emergencymanagement":[False, "EmergencyManagement"]}
 
+#databasesToCreate = {"operations":[False,"Operations"], \
+#                    "utds":[False, "UTDS"], \
+#                    "economic":[False, "Economic"], \
+#                    "imagery":[False, "Imagery"], \
+#                    "infrastructure":[False, "Infrastructure"], \
+#                    "physical":[False, "Physical"], \
+#                    "political":[False, "Political"], \
+#                    "social":[False, "Social"], \
+#                    "rtds":[False, "RTDS"], \
+#                    "currentoperations":[False, "CurrentOperations"], \
+#                    "military":[False, "Military"], \
+#                    "information":[False, "Information"], \
+#                    "workflow":[False, "Workflow"], \
+#                    "emergencymanagement":[False, "EmergencyManagement"]}
 
 # ----------------------------------------------------------------------------
 # Shared / Replicated Database Configuration
