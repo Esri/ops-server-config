@@ -287,30 +287,6 @@ date /T
 time /T
 echo.
 
-REM Install Java JDK 1.7
-if "%ops_install_jdk1_7%"=="YES" (
-    echo.
-    echo %sectionBreak%
-    echo Install Java JDK 1.7...
-    echo.
-    echo --Installing...
-    echo.
-    %ops_softwareRoot%\JavaJDK\jdk-7u7-windows-x64.exe /s
-    PING 127.0.0.1 -n 60 > nul
-)
-
-REM Install Java JDK 1.6
-if "%ops_install_jdk1_6%"=="YES" (
-    echo.
-    echo %sectionBreak%
-    echo Install Java JDK 1.6...
-    echo.
-    echo --Installing...
-    echo.
-    %ops_softwareRoot%\JavaJDK\jdk-6u38-windows-x64.exe /s
-    PING 127.0.0.1 -n 60 > nul
-)
-
 REM Install RDBMS
 if "%ops_install_rdbms%"=="YES" (
     Call %~dp0PostgreSQL\InstallPostgreSQL.bat
@@ -387,10 +363,6 @@ REM Install ArcGIS GeoEvent Extension for ArcGIS Server
 if "%ops_install_geoevent%"=="YES" (
     Call %~dp0GeoEvent\InstallGeoEvent.bat
 )
-REM Configure GeoEvent Extension for ArcGIS Server
-rem if "%ops_configure_geoevent%"=="YES" (
-rem     Call %~dp0GeoEvent\SupportFiles\ConfigureGeoEvent.bat
-rem )
 
 goto end
 
