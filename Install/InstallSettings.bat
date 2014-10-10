@@ -131,21 +131,6 @@ REM recommend FireFox or Chrome.
 set ops_webBrowserExePath="C:\Program Files (x86)\Google\Chrome\Application\chrome.exe"
 
 REM ---------------------------------------------------------------------
-REM Defines which authentication mode to use when connecting from
-REM Operations Dashboard to your portal.
-REM Valid values are: Token, Certificate, NetworkIWA, and LDAP
-REM     Token       - Use when portal will be configured to use
-REM                   built-in identity store
-REM     Certificate - Use when portal will be configured to use PKI
-REM     NetworkIWA  - Use when portal will be configured to use
-REM                   Integrated Windows Authentication
-REM     LDAP        - Use when portal will be configured to use LDAP
-rem
-rem Comment out 08 Aug 2014: with newer builds of Ops Dashboard Deployment Utility
-rem this parameter is no longer required
-rem set ops_opsdashboardAuthMode=Token
-
-REM ---------------------------------------------------------------------
 REM The variables below define which install/configuration processes to execute.
 REM Valid values are "YES" or "NO"
 
@@ -195,10 +180,6 @@ set ops_federate_ags=YES
 
 REM Install Geoevent Extension for ArcGIS Server
 set ops_install_geoevent=YES
-
-REM Configure GeoEvent Extension for ArcGIS Server - create new administrator
-REM user, reset ArcGIS Server connection for registered data store
-REM set ops_configure_geoevent=YES
 
 REM ---------------------------------------------------------------------
 REM END Set User Editable Variables
