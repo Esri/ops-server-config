@@ -10,6 +10,7 @@
 #
 #==============================================================================
 import sys, os, traceback, datetime, ast, copy, json, time
+import urlparse
 from portalpy import Portal
 
 # Add "Root folder"\SupportFiles to sys path inorder to import
@@ -79,7 +80,8 @@ def getPortalURLItems(portal):
             url = item.get('url')
             if url:
                 # Remove http/s protocol from url
-                url_items[url.split('//')[1]] = item.get('id')
+                urlparts = urlparse.urlparse(url)
+                url_items[url.replace('{}://'.format(urlparts.scheme), '')] = item.get('id')
     return url_items
 
 def getServiceSearchString(service, servicePortalItem):
