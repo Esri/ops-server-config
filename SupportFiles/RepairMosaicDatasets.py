@@ -64,7 +64,7 @@ def repairMosaicDatasets(dataDrive):
             
             for md in mdList:
                 print
-                print "\tReparing paths in mosaic dataset '" + md + "'..."
+                print "\tRepairing paths in mosaic dataset '" + md + "'..."
                 results = repairMosaicDatasetPaths(md, repairOrigNewPath)
                 success = checkResults(results, printMsg)
                 if not success:
