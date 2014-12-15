@@ -32,7 +32,12 @@
 # WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
 # OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF
 # ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
+#==============================================================================
+#Name:      walkingDirTrees.py
+#
+#Purpose:   Searches folder structure for specified file/folder.
+#
+#==============================================================================
 import os.path, fnmatch
 
 def listFiles(root, patterns='*', recurse=1, return_folders=0):

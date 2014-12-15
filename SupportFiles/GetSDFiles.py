@@ -1,13 +1,25 @@
 #!/usr/bin/env python
+#------------------------------------------------------------------------------
+# Copyright 2014 Esri
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #==============================================================================
 #Name:          GetSDFiles.py
+#
 #Purpose:       Copies the latest service definition files for specified
 #               ArcGIS Server site.
 #
 #Prerequisites: 7-zip must be installed. Change path set in variable
 #               'sevenZipExePath' if necessary.
-#
-#History:       2013/07/26:   Initial code.
 #
 #==============================================================================
 import sys, os, traceback, datetime, json, subprocess, tempfile
@@ -221,24 +233,6 @@ def get_ags_services(server, port, adminuser, password):
     
     return agsServices
 
-#def filesToCopy(sdFiles, agsServices):
-#    ''' Return collection of service definition files to copy '''
-#    
-#    # The service definition files that should be copied are those
-#    # that exist for each existing ArcGIS Server serice.
-#    sdFilesToCopy = {}
-#    for i in agsServices:
-#        if i in sdFiles:
-#            sdFilesToCopy[i] = sdFiles[i]
-#    
-#    if debug:
-#        print '\nwithin filesToCopy function:'
-#        print 'sdFilesToCopy variable...'
-#        for key, value in sdFilesToCopy.iteritems():
-#            print str(key) + ' = ' + str(value)
-#    
-#    return sdFilesToCopy
-
 def filesToCopy(sdFiles, agsServices, copyItemIDs=None):
     ''' Return collection of service definition files to copy '''
 
@@ -445,8 +439,6 @@ def main():
     
     # Get the portal properties for each portal item referenced by the service
     # according to the services' json info
-    #portal = Portal('https://' + server + '/arcgis', adminuser, password)
-    #portal = Portal('https://' + server + '/arcgis', adminuser, '**************')
     portal = Portal('https://' + server + ':7443/arcgis', adminuser, password)
     
     props = getPortalPropsForServices(portal, agsServices)

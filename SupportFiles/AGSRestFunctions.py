@@ -1,6 +1,25 @@
+#------------------------------------------------------------------------------
+# Copyright 2014 Esri
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#==============================================================================
+#Name:          AGSRestFunctions.py
+#           
+#Purpose:       Functions for administering and obtaining information about
+#               the ArcGIS Server site or specific services
+#
+#==============================================================================
 '''
 ---------------------------------
-Eric's NOTEs:
 NOTE: downloaded from
 http://blogs.esri.com/esri/arcgis/2012/07/05/downloadable-tools-for-arcgis-server-administration/
 on July 6, 2012.
@@ -8,10 +27,11 @@ on July 6, 2012.
 NOTE: commented out "upload" function since this depends on 3rd party module
 
 History:
-07/25/2013 - Eric Linz
+07/25/2013
     - Created this module based on AllFunctions.py module.
     - Modified all functions to use 'https' instead of 'http' to support our 10.2 OpsServer
         which is configured to 'HTTPS Only'.
+    - Added new functions as necessary.
 ---------------------------------
 
 This script provides functions used to administer ArcGIS Server 10.1.
@@ -84,8 +104,7 @@ def gentoken2(server_url, user_name, user_pass, expiration=60):
     else:
         # Return the token to the function which called for it
         return token['token']
-    
-#"{}{}{}/arcgis/admin/logs/clean?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), token)
+
 
 def modifyLogs(server, port, adminUser, adminPass, clearLogs, logLevel, useSSL=True, token=None):
     ''' Function to clear logs and modify log settings.
@@ -210,7 +229,7 @@ def renameService(server, port, adminUser, adminPass, service, newName, useSSL=T
 
 def getProtocol(useSSL):
     ''' Return proper protocol '''
-    # Added EL 20 Aug 2013
+    
     if useSSL:
         return "https://"
     else:
@@ -218,7 +237,7 @@ def getProtocol(useSSL):
 
 def getPort(port):
     ''' Return string representing port parameter '''
-    # Added EL 20 Aug 2013
+    
     portStr = ""
     if port:
         if str(port).strip() == "#":
@@ -254,7 +273,7 @@ def stopStartServices(server, port, adminUser, adminPass, stopStart, serviceList
 
 
 
-# Eric L. commented out 7/6/2012; this function depends on 3rd party "requests"
+# commented out 7/6/2012; this function depends on 3rd party "requests"
 # module that I don't want to add to StarTeam. Not big deal since I dont'
 # think we need this; at least not yet.
 #
@@ -351,8 +370,7 @@ def getServiceList(server, port, adminUser, adminPass, useSSL=True, token=None):
             
             for single in fList["services"]:
                 services.append(folder + "//" + single['serviceName'] + '.' + single['type'])                
-    #Commented out, Eric L. July 6, 2012
-    #print services    
+     
     return services
 
 
@@ -459,7 +477,7 @@ def getServiceInfo(server, port, adminUser,  adminPass, folder, serviceNameAndTy
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
     '''    
-    # Created: Eric L.
+    
     
     if token is None:    
         token = gentoken(server, port, adminUser, adminPass, useSSL)    
@@ -470,7 +488,7 @@ def getServiceInfo(server, port, adminUser,  adminPass, folder, serviceNameAndTy
         folderServerNameType = serviceNameAndType
         
     serviceInfo = {}       
-    #URL = "{}{}{}/arcgis/admin/services/{}?f=json&token={}".format(getProtocol(useSSL), server, getPort(port), folderServerNameType, token)
+    
     URL = "{}{}{}/arcgis/admin/services/{}?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), folderServerNameType, token)    
 
     serviceInfo = json.loads(urllib2.urlopen(URL).read())
@@ -483,7 +501,7 @@ def getServiceInfo2(server_url, user_name,  user_pass, servicename_and_type, tok
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
     '''    
-    # Created: Eric L.
+    
     
     if token is None:    
         token = gentoken2(server_url, user_name, user_pass)    
@@ -500,7 +518,7 @@ def getServiceStatus(server, port, adminUser,  adminPass, folder, serviceNameAnd
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
     '''    
-    # Created: Eric L.
+    
     
     if token is None:    
         token = gentoken(server, port, adminUser, adminPass, useSSL)    
@@ -523,7 +541,7 @@ def editServiceInfo(server, port, adminUser,  adminPass, folder, serviceNameAndT
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
     '''    
-    # Created: Eric L.
+    
     
     if token is None:    
         token = gentoken(server, port, adminUser, adminPass, useSSL)    
@@ -554,7 +572,7 @@ def getServiceItemInfo(server, port, adminUser,  adminPass, folder, serverNameAn
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
     '''    
-    # Created: Eric L
+    
     
     if token is None:    
         token = gentoken(server, port, adminUser, adminPass, useSSL)    
@@ -576,7 +594,7 @@ def getConfigStoreProperty(server, port, adminUser, adminPass, useSSL=True, toke
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
     '''    
-    # Created: Eric L
+    
     
     if token is None:    
         token = gentoken(server, port, adminUser, adminPass, useSSL)    
@@ -593,7 +611,7 @@ def getServerDirectories(server, port, adminUser, adminPass, useSSL=True, token=
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
     '''    
-    # Created: Eric L
+    
     
     if token is None:    
         token = gentoken(server, port, adminUser, adminPass, useSSL)    
@@ -611,7 +629,7 @@ def getServerDirectory(server, port, adminUser, adminPass, directoryType, useSSL
     Valid directoryType's are:
     CACHE, INDEX, INPUT, JOBREGISTRY, JOBS, OUTPUT, SYSTEM, UPLOADS, KML
     '''
-    # Created: Eric L
+    
     
     serverDirectories = getServerDirectories(server, port, adminUser, adminPass, useSSL, token=None)
     
@@ -627,7 +645,7 @@ def getDataItemInfo(server, port, adminUser,  adminPass, dataItemPath, useSSL=Tr
     If a token exists, you can pass one in for use.
     Example of "dataItemPath" is /fileShares/OpsEnvironment.
     '''    
-    # Created: Eric L
+    
     
     if token is None:    
         token = gentoken(server, port, adminUser, adminPass, useSSL)    
@@ -651,7 +669,7 @@ def registerDataItem(server, port, adminUser, adminPass, item, useSSL=True, toke
     Requires item containing necessary json structure for data item.
     If a token exists, you can pass one in for use.  
     '''    
-    # Created: Eric L
+    
     
     # Get and set the token
     if token is None:    
@@ -677,7 +695,7 @@ def unregisterDataItem(server, port, adminUser, adminPass, itemPath, useSSL=True
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
     '''    
-    # Created: Eric L
+    
     
     # Get and set the token
     if token is None:    
@@ -703,7 +721,7 @@ def validateDataItem(server, port, adminUser, adminPass, item, useSSL=True, toke
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
     '''
-    # Created: Eric L
+    
 
     # Get and set the token
     if token is None:    
@@ -725,7 +743,7 @@ def getServicesDirectory(server, port, adminUser,  adminPass, useSSL=True, token
         Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
         If a token exists, you can pass one in for use.
     '''
-    # Created E.L. 7/31/2013.
+    
     
     # Get and set the token
     if token is None:    
@@ -753,7 +771,7 @@ def editServicesDirectory(server, port, adminUser, adminPass,
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.
     '''
-    # Created E.L. 7/31/2013.
+    
     
     # Get and set the token
     if token is None:    
@@ -887,7 +905,7 @@ def getDBConnectionStrFromStr(server, port, adminUser, adminPass, dbConnectionSt
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
     '''    
-    # Created: Eric L
+    
     
     in_param_dict = dict()
     in_param_dict['in_connDataType'] = 'CONNECTION_STRING'
@@ -900,7 +918,7 @@ def _getDBConnectionString(server, port, adminUser, adminPass, in_param_dict, us
     Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
     If a token exists, you can pass one in for use.  
     '''    
-    # Created: Eric L
+    
 
     results = None
     job_results = None
