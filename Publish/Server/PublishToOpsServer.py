@@ -1,4 +1,25 @@
 #!/usr/bin/env python
+#------------------------------------------------------------------------------
+# Copyright 2014 Esri
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#==============================================================================
+#Name:          PublishToOpsServer.py
+#           
+#Purpose:       Publishes service definition files (.sd) that were extracted
+#               from source ArcGIS Server using GetSDFiles.py script to
+#               target Ops Server ArcGIS Server.
+#
+#==============================================================================
 import sys, os, time, traceback
 from datetime import datetime
 
