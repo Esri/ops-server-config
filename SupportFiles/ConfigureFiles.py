@@ -12,17 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #==============================================================================
-#Name:          ConfigureJavaScriptAPI.py
-#Purpose:       Configures JavaScript API and ArcGIS Server REST configuration
-#               file:
-#                   1) Copies JavaScript API zip file to server.
-#                   2) Extracts JavaScript API zip contents to temp location.
-#                   3) Moves extracted JavaScript API folder to IIS root folder.
-#                   4) Edits URL in JavaScript files to "point" to server.
-#                   5) Edits particular properties in ArcGIS Server REST file
-#                       to "point" to server.
+#Name:          ConfigureFiles.py
 #
-#Prerequisites: None
+#Purpose:       Functions for installing JavaScript API and editing
+#               various portal and JavaScript API configuration files.
 #
 #Comments:      No longer used. Used in earlier builds of ArcGIS Portal which did
 #               not install the JavaScript API.
