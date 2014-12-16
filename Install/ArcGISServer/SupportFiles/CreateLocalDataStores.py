@@ -1,7 +1,21 @@
 # coding: utf-8
 #!/usr/bin/env python
+#------------------------------------------------------------------------------
+# Copyright 2014 Esri
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 #==============================================================================
 #Name:          CreateLocalDataStores.py
+#
 #Purpose:       Creates folder and ArcSDE geodatabase datastores on server:
 #		1) Creates root OpsServer folder and associated environment folder.
 #		2) Creates database connection folder.
@@ -10,11 +24,8 @@
 #		5) Changes ownership of OpsServer folder and database
 #		connection folder to account running the ArcGIS Server service.
 #
-#Prerequisites: None
+#Prerequisites: ArcGIS Server and PostgreSQL must be installed.
 #
-#History:       2012:   	Initial code.
-#		2013/02/26:	Modified to dynamically search for keycodes file
-#					for licensing ent. geodatabases.
 #==============================================================================
 import os, sys, traceback
 
