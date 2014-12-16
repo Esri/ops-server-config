@@ -1,6 +1,31 @@
-REM =====================================================================
-REM Federate ArcGIS Server site with Portal
-REM =====================================================================
+rem #------------------------------------------------------------------------------
+rem # Copyright 2014 Esri
+rem # Licensed under the Apache License, Version 2.0 (the "License");
+rem # you may not use this file except in compliance with the License.
+rem # You may obtain a copy of the License at
+rem #
+rem #   http://www.apache.org/licenses/LICENSE-2.0
+rem #
+rem # Unless required by applicable law or agreed to in writing, software
+rem # distributed under the License is distributed on an "AS IS" BASIS,
+rem # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+rem # See the License for the specific language governing permissions and
+rem # limitations under the License.
+rem #==============================================================================
+rem # Name:          FederateAGS.bat
+rem #
+rem # Purpose:       Federate ArcGIS Server with portal, set the hosted server,
+rem #                edit portal's SSL configuration and edit the Utility Services
+rem #                URLs.
+rem #
+rem # Prerequisites:
+rem #                - ArcGIS Server must be installed/authorized and the ArcGIS
+rem #                  Server site must exist.
+rem #                - Portal for ArcGIS must be installed/authorized.
+rem #                - ArcGIS Data Store must be installed and created.
+rem #                - The print and geometry ArcGIS Server services must be started.
+rem #
+rem #==============================================================================
 set ops_ChkErrLevelFile=%~dp0..\..\..\SupportFiles\BatchFiles\CheckErrorLevel.bat
 echo.
 echo.
