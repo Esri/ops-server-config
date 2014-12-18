@@ -99,12 +99,6 @@ def main():
     if debug:
         print server, port, adminuser, password, useSSL
     
-    #print
-    #print '=' * 100
-    #print ' List Service Workspaces'
-    #print '=' * 100
-    #print
-    
     try:            
         # ------------------------------------------------- 
         # Get all services that exist on server
@@ -126,7 +120,6 @@ def main():
         # List service workspaces
         # -------------------------------------------------
         numServices = len(services)
-        #print '\n- List service workspaces...\n'
         i = 0
         
         # Print header
@@ -134,9 +127,6 @@ def main():
         
         for service in services:
             onServerStr = ''
-            #i = i + 1
-            #print '\n{}'.format('-' * 116)
-            #print 'Service: {:<100}{:<10}'.format(service, '{}/{}'.format(i, numServices))
             
             folder, serviceNameType = parseService(service)
             
@@ -178,10 +168,8 @@ def main():
         
     finally:
         if totalSuccess:
-            #print "{} was completed successfully.".format(scriptName)
             sys.exit(0)
         else:
-            #print "ERROR: {} was _NOT_ completed successfully.".format(scriptName)
             sys.exit(1)
         
         

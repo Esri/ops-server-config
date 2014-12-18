@@ -21,9 +21,6 @@ rem #
 rem #==============================================================================
 set ops_ChkErrLevelFile=%~dp0..\..\SupportFiles\BatchFiles\CheckErrorLevel.bat
 
-REM Register site with the Web Adaptor
-REM As of 2/15/2013, setting /a switch to true to work around
-REM a know issue with registering a server with a portal.
 echo.
 echo.
 echo %sectionBreak%

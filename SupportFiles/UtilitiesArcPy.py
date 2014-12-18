@@ -69,11 +69,8 @@ def copyGDBData(sourceGDBPath, destinationGDBPath):
         arcpy.env.workspace = sourceGDBPath
         allDatasetsList = []
         featClassList = arcpy.ListFeatureClasses()
-        #print "featClassList: " + str(featClassList)
         datasetList = arcpy.ListDatasets()
-        #print "datasetList: " + str(datasetList)
         tableList = arcpy.ListTables()
-        #print "tableList: " + str(tableList)
 
         # arcpy.ListFeatureClass has bug where it will return raster datasets;
         # so the following code will add datasets to allDatasetsList if
@@ -98,11 +95,6 @@ def copyGDBData(sourceGDBPath, destinationGDBPath):
                         exists = True
                 if not exists:
                     allDatasetsList.append(ds)
-                    
-        #print "allDatasetsList: "
-        #for ds in allDatasetsList:
-        #    print "\t" + ds
-        #datasetList.extend(tableList)
         
         if allDatasetsList != None:
             for dataset in allDatasetsList:
@@ -194,7 +186,6 @@ def createAGSConnectionFile(agsConnFolderPath, agsConnFile, serverName,
             connectionType, agsConnFolderPath, agsConnFile,
             targetAGSURL, serverType, True, None, userName, passWord,
             saveUserNamePassWord)
-        #print arcpy.GetMessages()
         
     except:
         success = False

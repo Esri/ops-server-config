@@ -180,19 +180,6 @@ def get_webapp_service_urls(portal, item, service_portal_ids):
     webmap_urls = []
     url = item.get('url')
     if url:
-        
-        # Commented out: web map apps which have "webmap" in app URL have the web map info
-        # stored in the item data
-        ## Process web apps that have "webmap" in app URL
-        #search_str = '&webmap='
-        #if url.find(search_str) > 0:
-        #    print 'Has &webmap= in url'
-        #    webmap_id = url.split('&webmap=')[1]
-        #    if webmap_id:
-        #        webmap_item = portal.item(webmap_id)
-        #        if webmap_item:
-        #            wm_urls = get_webmap_service_urls(portal, webmap_item)
-        #            webmap_urls.extend(wm_urls)
             
         item_data = portal.item_data(item['id'], return_json=True)
         if item_data:
@@ -212,7 +199,6 @@ def get_webapp_service_urls(portal, item, service_portal_ids):
                             print_webmapapp_webmap_info(webmap_item)
                             wm_urls = get_webmap_service_urls(portal, webmap_item)
                             for wm_url in wm_urls:
-                                #print print_service_prefix.format(wm_url)
                                 p_item_id = _get_item_id(wm_url, service_portal_ids)
                                 print '\n{:<30}{:<14}{:<32}   {:<101}{:<25}'.format('','Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
                                 print '{:<30}{:<14}{:>32}   {:<100}'.format('','','URL:',wm_url)

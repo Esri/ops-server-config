@@ -81,16 +81,6 @@ def createDataStores(agsServerAccount, password, dataDrive):
         
 
         # Create list of database names to create connection file.
-        # For PostgreSQL, the database names should be lowercase
-        # NOTE: connections will only be created for databases defined with
-	# 	Managed flag is False since users should not be connecting
-	#	to the managed database.
-	# Modified 11/26/2012: modify so that connections are made to all
-	# geodatabases; not just the un-managed geodatabases.
-#	dbsToConnect = []
-#	for db in dbsToCreate:
-#            if not dbsToCreate[db][0]:
-#		dbsToConnect.append(db)
 	dbsToConnect = []
 	for db in dbsToCreate:
 	    dbsToConnect.append(db)
@@ -124,14 +114,6 @@ def createDataStores(agsServerAccount, password, dataDrive):
             
             print "\n\t-Creating local enterprise geodatabases" + \
                     " (this will take a few minutes)...\n"
-	    # Commented out 3/21/2013: this warning message does not appear
-	    # when creating the ent. gdb on PostgreSQL 9.2.2.
-	    #print "\t***********************************************************"
-	    #print "\tNOTE: You can ignore the following warning message, as the"
-	    #print "\tgeodatabase is created correctly:"
-	    #print '\t\tWARNING: invalid value for parameter "search_path": ""$user", public, sde"'
-	    #print '\t\tDETAIL: schema "sde" does not exist'
-	    #print "\t***********************************************************\n"
 	    
             for db in dbsToCreate:
                 print "\t\tCreating geodatabase '" + db + "'..."
@@ -162,9 +144,6 @@ def createDataStores(agsServerAccount, password, dataDrive):
             	    
 	    # Create list of PostgreSQL connection entries
 	    postgreSQLConnEntries = []
-	#    for dbToConnect in dbsToConnect:
-	#	postgreSQLConnEntries.append("host {} all 0.0.0.0/0 md5".format(dbToConnect.lower()))	#IPv4
-	#	postgreSQLConnEntries.append("host {} all ::/0 md5".format(dbToConnect.lower()))  	#IPv6
 	    postgreSQLConnEntries.append("host all all 0.0.0.0/0 md5")	#IPv4
 	    postgreSQLConnEntries.append("host all all ::/0 md5")  	#IPv6
 		
@@ -199,10 +178,6 @@ def createDataStores(agsServerAccount, password, dataDrive):
             print "\n\t-Creating SDE connection files..."
             
             for db in dbsToCreate:
-		# Create sde connection file if Managed flag is False.
-		# Modified 11/26/2012: modify so that connections are made to all
-		# geodatabases; not just the un-managed geodatabases.
-		#if not dbsToCreate[db][0]:
 		outFile = dbsToCreate[db][1] + ".sde"
 		
 		# Set output folder location

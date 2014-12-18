@@ -269,47 +269,7 @@ def stopStartServices(server, port, adminUser, adminPass, stopStart, serviceList
         else:            
             print status
     
-    return 
-
-
-
-# commented out 7/6/2012; this function depends on 3rd party "requests"
-# module that I don't want to add to StarTeam. Not big deal since I dont'
-# think we need this; at least not yet.
-#
-#def upload(server, port, adminUser, adminPass, fileinput, token=None):
-#    ''' Function to upload a file to the REST Admin
-#    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
-#    fileinput = path to file to upload. (file upload will be done in binary)
-#    NOTE: Dependency on 3rd party module "requests" for file upload 
-#        > http://docs.python-requests.org/en/latest/index.html
-#    If a token exists, you can pass one in for use.  
-#    '''  
-#
-#    # 3rd party module dependency
-#    import requests
-#    
-#    # Get and set the token
-#    if token is None:  
-#        token = gentoken(server, port, adminUser, adminPass)     
-#  
-#    # Properties used to upload a file using the request module
-#    files = {"itemFile": open(fileinput, 'rb')}
-#    files["f"] = "json"        
-#    
-#    URL='http://{}:{}/arcgis/admin/uploads/upload'.format(server)
-#    response = requests.post(URL+"?token="+token, files=files);
-#         
-#    json_response = json.loads(response.text)
-#    
-#    if "item" in json_response:                
-#        itemID = json_response["item"]["itemID"]     
-#        #Note : this function calls the registerSOE function. Remove next line if unnecessary
-#        registerSOE(server, port, adminUser, adminPass, itemID)        
-#    else:
-#        print json_response
-#        
-#    return
+    return
         
         
 def registerSOE(server, port, adminUser, adminPass, itemID, useSSL=True, token=None):

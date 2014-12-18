@@ -169,8 +169,6 @@ def getPostgreSQLDatabases(password):
         # ---------------------------------------------------------------------
         print "\t\t-Creating batch file: " + scriptFilePath + "..."
 	psqlExePath = findFilePath(rootPostgreSQLPath, "psql.exe")
-	
-        #supportFilesPath = os.path.join(scriptFileFolder, "SupportFiles")
     
         strToWrite = '"' + psqlExePath + '" -U postgres -p 5432 -d postgres ' + \
                 '-h localhost -f ' + scriptFileFolder + os.sep + \
@@ -224,8 +222,6 @@ def getPostgreSQLDatabases(password):
             f.close()
         if conf_f:
             conf_f.close()
-        #if batFile_f:
-        #    batFile_f.close()
             
         # Delete the config file we created
         os.remove(confFilePath)

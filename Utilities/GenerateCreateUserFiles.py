@@ -78,12 +78,6 @@ def get_userinfo_files(portal_content_folder):
 
 def is_enterprise_account(userinfo):
     ''' Returns boolean indicating if account is an enterprise account '''
-    
-    #idp_username = userinfo.get('idpUsername')
-    #print 'idp_username: {}'.format(idp_username)
-    #if idp_username:
-    #    if idp_username != 'null':
-    #        print 'It''s not a null'
     return userinfo['username'].find('@') > -1
 
 def create_account_recs(portal_content_folder):

@@ -152,7 +152,6 @@ def findInFile(filePath, strToFind):
             line = line.strip()
             if line.find(strToFind) > -1:
                 foundInLine = line
-                ##print "\tfoundInLine: " + foundInLine
                 break
     else:
         print "\tError: File " + filePath + " does not exist."

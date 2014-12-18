@@ -137,23 +137,12 @@ if not isActionValid:
 
 try:
     startTime = datetime.now()
-    
-    # ---------------------------------------------------------------------
-    # Print header
-    # ---------------------------------------------------------------------
-    #print
-    #print "Start time: " + str(startTime)
-    #print
  
     # ---------------------------------------------------------------------
     # Get list of all services/or user specified list
     # ---------------------------------------------------------------------
     if not serviceList:
         serviceList = getServiceList(serverName, serverPort, userName, passWord, useSSL)
-    
-        # 6/20/2014 - Let's not add the geometry service to this list.
-        # Append Geometry service to list
-        #serviceList.append(u'Utilities//Geometry.GeometryServer')
     
     if len(serviceList) == 0:
         print "\t*ERROR: No services to " + serviceAction.title() + "."
