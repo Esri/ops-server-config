@@ -61,21 +61,6 @@ databasesToCreate = {"utds":[False, "UTDS"], \
                     "information":[False, "Information"], \
                     "emergencymanagement":[False, "EmergencyManagement"]}
 
-#databasesToCreate = {"operations":[False,"Operations"], \
-#                    "utds":[False, "UTDS"], \
-#                    "economic":[False, "Economic"], \
-#                    "imagery":[False, "Imagery"], \
-#                    "infrastructure":[False, "Infrastructure"], \
-#                    "physical":[False, "Physical"], \
-#                    "political":[False, "Political"], \
-#                    "social":[False, "Social"], \
-#                    "rtds":[False, "RTDS"], \
-#                    "currentoperations":[False, "CurrentOperations"], \
-#                    "military":[False, "Military"], \
-#                    "information":[False, "Information"], \
-#                    "workflow":[False, "Workflow"], \
-#                    "emergencymanagement":[False, "EmergencyManagement"]}
-
 # ----------------------------------------------------------------------------
 # Shared / Replicated Database Configuration
 #
@@ -97,8 +82,6 @@ publishingFolder = r"\\disldb\development\Commercial\OPSServer\LandOps\Server\St
 dataFolderDStoreName = "OpsServerData"
 
 # 'Publishing' path for temporary folder data stores
-#installOnlyPublishingFolders = {dataFolderDStoreName: r"\\afmiedev\data"}
-
 # Key is name of server where data folder is located; Value is path to "data" folder
 installOnlyPublishingFolders = {"afmiedev": r"\\afmiedev\data", "afmcomstaging": r"\\afmcomstaging\data"}
 
