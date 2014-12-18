@@ -44,14 +44,10 @@ logging.basicConfig()
 
 # For now hard-code the server name of the source ArcGIS Server machine
 source_hostname = "afmiedev.esri.com"
-#port = '6080' #Use 6080 or None
-#new_hostname = "holistic35.esri.com"
 new_hostname = ""
 new_port = None #Use 6080 or None
 
 hostname_map = {}
-
-#port = '6080' #Use 6080 or None
 
 DEBUG = False
 
@@ -100,7 +96,6 @@ def main():
         print '\t\t-Specify # placeholder character if you want to post content for all users and you are'
         print '\t\t   specifying {OpsServerTypesToPost} values'
         print '\t\t-To post content for only specific users specify comma delimited list of users, i.e. user1,user2,...'
-        #print '\t\t   (to include spaces in this list surround with double-quotes, i.e. "user1, user2,...")'
         print '\t\t-To post content for ALL users except specific users, specify comma delimited '
         print '\t\t   list of users to exclude with "-" prefix, i.e. -user1,user2,...'
  
@@ -154,8 +149,6 @@ def main():
         if id_mapping_file:
             print "id_mapping_file: " + str(id_mapping_file)
     
-    ## Check if connection can be made to target portal
-    ##result = val_portal_connection_props(target_portal_address, adminuser, adminpassword)
     
     # Check if specified content folder exists.
     if not val_arg_content_path(contentpath):
@@ -182,7 +175,7 @@ def main():
     # Publish content to target portal
     publish_portal(target_portal_address, contentpath, adminuser, adminpassword, users, hostname_map, specified_groups, id_mapping_file)
     
-    os.chdir(contentpath) #TODO: EL, do we need this?
+    os.chdir(contentpath)
     
     
 
@@ -405,38 +398,22 @@ def share_items(portal, userItemsPath, newItems, origItemSourceIDs, originGroupT
         org = False
         
         if sharing:
-            #MF #TODO: check if owner belongs to the groups being shared to??
+            #TODO: check if owner belongs to the groups being shared to??
             # swap stored group ids with portal group ids??
             old_group_ids = sharing['groups']
-            #print "old_group_ids..."
-            #print old_group_ids
             for g in old_group_ids:
-                #print "g..."
-                #print g
                 if g in originGroupToDestGroups.keys():
-                    # EL: I don't want to alter the originGroupToDestGroups
-                    # dictionary object in case I need it later. Add group id (g)
-                    # to new list
-                    #old_group_ids.remove(g) 
-                    #old_group_ids.append(originGroupToDestGroups[g])
                     new_group_id = originGroupToDestGroups[g]
                     new_group_ids.append(new_group_id)
                     new_group_names = destGroupID_GroupName[new_group_id] #EL used for display
             
             if len(new_group_ids) == 0:
                 new_group_ids = None
-            #print "new_group_ids..."
-            #print new_group_ids
-            # setup item access and sharing info
             
             print "\tSharing item " + str(newItem.get("title")) + \
                 "[" + str(newItem.get("type")) + "] with: " + \
                 sharing['access'] + ", " + str(new_group_names) + "..."
             
-            #EL: I think the access that should be checked is the property
-            # in the sharing json, not the item json (it might be the same?)
-            #if item['access'].lower() == "public":
-            #    everyone = True
             if sharing['access'].lower() == "public":
                 everyone = True
                 org = True
@@ -444,7 +421,7 @@ def share_items(portal, userItemsPath, newItems, origItemSourceIDs, originGroupT
                 everyone = False
                 org = True
             
-            #EL TODO: should this function be located outside the if sharing statement...
+            #TODO: should this function be located outside the if sharing statement...
             resp = portal.share_item(newID, new_group_ids, org, everyone)
 
         else:
@@ -568,16 +545,6 @@ def publish_user_items(portal, username, usercontentpath, old_hostname, new_host
                     overwrite_id = None
                     print "*** WARNING: item referenced in id mapping file does NOT exist in portal. Will add new item instead of updating."
         
-        ## Determine if item should be loaded based on specified tags
-        #if not specified_ops_types:
-        #    do_load_item = True
-        #else:
-        #    os.chdir(os.path.join(usercontentpath,"items", item_dir))
-        #    iteminfo = json.load(open('item.json'))
-        #    item_tags = iteminfo.get('tags')
-        #    do_load_item = tags_exist(specified_ops_types, item_tags)
-        #    if not do_load_item:
-        #        print "\t   -Skipping item. Item tags do not match user specified criteria."
         
         # Determine if item should be loaded base on specified group parameters
         if not specified_groups:
@@ -632,12 +599,12 @@ def publish_user_groups(portal,contentpath, userinfo, users):
     
     groupcount = 0
     groupsprocessed = 0
-    groupsFailed = ["None"] #EL: TODO: later we append to this list, but why do we initialize
+    groupsFailed = ["None"] #TODO: later we append to this list, but why do we initialize
                             # list with one element with "None" string? Was this supposed to be
                             # groupsFailed = []
     for folder in groupfolders:
         groupcount = groupcount + 1
-        oldGroupID = folder # EL was groupID = folder
+        oldGroupID = folder #was groupID = folder
         groupidfolder = os.path.join(groupfolder, folder)
         os.chdir(groupidfolder)
         group = json.load(open("group.json"))
@@ -655,7 +622,7 @@ def publish_user_groups(portal,contentpath, userinfo, users):
         else:
             print "... group '" + str(group['title']) + "' already exists."
             
-        destGroupID_GroupName[groupId] = str(group['title']) #EL Track new group id and group name for later use
+        destGroupID_GroupName[groupId] = str(group['title']) #Track new group id and group name for later use
         
         print "...... adding users to group"
         if groupId:
@@ -667,7 +634,7 @@ def publish_user_groups(portal,contentpath, userinfo, users):
             users_to_invite = []
             portal_users = get_target_users(users)
             for u in map_group_users(group_users["users"], users):
-                u = str(u) #MF dict keys are unicode, make them ascii
+                u = str(u) #dict keys are unicode, make them ascii
                 if u in portal_users:
                     users_to_invite.append(u)
             
@@ -698,7 +665,7 @@ def map_group_users(group_users, users):
     return target_group_users
 
 def publish_portal_resources(portaladmin,portal_properties):
-    #MF publish resources from disk
+    #publish resources from disk
     portalID = portal_properties['id']
     resourcesJSON = json.load(open(os.path.join(contentpath,'resources.json')))
     resourcesList = resourcesJSON['resources']
@@ -711,7 +678,7 @@ def publish_portal_resources(portaladmin,portal_properties):
             resp = portaladmin.add_resource(portalID,key,datafile,None)
    
 def publish_portal_properties(portaladmin,portal_properties,oldHostname,newHostname):
-    #MF update portal properties from old host to new
+    #update portal properties from old host to new
     
     portalID = portal_properties['id']
     resp = portaladmin.publish_portal_properties(portalID,portal_properties,oldHostname,newHostname)
@@ -850,45 +817,6 @@ def val_arg_content_path(contentpath):
             is_valid = True
     return is_valid
 
-#def val_arg_ops_types(specified_ops_types):
-#    
-#    is_valid = True
-#    values_to_use = []
-#    ops_type_all = "all"
-#    
-#    # Create copy of valid value list (so we can alter values) and convert to lower case
-#    valid_values = [element.lower().strip() for element in list(valid_ops_types)]
-#    
-#    # Convert user specified list of ops types to list and convert
-#    # to lower case and remove any leading or trailing "whitespace"
-#    # this handles cases where user entered spaces between
-#    # values i.e. "Land, Maritime".
-#    specified_values = [element.lower().strip() for element in specified_ops_types.split(",")]
-#    
-#    if DEBUG:
-#        print "specified_values: " + str(specified_values)
-#
-#    # If user specified "all" then return list containing only this value
-#    if ops_type_all.lower() in specified_values:
-#        #values_to_use.append(ops_type_all.lower())
-#        values_to_use = list(valid_ops_types)
-#        #print "values_to_use:  " + str(values_to_use)
-#        return True, values_to_use
-#    
-#    # Check if user specified valid ops types
-#    for ops_type in specified_values:
-#        if ops_type not in valid_values:
-#            return False, values_to_use
-#        values_to_use.append(ops_type)
-#    
-#    # If the user has specified at least one valid value then add "all" to list
-#    # so that the load function will publish items that have the "all" to addition
-#    # to the items with the other tags specified.
-#    if len(values_to_use) > 0:
-#        values_to_use.append(ops_type_all)
-#        
-#    return is_valid, values_to_use
-
 def read_userfile(contentpath):
     # Create dictionary of users based on contents of userfile.txt file.
     # The "userfile.txt" file contains user name from source portal,
@@ -920,22 +848,6 @@ def val_arg_users(specified_users, contentpath):
     else:
         specified_users = specified_users.strip()
     
-    ## Create dictionary of users based on contents of userfile.txt file.
-    ## The "userfile.txt" file contains user name and full name of user,
-    ## i.e. userx,User X. Dictionary key is user name, dictionary value
-    ## is password; in this case set the password the same as user name.
-    #userfile = open(os.path.join(contentpath,'userfile.txt'),'r')
-    #lineOne = True
-    #for line in userfile:
-    #    # Skip the first line since it contains header info
-    #    if lineOne:
-    #        lineOne = False
-    #        continue
-    #    username,target_username,target_password = line.rstrip().split(',')
-    #    all_users[username] = {'username': username,
-    #                           'target_username': target_username,
-    #                           'target_password': target_password}
-    #userfile.close()
     all_users = read_userfile(contentpath)
     
     # if there are no specified users then we should post content for
@@ -1128,14 +1040,6 @@ def tags_exist(find_tags, tags_to_search):
         print "\tfound: " + str(found)
         
     return found
-
-#def val_portal_connection_props(portal_address, username, password):
-#    portal_con = Portal(portal_address, username, password)
-#    if portal_con:
-#        print "portal con is valid"
-#    else:
-#        print "not valid"
-#    #print str(portal_con.logged_in_user)
 
 if __name__ == "__main__":
     main()

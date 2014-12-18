@@ -116,41 +116,6 @@ DestinationDBFolder = OpsServerConfig.getDBConnFileRootPath(dataDrive)
 DestinationCacheFolder = OpsServerConfig.getCacheRootPath(cacheDrive)
 DestinationFolder = OpsServerConfig.getEnvDataRootPath(dataDrive)
 
-
-#print
-#print "This script relies on the following variables, which are set in the " + \
-#    "configuration script:"
-#print supportFilePath + os.sep + "OpsServerConfig.py"
-#print
-#print "-" * 100
-#print '{:<20}{:<28}{:<90}'.format("Variable Name", "Description", "Value")
-#print "-" * 100
-#print '{:<20}{:<28}{:<90}'.format("StagingDBFolder", "Staging DB Folder", StagingDBFolder)
-#print '{:<20}{:<28}{:<90}'.format("dbConnFileRootPath", "Destination DB Folder", DestinationDBFolder)
-#print
-#print '{:<20}{:<28}{:<90}'.format("StagingFolder", "Staging Data Folder", StagingFolder)
-#print '{:<20}{:<28}{:<90}'.format("envDataRootPath", "Destination Data Folder", DestinationFolder)
-#print
-#print '{:<20}{:<28}{:<90}'.format("StagingCacheFolder", "Staging Cache Folder", StagingCacheFolder)
-#print '{:<20}{:<28}{:<90}'.format("cacheRootPath", "Destination Cache Folder", DestinationCacheFolder)
-#print
-#answer = raw_input("Are these variables set correctly (yes/no)? ").lower().strip()
-#if answer == "n":
-#    terminate = True
-#elif answer == "no":
-#    terminate = True
-#elif answer == "y":
-#    terminate = False
-#elif answer == "yes":
-#    terminate = False
-#else:
-#    terminate = True
-#if terminate:
-#    print "Terminating script execution..."
-#    sys.exit(1)
-
-
-
 modifyOwnershipList = []
 printMsg = True
 totalCopySuccess = True
@@ -222,15 +187,6 @@ try:
     print "=============================================================="
     print '{:<28}{:%Y-%m-%d %H:%M:%S}'.format("Start time:", startTime)
     print
-    #print '{:<28}{:<120}'.format("Staging DB Folder:", StagingDBFolder)
-    #print '{:<28}{:<120}'.format("Destination DB Folder:", DestinationDBFolder)
-    #print
-    #print '{:<28}{:<120}'.format("Staging Data Folder:", StagingFolder)
-    #print '{:<28}{:<120}'.format("Destination Data Folder:", DestinationFolder)
-    #print
-    #print '{:<28}{:<120}'.format("Staging Cache Folder:", StagingCacheFolder)
-    #print '{:<28}{:<120}'.format("Destination Cache Folder:", DestinationCacheFolder)
-    #print
     
     # ---------------------------------------------------------------------
     # Copy databases
@@ -386,8 +342,6 @@ finally:
         else:
             print "ERROR occurred during repair paths in file geodatabase mosaic datasets."
     print
-    
-
         
     print '{:<14}{:%Y-%m-%d %H:%M:%S}'.format("Start time:", startTime)
     endTime = datetime.now()

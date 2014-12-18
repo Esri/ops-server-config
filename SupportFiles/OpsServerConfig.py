@@ -146,14 +146,10 @@ def validateOpsTypes(specified_ops_types):
     # this handles cases where user entered spaces between
     # values i.e. "Land, Maritime".
     specified_values = [element.lower().strip() for element in specified_ops_types.split(",")]
-    
-    #print "specified_values: " + str(specified_values)
 
     # If user specified "all" then return list containing only this value
     if ops_type_all.lower() in specified_values:
-        #values_to_use.append(ops_type_all.lower())
         values_to_use = list(valid_ops_types)
-        #print "values_to_use:  " + str(values_to_use)
         return True, values_to_use
     
     # Check if user specified valid ops types

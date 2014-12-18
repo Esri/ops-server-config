@@ -212,7 +212,6 @@ def get_ags_services(server, port, adminuser, password):
     services = [service for service in allServices if service not in excludeServices]
     
     # Create dictionary from list of services; values are None.
-#    agsServices = dict.fromkeys(services)
     for service in services:
         
         parsedService = service.split('//')

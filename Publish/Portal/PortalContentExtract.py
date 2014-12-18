@@ -211,7 +211,7 @@ def extract_folders(portal, extractpath, username):
     
 def extract_groups_from_user_info(portal, userinfo, extractpath):
     '''Extract groups from user info '''
-    # EL, function created 5/21/2013 to replace "extract_groups" function.
+    # Function created 5/21/2013 to replace "extract_groups" function.
     # Because the password is not the same as the user name, we can't
     # login as the individual user to extract all the groups that
     # are owned by a user (i.e. public and private). So to work around
@@ -289,10 +289,6 @@ def extract_items(portal,extractpath, username):
     if len(folder_items) > 0:
         print "\n   - Folder items:"
         
-        # EL commented 6/1/2013; moving code to separate function
-        ## Dump folder info to json file
-        #json.dump(folder_items, open('folders.json','w'))
-        
         # Extract the items in each folder
         for folder_id, folder_title, items in folder_items:
             if len(items) > 0:
@@ -311,7 +307,6 @@ def extract_items(portal,extractpath, username):
 
 def extract_item(portal,itemid,username,folder=''):
     '''Extract single item to disk for a logged in user'''
-    #MF itemidpath = os.path.join(os.path.abspath(os.curdir) + "/" + itemid)
     itemidpath = os.path.join(os.path.abspath(os.curdir), itemid)
     os.makedirs(itemidpath)
     os.chdir(itemidpath)
@@ -334,25 +329,15 @@ def extract_item(portal,itemid,username,folder=''):
     
     thumbfile = portal.item_thumbnaild(itemid,itemidpath)
     
-    #MF this is where the item_data.json is made:
-    #itemdata = portal.item_datad(itemid,itemidpath)
+    #TODO check if the itemdata file exists?
     
-    #MF #TODO check if the itemdata file exists?
-    
-    #iteminfo = portal.item(itemid)
     if thumbfile:
         thumbfile = os.path.basename(thumbfile)
         iteminfo["thumbfile"] = thumbfile #EL 6/27/2013
         # Reset the "thumbnail" value because the portalpy will truncate
         # the thumnailfile to 30 characters.
         iteminfo["thumbnail"] = "thumbnail/" + thumbfile
-        
-    # commented 6/5/2013 I don't think this is needed.
-    #if itemdata:
-    #    itemdata = os.path.basename(itemdata)
-    #iteminfo["itemdata"] = itemdata
     
-    #iteminfo["thumbfile"] = thumbfile # Move code into "if thumbfile" statement above; EL 6/27/2013
     json.dump(iteminfo, open('item.json','w'))
 
     sharinginfo = portal.user_item(itemid,username,folder)

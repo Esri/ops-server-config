@@ -26,7 +26,6 @@ from UtilitiesArcPy import repairMosaicDatasetPaths
 from UtilitiesArcPy import checkResults
 from Utilities import findFolderPath
 
-#origPath = OpsServerConfig.publishingFolder
 installOnlyPublishingFolders = OpsServerConfig.installOnlyPublishingFolders
 printMsg = True
 
@@ -47,10 +46,7 @@ def repairMosaicDatasets(dataDrive):
         # Remove leading semicolon
         repairOrigNewPath = repairOrigNewPath.replace("; ", "", 1)
 
-        
-        #repairOrigNewPath = origPath + " " + newPath
         rootSearchPath = newPath
-        
         
         # Get list of all folders ending in ".gdb"
         print
