@@ -41,6 +41,4 @@ nosetests.xml
 .project
 .pydevproject
 
-# Word documents
-*.docx
 
