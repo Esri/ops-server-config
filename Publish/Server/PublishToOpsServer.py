@@ -338,7 +338,7 @@ def unregisterDataStores(dataStorePaths):
     return unregisterSuccessful
 
 try:
-    startTime = datetime.now()
+    startTime = datetime.datetime.now()
     success = True
     
     # ---------------------------------------------------------------------
@@ -506,7 +506,7 @@ except:
     print pymsg + "\n"
 
 finally:
-    endTime = datetime.now()
+    endTime = datetime.datetime.now()
     print
     if totalSuccess:
         print "Publishing services to Ops Server completed successfully."
