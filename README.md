@@ -34,4 +34,4 @@ A copy of the license is available in the repository's [license.txt](https://git
 
 A portion of this code uses a third-party library:
 
-* Use of the [walkingDirTrees.py] (https://github.com/ArcGIS/ops-server-config/blob/master/SupportFiles/walkingDirTrees.py) module is governed by the modified Berkeley license available in the repository's [LICENSE-ThirdParty.txt] (https://github.com/ArcGIS/ops-server-config/blob/master/LICENSE-ThirdParty.txt) file.
+* Use of the [walkingDirTrees.py](https://github.com/ArcGIS/ops-server-config/blob/master/SupportFiles/walkingDirTrees.py) module is governed by the modified Berkeley license available in the repository's [LICENSE-ThirdParty.txt](https://github.com/ArcGIS/ops-server-config/blob/master/LICENSE-ThirdParty.txt) file.
