@@ -11,8 +11,14 @@ Operations Server Configuration scripts
   * ArcGIS Web Adaptor (IIS) 10.3
   * ArcGIS Data Store (Windows) 10.3 
   * ArcGIS GeoEvent Extension for Server (Windows) 10.3
+  * Deployment of Operations Dashboard configured for Portal for ArcGIS
   * PostgreSQL 9.2.2
   * IIS and .NET Framework 3.5
+* Automates Enterprise Geodatabase creation and registration of these data stores with ArcGIS for Server.
+* Contains scripts for:
+  * Publishing ArcGIS for Server services from service definition files (.sd).
+  * Extracting/publishing Portal for ArcGIS content to/from disk.
+  * Working with ArcGIS for Server REST API
 
 
 ## Instructions
@@ -22,6 +28,7 @@ Operations Server Configuration scripts
 ## Resources
 
 * [Ops Server Installation Guide](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf)
+While the following guides are not necessary to use the scripts contained in this repo, they are useful for understanding the procedures executed by the scripts:
 * [ArcGIS for Server (Windows) installation guide](http://server.arcgis.com/en/server/latest/install/windows/welcome-to-the-arcgis-for-server-install-guide.htm)
 * [Portal for ArcGIS (Windows) installation guide](http://server.arcgis.com/en/portal/latest/install/windows/welcome-to-the-portal-for-arcgis-installation-guide.htm)
 * [ArcGIS Web Adaptor (IIS) installation guide](http://server.arcgis.com/en/web-adaptor/latest/install/iis/welcome-to-the-arcgis-web-adaptor-installation-guide.htm)
