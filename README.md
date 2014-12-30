@@ -25,7 +25,7 @@ Operations Server Configuration scripts
 
 ## Requirements
 
-Please refer to *_Ops Server System Requirements_* and *_Installation Prerequisites_* sections of the [Ops Server Installation Guide](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf) for more information.
+Please refer to _Ops Server System Requirements_ and _Installation Prerequisites_ sections of the [Ops Server Installation Guide](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf) for more information.
 ## Resources
 
 * [Ops Server Installation Guide](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf)
