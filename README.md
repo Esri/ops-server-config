@@ -5,15 +5,36 @@ Operations Server Configuration scripts
 
 ## Features
 
+* Automates the installation of the following software:
+** ArcGIS for Server (Windows) 10.3
+** Portal for ArcGIS (Windows) 10.3
+** ArcGIS Web Adaptor (IIS) 10.3
+** ArcGIS Data Store (Windows) 10.3 
+** ArcGIS GeoEvent Extension for Server (Windows) 10.3
+** PostgreSQL 9.2.2
+** IIS and .NET Framework 3.5
+
+
 ## Instructions
 
 ## Requirements
 
 ## Resources
 
+* [Ops Server Installation Guide](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf)
+* [ArcGIS for Server (Windows) installation guide](http://server.arcgis.com/en/server/latest/install/windows/welcome-to-the-arcgis-for-server-install-guide.htm)
+* [Portal for ArcGIS (Windows) installation guide](http://server.arcgis.com/en/portal/latest/install/windows/welcome-to-the-portal-for-arcgis-installation-guide.htm)
+* [ArcGIS Web Adaptor (IIS) installation guide](http://server.arcgis.com/en/web-adaptor/latest/install/iis/welcome-to-the-arcgis-web-adaptor-installation-guide.htm)
+* [ArcGIS Data Store (Windows) installation guide](http://server.arcgis.com/en/data-store/latest/install/windows/welcome-to-arcgis-data-store-installation-guide.htm)
+* [ArcGIS GeoEvent Extension for Server (Windows) installation steps](http://server.arcgis.com/en/geoevent-extension/latest/install/windows/installation-steps.htm)
+
 ## Issues
 
+Find a bug or want to request a new feature?  Please let us know by submitting an issue.
+
 ## Contributing
+
+Esri welcomes contributions from anyone and everyone. Please see our [guidelines for contributing](https://github.com/esri/contributing).
 
 ## Licensing
 Copyright 2014 Esri
