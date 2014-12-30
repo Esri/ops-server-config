@@ -28,12 +28,12 @@ Operations Server Configuration scripts
 ## Resources
 
 * [Ops Server Installation Guide](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf)
-While the following guides are not necessary to use the scripts contained in this repo, they are useful for understanding the procedures executed by the scripts:
-* [ArcGIS for Server (Windows) installation guide](http://server.arcgis.com/en/server/latest/install/windows/welcome-to-the-arcgis-for-server-install-guide.htm)
-* [Portal for ArcGIS (Windows) installation guide](http://server.arcgis.com/en/portal/latest/install/windows/welcome-to-the-portal-for-arcgis-installation-guide.htm)
-* [ArcGIS Web Adaptor (IIS) installation guide](http://server.arcgis.com/en/web-adaptor/latest/install/iis/welcome-to-the-arcgis-web-adaptor-installation-guide.htm)
-* [ArcGIS Data Store (Windows) installation guide](http://server.arcgis.com/en/data-store/latest/install/windows/welcome-to-arcgis-data-store-installation-guide.htm)
-* [ArcGIS GeoEvent Extension for Server (Windows) installation steps](http://server.arcgis.com/en/geoevent-extension/latest/install/windows/installation-steps.htm)
+* While the following guides are not necessary to use the scripts contained in this repo, they are useful for understanding the procedures executed by the scripts:
+  * [ArcGIS for Server (Windows) installation guide](http://server.arcgis.com/en/server/latest/install/windows/welcome-to-the-arcgis-for-server-install-guide.htm)
+  * [Portal for ArcGIS (Windows) installation guide](http://server.arcgis.com/en/portal/latest/install/windows/welcome-to-the-portal-for-arcgis-installation-guide.htm)
+  * [ArcGIS Web Adaptor (IIS) installation guide](http://server.arcgis.com/en/web-adaptor/latest/install/iis/welcome-to-the-arcgis-web-adaptor-installation-guide.htm)
+  * [ArcGIS Data Store (Windows) installation guide](http://server.arcgis.com/en/data-store/latest/install/windows/welcome-to-arcgis-data-store-installation-guide.htm)
+  * [ArcGIS GeoEvent Extension for Server (Windows) installation steps](http://server.arcgis.com/en/geoevent-extension/latest/install/windows/installation-steps.htm)
 
 ## Issues
 
