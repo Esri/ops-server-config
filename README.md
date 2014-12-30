@@ -6,13 +6,13 @@ Operations Server Configuration scripts
 ## Features
 
 * Automates the installation of the following software:
-** ArcGIS for Server (Windows) 10.3
-** Portal for ArcGIS (Windows) 10.3
-** ArcGIS Web Adaptor (IIS) 10.3
-** ArcGIS Data Store (Windows) 10.3 
-** ArcGIS GeoEvent Extension for Server (Windows) 10.3
-** PostgreSQL 9.2.2
-** IIS and .NET Framework 3.5
+  * ArcGIS for Server (Windows) 10.3
+  * Portal for ArcGIS (Windows) 10.3
+  * ArcGIS Web Adaptor (IIS) 10.3
+  * ArcGIS Data Store (Windows) 10.3 
+  * ArcGIS GeoEvent Extension for Server (Windows) 10.3
+  * PostgreSQL 9.2.2
+  * IIS and .NET Framework 3.5
 
 
 ## Instructions
