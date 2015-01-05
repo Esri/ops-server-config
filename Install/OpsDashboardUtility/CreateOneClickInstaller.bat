@@ -65,8 +65,8 @@ echo.
 echo.
 set execute=START /WAIT %ops_softwareRoot%\OpsDashboardUtility\OperationsDashboardUtility.exe ^
 /outPut %ops_outputFolder% /url https://%ops_FQDN%/%ops_WebAdaptor_Portal% ^
-/certpath %ops_softwareRoot%\OpsDashboardUtility\Certificate\DefenseSolutions.pfx ^
-/password esripassword /CertType selfsigned
+/certpath %ops_softwareRoot%\OpsDashboardUtility\Certificate\TODO_CHANGE_CERT_FILENAME.pfx ^
+/password TODO_CHANGE_CERT_PASSWORD /CertType selfsigned
 echo %execute%
 echo.
 echo It will take a couple of minutes for the OperationsDashboardUtility.exe to complete.
