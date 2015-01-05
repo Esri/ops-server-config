@@ -1,8 +1,7 @@
 # ops-server-config
 
 The **Operations Server Configuration** is a collection of Python scripts and batch files that automate the installation of 
-the ArcGIS platform and the publication of Portal for ArcGIS content and ArcGIS for Server services. The goals
-were to develop scripts to:
+the ArcGIS platform and the publication of Portal for ArcGIS content and ArcGIS for Server services. The goals were to develop scripts to:
 
 * Automate the software installation and configuration process as much as possible.
 * Ensure a consistent and repeatable process.
@@ -22,10 +21,9 @@ were to develop scripts to:
   * PostgreSQL 9.2.2
   * IIS and .NET Framework 3.5
 * Automates Enterprise Geodatabase creation and registration of these data stores with ArcGIS for Server.
-* Contains scripts for:
-  * Publishing ArcGIS for Server services from service definition files (.sd).
-  * Extracting/publishing Portal for ArcGIS content to/from disk.
-  * Working with ArcGIS for Server REST API
+* Automates the publishing of ArcGIS for Server services from service definition files (.sd).
+* Automates the publishing of Portal for ArcGIS content to/from disk files.
+* Python module for working with the ArcGIS for Server REST API.
 
 ## Sections
 
