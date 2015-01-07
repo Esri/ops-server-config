@@ -83,8 +83,8 @@ REM Create software related folders
 REM ---------------------------------------
 set ops_softwareRootPath=%ops_rootInstallPath%\Software
 
-set ops_SoftwareFolders=ArcGISDataStore ArcGISGeoEvent ArcGISServer Authorization_Files ChatServer Database Desktop ArcGISPro ^
-MessageSimulator OpsDashboardUtility ops-server-config PortalForArcGIS WebAdaptorIIS
+set ops_SoftwareFolders=ArcGISDataStore ArcGISGeoEvent ArcGISServer Authorization_Files ChatServer\Openfire Database\PostgreSQL_9.2.2 Desktop ArcGISPro ^
+MessageSimulator\MessageSimulator OpsDashboardUtility\Certificate ops-server-config PortalForArcGIS WebAdaptorIIS
 for %%d in (%ops_SoftwareFolders%) do (
    mkdir %ops_softwareRootPath%\%%d
 )
