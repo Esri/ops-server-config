@@ -44,7 +44,7 @@ Please refer to **_Ops Server System Requirements_** and **_Installation Prerequ
 
 ## Instructions
 
-1. Follow the instructions in the [Ops Server Configuration Preparation document](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Config%20Preparation.pdf).
+1. Follow the instructions in the [Ops Server Configuration Preparation](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Config%20Preparation.pdf) document.
 2. Follow the instructions in the [Ops Server Installation Guide](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf).
 
 ## Resources
