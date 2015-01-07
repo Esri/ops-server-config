@@ -1,7 +1,11 @@
 # ops-server-config
 
 The **Operations Server Configuration** is a collection of Python scripts and batch files that automate the installation of 
-the ArcGIS platform and the publication of Portal for ArcGIS content and ArcGIS for Server services. The goals were to develop scripts to:
+the ArcGIS 10.3 platform on Windows machines and the publication of Portal for ArcGIS content and ArcGIS for Server services. 
+While developed for an implementation of the ArcGIS Platform with a specific software configuration and content (i.e. _Operations Server_), 
+the scripts can be modified to meet your requirements.
+
+The goals of the scripts are to:
 
 * Automate the software installation and configuration process as much as possible.
 * Ensure a consistent and repeatable process.
@@ -39,6 +43,9 @@ the ArcGIS platform and the publication of Portal for ArcGIS content and ArcGIS 
 Please refer to **_Ops Server System Requirements_** and **_Installation Prerequisites_** sections of the [Ops Server Installation Guide](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf) for more information.
 
 ## Instructions
+
+1. Follow the instructions in the [Ops Server Configuration Preparation document](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Config%20Preparation.pdf).
+2. Follow the instructions in the [Ops Server Installation Guide](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf).
 
 ## Resources
 
