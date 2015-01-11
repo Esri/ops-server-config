@@ -54,7 +54,7 @@ def main():
         print "\n" + scriptName + " <PortalURL> <AdminUser> <AdminPassword> " + \
                     "<ExtractFolderPath> {UsersToExtract}"
         print "\nWhere:"
-        print "\n\t<PortalURL> (required parameter): URL of Portal to extract content (i.e. https://afmcomstaging.esri.com/arcgis)"
+        print "\n\t<PortalURL> (required parameter): URL of Portal to extract content (i.e. https://my_portal.domain/arcgis)"
         print "\n\t<AdminUser> (required parameter): Portal user that has administrator role."
         print "\n\t<AdminPassword> (required parameter): Password for AdminUser."
         print "\n\t<ExtractFolderPath> (required parameter): Folder path where portal content is extracted."

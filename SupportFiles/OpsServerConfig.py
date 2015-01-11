@@ -75,18 +75,18 @@ sharedDataStoreConfig = True
 # Set following variable to which server containing the
 # publisher database. Variable only used when
 # variable "sharedDBConfigForPublishing" = False
-publishingDBServer = "afmcomstaging"
-publishingFolder = r"\\disldb\development\Commercial\OPSServer\LandOps\Server\Staging\Data"
+publishingDBServer = "my_db_server"
+publishingFolder = r"\\my_data_server\root_data_folder"
 
 # 'Registration Name' for data folder data store
 dataFolderDStoreName = "OpsServerData"
 
 # 'Publishing' path for temporary folder data stores
 # Key is name of server where data folder is located; Value is path to "data" folder
-installOnlyPublishingFolders = {"afmiedev": r"\\afmiedev\data", "afmcomstaging": r"\\afmcomstaging\data"}
+installOnlyPublishingFolders = {"my_data_server1": r"\\my_data_server1\root_data_folder", "my_data_server2": r"\\my_data_server2\root_data_folder"}
 
 # 'Publishing' server names for temporary database data stores
-installOnlyPublishingDBServers = ["afmiedevdb", "afmcomstaging"]
+installOnlyPublishingDBServers = ["my_db_server1", "my_db_server2"]
 
 # ----------------------------------------------------------------------------
 # Set root path variables/root path functions

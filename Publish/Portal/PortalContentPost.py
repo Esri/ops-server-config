@@ -43,7 +43,7 @@ from Utilities import findFilePath
 logging.basicConfig()
 
 # For now hard-code the server name of the source ArcGIS Server machine
-source_hostname = "afmiedev.esri.com"
+source_hostname = "my_source_portal.domain"
 new_hostname = ""
 new_port = None #Use 6080 or None
 
