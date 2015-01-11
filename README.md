@@ -1,7 +1,7 @@
 # ops-server-config
 
 The **Operations Server Configuration** is a collection of Python scripts and batch files that automate the installation of 
-the ArcGIS 10.3 platform on Windows machines and the publication of Portal for ArcGIS content and ArcGIS for Server services. 
+the ArcGIS platform on Windows machines and the publication of Portal for ArcGIS content and ArcGIS for Server services. 
 While developed for an implementation of the ArcGIS Platform with a specific software configuration and content (i.e. _Operations Server_), 
 the scripts can be modified to meet your requirements.
 
@@ -10,6 +10,7 @@ The goals of the scripts are to:
 * Automate the software installation and configuration process as much as possible.
 * Ensure a consistent and repeatable process.
 * Reduce the time necessary to install software and deploy content.
+* Simplify the complete portal deployment of Esri’s Military and Intelligence solution.
 
 ![Image of Ops Server](ScreenShot.png "ops-server-config")
 
@@ -40,16 +41,18 @@ The goals of the scripts are to:
 
 ## Requirements
 
-Please refer to **_Ops Server System Requirements_** and **_Installation Prerequisites_** sections of the [Ops Server Installation Guide](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf) for more information.
+For requirements, please refer to:
+* The **_Install Software Preparation_** section of the [Ops Server Configuration Preparation](https://github.com/esri/ops-server-config/blob/master/Docs/Ops%20Server%20Config%20Preparation.pdf) document.
+* The **_Ops Server System Requirements_** and **_Installation Prerequisites_** sections of the [Ops Server Installation Guide](https://github.com/esri/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf).
 
 ## Instructions
 
-1. Follow the instructions in the [Ops Server Configuration Preparation](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Config%20Preparation.pdf) document.
-2. Follow the instructions in the [Ops Server Installation Guide](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf).
+1. Follow the instructions in the [Ops Server Configuration Preparation](https://github.com/esri/ops-server-config/blob/master/Docs/Ops%20Server%20Config%20Preparation.pdf) document.
+2. Follow the instructions in the [Ops Server Installation Guide](https://github.com/esri/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf).
 
 ## Resources
 
-* [Ops Server Installation Guide](https://github.com/ArcGIS/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf)
+* [Ops Server Installation Guide](https://github.com/esri/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf)
 * While the following guides are not necessary to use the scripts contained in this repo, they are useful for understanding the procedures executed by the scripts:
   * [ArcGIS for Server (Windows) installation guide](http://server.arcgis.com/en/server/latest/install/windows/welcome-to-the-arcgis-for-server-install-guide.htm)
   * [Portal for ArcGIS (Windows) installation guide](http://server.arcgis.com/en/portal/latest/install/windows/welcome-to-the-portal-for-arcgis-installation-guide.htm)
@@ -80,8 +83,8 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-A copy of the license is available in the repository's [license.txt](https://github.com/ArcGIS/ops-server-config/blob/master/license.txt) file.
+A copy of the license is available in the repository's [license.txt](https://github.com/esri/ops-server-config/blob/master/license.txt) file.
 
 A portion of this code uses a third-party library:
 
-* Use of the [walkingDirTrees.py](https://github.com/ArcGIS/ops-server-config/blob/master/SupportFiles/walkingDirTrees.py) module is governed by the modified Berkeley license available in the repository's [LICENSE-ThirdParty.txt](https://github.com/ArcGIS/ops-server-config/blob/master/LICENSE-ThirdParty.txt) file.
+* Use of the [walkingDirTrees.py](https://github.com/esri/ops-server-config/blob/master/SupportFiles/walkingDirTrees.py) module is governed by the modified Berkeley license available in the repository's [LICENSE-ThirdParty.txt](https://github.com/ArcGIS/ops-server-config/blob/master/LICENSE-ThirdParty.txt) file.
