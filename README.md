@@ -42,17 +42,17 @@ The goals of the scripts are to:
 ## Requirements
 
 For requirements, please refer to:
-* The **_Install Software Preparation_** section of the [Ops Server Configuration Preparation](https://github.com/esri/ops-server-config/blob/master/Docs/Ops%20Server%20Config%20Preparation.pdf) document.
-* The **_Ops Server System Requirements_** and **_Installation Prerequisites_** sections of the [Ops Server Installation Guide](https://github.com/esri/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf).
+* The **_Install Software Preparation_** section of the [Ops Server Configuration Preparation](./Docs/Ops%20Server%20Config%20Preparation.pdf) document.
+* The **_Ops Server System Requirements_** and **_Installation Prerequisites_** sections of the [Ops Server Installation Guide](./Docs/Ops%20Server%20Installation%20Guide.pdf).
 
 ## Instructions
 
-1. Follow the instructions in the [Ops Server Configuration Preparation](https://github.com/esri/ops-server-config/blob/master/Docs/Ops%20Server%20Config%20Preparation.pdf) document.
-2. Follow the instructions in the [Ops Server Installation Guide](https://github.com/esri/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf).
+1. Follow the instructions in the [Ops Server Configuration Preparation](./Docs/Ops%20Server%20Config%20Preparation.pdf) document.
+2. Follow the instructions in the [Ops Server Installation Guide](./Docs/Ops%20Server%20Installation%20Guide.pdf).
 
 ## Resources
 
-* [Ops Server Installation Guide](https://github.com/esri/ops-server-config/blob/master/Docs/Ops%20Server%20Installation%20Guide.pdf)
+* [Ops Server Installation Guide](./Docs/Ops%20Server%20Installation%20Guide.pdf)
 * While the following guides are not necessary to use the scripts contained in this repo, they are useful for understanding the procedures executed by the scripts:
   * [ArcGIS for Server (Windows) installation guide](http://server.arcgis.com/en/server/latest/install/windows/welcome-to-the-arcgis-for-server-install-guide.htm)
   * [Portal for ArcGIS (Windows) installation guide](http://server.arcgis.com/en/portal/latest/install/windows/welcome-to-the-portal-for-arcgis-installation-guide.htm)
@@ -83,8 +83,11 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-A copy of the license is available in the repository's [license.txt](https://github.com/esri/ops-server-config/blob/master/license.txt) file.
+A copy of the license is available in the repository's [license.txt](./license.txt) file.
 
 A portion of this code uses a third-party library:
 
-* Use of the [walkingDirTrees.py](https://github.com/esri/ops-server-config/blob/master/SupportFiles/walkingDirTrees.py) module is governed by the modified Berkeley license available in the repository's [LICENSE-ThirdParty.txt](https://github.com/ArcGIS/ops-server-config/blob/master/LICENSE-ThirdParty.txt) file.
+* Use of the [walkingDirTrees.py](./SupportFiles/walkingDirTrees.py) module is governed by the modified Berkeley license available in the repository's [LICENSE-ThirdParty.txt](https://github.com/ArcGIS/ops-server-config/blob/master/LICENSE-ThirdParty.txt) file.
+
+[](Esri Tags: ArcGIS Defense Intelligence Military ArcGISSolutions)
+[](Esri Language: Python)
