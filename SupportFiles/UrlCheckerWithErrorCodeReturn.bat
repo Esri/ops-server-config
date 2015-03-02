@@ -1,12 +1,27 @@
 @echo off
 
-:: **IMPORTANT** Add Python to Path or SET Below to Python Path on your machine
+:: **IMPORTANT** 
+::     You may need to edit Python Path Below to change to the Python 2.X Path on your machine (requires Python 2.X)
+::
+:: Instructions:
+::     To use this script/batch to check the arcgis-solutions-website pages
+::
+::     1. Copy the following files to arcgis-solutions-website\source
+::        a. UrlChecker.py 
+::        b. UrlCheckerWithErrorCodeReturn.bat 
+::     2. Edit the python below path if necessary
+::     3. Run UrlCheckerWithErrorCodeReturn.bat 
+::        a. Open a command prompt
+::        b. Change directory to arcgis-solutions-website\source
+::           > cd {local location}\arcgis-solutions-website\source folder
+::        c. Run UrlCheckerWithErrorCodeReturn.bat 
 
 :: This script calls a link checker and exits with an error code if a failure (error code) returned from script
 
-SET MY_PYTHON_PATH="C:\Python27\ArcGIS10.1"
+:: TODO: Edit this if necessary to point to the local install of python
+SET MY_PYTHON_PATH="C:\Python27\ArcGIS10.3"
 
-if not exist %MY_PYTHON_PATH% goto no_python
+if not exist %MY_PYTHON_PATH%\python.exe goto no_python
 
 %MY_PYTHON_PATH%\python UrlChecker.py Results-military.csv military 
 if %errorlevel% NEQ 0 goto failure
