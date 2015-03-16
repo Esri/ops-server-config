@@ -311,7 +311,11 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     # 'AFMI Gallery Templates'
     print "\n" + sectionBreak
     print "Share the items in the default web apps and gallery template groups..."
-    share_templates(portaladdress, users['OpsServer']['target_username'], users['OpsServer']['target_password'])
+    group_owner = 'OpsServer'
+    if users.get(group_owner):
+        share_templates(portaladdress, users[group_owner]['target_username'], users[group_owner]['target_password'])
+    else:
+        print "-Skipping...user {} was not created. Can perform same operation through portal 'Edit Settings'.".format(group_owner)
 
     print "\nDONE: Finished posting content to portal."
     
@@ -566,18 +570,23 @@ def publish_user_items(portal, username, usercontentpath, old_hostname, new_host
         
         # Add/Update item
         if do_load_item:
-            item, old_source_id = load_item(portal, os.path.join(usercontentpath,"items", item_dir), overwrite_id)
-            newitems.append(item)
-            old_source_ids.append(old_source_id)         
-
-            # Reassign item to target owner and folder
-            if os.path.exists(os.path.join(usercontentpath, "folders.json")):
-                os.chdir(usercontentpath)
-                foldersinfo = json.load(open('folders.json'))
-                foldername = publish_get_folder_name_for_item(item, foldersinfo)
             
-            portal.reassign_item(item['id'], username, foldername)
-            
+            try:
+                item, old_source_id = load_item(portal, os.path.join(usercontentpath,"items", item_dir), overwrite_id)
+                newitems.append(item)
+                old_source_ids.append(old_source_id)         
+    
+                # Reassign item to target owner and folder
+                if os.path.exists(os.path.join(usercontentpath, "folders.json")):
+                    os.chdir(usercontentpath)
+                    foldersinfo = json.load(open('folders.json'))
+                    foldername = publish_get_folder_name_for_item(item, foldersinfo)
+                
+                portal.reassign_item(item['id'], username, foldername)
+                
+            except Exception as err:
+                print 'ERROR: Exception on adding/updating item: {}'.format(item_dir)
+                
         n = n + 1
 
     return newitems, old_source_ids
@@ -754,7 +763,11 @@ def update_item_data(portal, item, hostname_map, id_map):
 
     if item['type'] in TEXT_BASED_ITEM_TYPES:
         
-        itemdata = portal.item_data(item['id'])
+        try:
+            itemdata = portal.item_data(item['id'])
+        except Exception as err:
+            print('ERROR: Exception: update_item_data function could not get item data for item: "{}"'.format(str(item.get('title'))))
+            itemdata = None
         
         if itemdata:
             
