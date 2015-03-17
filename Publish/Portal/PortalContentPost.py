@@ -566,21 +566,17 @@ def publish_user_items(portal, username, usercontentpath, old_hostname, new_host
         
         # Add/Update item
         if do_load_item:
-		
-			try : 
-				item, old_source_id = load_item(portal, os.path.join(usercontentpath,"items", item_dir), overwrite_id)
-				newitems.append(item)
-				old_source_ids.append(old_source_id)         
+            item, old_source_id = load_item(portal, os.path.join(usercontentpath,"items", item_dir), overwrite_id)
+            newitems.append(item)
+            old_source_ids.append(old_source_id)         
 
-				# Reassign item to target owner and folder
-				if os.path.exists(os.path.join(usercontentpath, "folders.json")):
-					os.chdir(usercontentpath)
-					foldersinfo = json.load(open('folders.json'))
-					foldername = publish_get_folder_name_for_item(item, foldersinfo)
-				
-				portal.reassign_item(item['id'], username, foldername)
-			except Exception as err : 
-				print('--> IMPORTANT: Exception on item: ' + str(item))
+            # Reassign item to target owner and folder
+            if os.path.exists(os.path.join(usercontentpath, "folders.json")):
+                os.chdir(usercontentpath)
+                foldersinfo = json.load(open('folders.json'))
+                foldername = publish_get_folder_name_for_item(item, foldersinfo)
+            
+            portal.reassign_item(item['id'], username, foldername)
             
         n = n + 1
 
@@ -758,11 +754,7 @@ def update_item_data(portal, item, hostname_map, id_map):
 
     if item['type'] in TEXT_BASED_ITEM_TYPES:
         
-        try : 
-            itemdata = portal.item_data(item['id'])
-        except Exception as err :
-            print("--> IMPORTANT: Exception: Could not get Portal Item for: " + str(item))
-            itemdata = None
+        itemdata = portal.item_data(item['id'])
         
         if itemdata:
             
