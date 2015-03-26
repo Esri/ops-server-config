@@ -39,6 +39,8 @@ def main():
 
 	try :
 
+		HREF_FOR_LOCAL_LINKS = 'href="http://localhost:4567/'  # NOTE: set to None to not use
+
 		# Set this path to local folder containing the web site repo you want to crawl (or pass in as parameter)		
 		# Currently defaults to current path
 		DEFAULT_PATH = '.'
@@ -96,7 +98,16 @@ def main():
 				
 				if '<!--' in line:   # HACK: ignore comment line (also assumes only one line comments)
 					continue
-					
+				
+				if 'href="/' in line:
+					if HREF_FOR_LOCAL_LINKS is not None :
+						oldLine = line
+						line = line.replace('href="/', HREF_FOR_LOCAL_LINKS)
+						#if debug neeeded
+						#print('Replaced local link line:')
+						#print('Original: ' + oldLine)
+						#print('Replaced: ' + line)
+
 				if 'href="http' in line:
 					# Get a list of items between quotes " "
 					quotedItems = re.findall('"([^"]*)"', line)
