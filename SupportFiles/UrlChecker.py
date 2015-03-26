@@ -38,8 +38,9 @@ def usage():
 def main():
 
 	try :
-
-		HREF_FOR_LOCAL_LINKS = 'href="http://localhost:4567/'  # NOTE: set to None to not use
+		SERVER_URL = "http://localhost:4567"
+		
+		HREF_FOR_LOCAL_LINKS = 'href="' + SERVER_URL + '/'# NOTE: set to None to not use
 
 		# Set this path to local folder containing the web site repo you want to crawl (or pass in as parameter)		
 		# Currently defaults to current path
@@ -125,16 +126,16 @@ def main():
 
 							except urllib2.HTTPError as httpErr:
 								badUrl  = True
-								code    = str(httpErr.code)
+								code    = str(httpErr.code)								
 								# message = TODO
 								# if more info needed then potentially strip from response
 								# error_message = httpErr.read()
 								# print(error_message)
-					
+										
 							except urllib2.URLError as urlErr:
-								badUrl  = True
-								code    = '0'
-								message = urlErr.args
+							 	badUrl  = True
+							 	code    = re.sub("\D", "",str(urlErr.args)) #strips out string leaves only error code
+							 	message = urlErr.reason	
 
 							if badUrl or verbose :
 								urlCount += 1
