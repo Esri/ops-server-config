@@ -14,7 +14,8 @@
 # limitations under the License.
 #------------------------------------------------------------------------------
 # Name: UrlChecker.py
-# Usage: python.exe UrlChecker.py [Output File:(.csv)] [Directory To Check] [File Filters(default:".html,.erb")]
+# Usage: python.exe UrlChecker.py [Output File:(.csv)] [Directory To Check] 
+#                                 [File Filters(default:".html,.erb")] [Local Server URL]
 # Requirements/Constraints: Must run with Python 2.X (because of use of urllib2)
 #-------------------------------------------------------------------------------
 # Description: a URL Checking script
@@ -33,19 +34,55 @@ import traceback
 import urllib2    # Python3 Note: will need changed
 
 def usage():
-	print('Usage: python.exe UrlChecker.py [Output File(.csv)] [Directory To Check] [File Filters(ex/default:".html,.erb")]')
+	print('Usage: python.exe UrlChecker.py [Output File(.csv)] [Directory To Check] '\
+		'[File Filters(ex/default:".html,.erb")] [Local Server URL]')
+	
+def checkUrl(url):
+	badUrl = False
+	code, message = '', ''
+	try:
+		response = urllib2.urlopen(url)
+		code = str(response.getcode())
+		checkUrl = response.geturl() # just in case we want to check the 2
+		message = 'no error'
+
+	except urllib2.HTTPError as httpErr:
+		badUrl  = True
+		code    = str(httpErr.code)
+		# message = TODO
+		# if more info needed then potentially strip from response
+		# error_message = httpErr.read()
+
+	except urllib2.URLError as urlErr:
+		badUrl  = True
+		code    = re.sub("\D", "",str(urlErr.args)) #strips out string leaves only error code
+		message = urlErr.reason
+		
+	except Exception as generalErr:
+		badUrl  = True
+		message = 'Unknown Error'
+		
+	return badUrl, code, message
 
 def main():
 
 	try :
-		SERVER_URL = "http://localhost:4567"
-		
-		HREF_FOR_LOCAL_LINKS = 'href="' + SERVER_URL + '/'# NOTE: set to None to not use
-
-		# Set this path to local folder containing the web site repo you want to crawl (or pass in as parameter)		
-		# Currently defaults to current path
+	
+		# Set this path to local folder containing the web site repo you want to crawl 
+		# (or pass in as parameter) - currently defaults to current path
 		DEFAULT_PATH = '.'
 		# Ex: DEFAULT_PATH = 'C:/my-website/html'
+		
+		#######################################################
+		# The DEFAULT_SERVER_URL_FOR_LOCAL_LINKS if not passed in as a parameter
+		# This server address will be added to all local links, ex:
+		# if DEFAULT_SERVER_URL_FOR_LOCAL_LINKS = 'http://localhost' 
+		# "a href="/military/land-operations/templates/" --> becomes --> 
+		# "a href="http://localhost/military/land-operations/templates/"
+		# NOTE: Setting this value to None disables this link expansion capability
+		# TODO: Set this URL if desired:
+		DEFAULT_SERVER_URL_FOR_LOCAL_LINKS = "http://localhost:4567" # = None to disable
+		#######################################################
 		 
 		# if this verbose flag is set - it will list all URLs found (not just failing ones)
 		verbose = False
@@ -65,18 +102,44 @@ def main():
 
 		if len(sys.argv) < 4 :
 			patterns = ['.html', '.erb']
-			# Add usage() if not all args supplied:
-			usage()
 		else :
 			stringFilter = sys.argv[3]
 			patterns = stringFilter.split(',')
+			
+		if len(sys.argv) < 5 :
+			# Add usage() if not all args supplied:
+			usage()
+			serverUrlForLocalLinks = DEFAULT_SERVER_URL_FOR_LOCAL_LINKS
+		else :
+			serverUrlForLocalLinks = sys.argv[4]
 
+		if serverUrlForLocalLinks is None :
+			hRefForLocalLinks = None
+		else : 
+			hRefForLocalLinks = 'href="' + serverUrlForLocalLinks + '/'
+			
 		print('[Output File]:        ' + outputFile)
 		print('[Directory To Check]: ' + path)
 		print('[File Filters]:       ' + ', '.join(patterns))
+		if serverUrlForLocalLinks is not None:
+			print('[Local Server URL]:   ' + serverUrlForLocalLinks)
+			# Verify that the server is up & available
+			badUrl, code, message = checkUrl(serverUrlForLocalLinks)
+			if badUrl:
+				print('*****WARNING: Server Host Unreachable*****')
+				print('Bad Local Host: ' + serverUrlForLocalLinks)
+				print('*****All local links will fail*******')
 
 		if not os.path.exists(path) : 
 			raise Exception("Selected path does not exist: " + path)
+			
+		# if an existing file was selected for outputFile, make sure we can access/open
+		# (just in case we have the file open in excel or other program that locks access to it)
+		if os.path.isfile(outputFile):
+			try :
+				open(outputFile, 'w')
+			except :
+				raise Exception('Cannot open/access existing file for writing: ' + outputFile)
 
 		# Walks through directory structure looking for files matching patterns
 		matchingFileList = \
@@ -88,69 +151,65 @@ def main():
 		fileCount, urlFileCount, urlCount = 0, 0, 0
 
 		# For each file, searches the file for references to http and https. 
-		for currentFile in matchingFileList:			
-			fileCount += 1
-			print('Checking File #' + str(fileCount) + ', file: ' + currentFile)
-			searchfile = open(currentFile, 'r')
-			lineNumber = 0
-			newUrlFile = True
-			for line in searchfile:
-				lineNumber += 1
-				
-				if '<!--' in line:   # HACK: ignore comment line (also assumes only one line comments)
-					continue
-				
-				if 'href="/' in line:
-					if HREF_FOR_LOCAL_LINKS is not None :
-						oldLine = line
-						line = line.replace('href="/', HREF_FOR_LOCAL_LINKS)
-						#if debug neeeded
-						#print('Replaced local link line:')
-						#print('Original: ' + oldLine)
-						#print('Replaced: ' + line)
-
-				if 'href="http' in line:
-					# Get a list of items between quotes " "
-					quotedItems = re.findall('"([^"]*)"', line)
-					for quotedItem in quotedItems:
-						# If Web Link found, then test URL
-						if ('http' or 'https') in quotedItem:
-							badUrl = False
-							url, code, message = '', '', ''							
-							try:
+		for currentFile in matchingFileList:
+			try:
+				fileCount += 1
+				print('Checking File #' + str(fileCount) + ', file: ' + currentFile)
+				searchfile = open(currentFile, 'r')
+				lineNumber = 0
+				newUrlFile = True
+				commentBlock = False
+				for line in searchfile:
+					lineNumber += 1
+					
+					###################################
+					# Ignore comments/comment blocks
+					if '<!--' in line:   
+						# debug: print('Start of Comment Block at Line #:'  + str(lineNumber) + ': ' + line)
+						commentBlock = True
+						
+					if commentBlock and ('-->' in line):
+						# debug: print('End of Comment Block at Line #:'  + str(lineNumber) + ': ' + line)
+						line = line.split('-->')[1]   # TRICKY: still check this line, just in case stuff after comment
+						commentBlock = False
+						
+					if commentBlock:
+						# debug: print('Skipping Comment Line #:'  + str(lineNumber) + ': ' + line)
+						continue
+					###################################
+		
+					if 'href="/' in line:
+						if hRefForLocalLinks is not None :
+							oldLine = line
+							line = line.replace('href="/', hRefForLocalLinks)
+							# debug: print('Replaced local link line-Original: ' + oldLine + 'Replaced: ' + line)
+		
+					if 'http' in line:
+						# Get a list of items between quotes " "
+						quotedItems = re.findall('"([^"]*)"', line)
+						for quotedItem in quotedItems:
+							# If Web Link found, then test URL
+							if ('http' or 'https') in quotedItem:
 								url = quotedItem
-								response = urllib2.urlopen(url)
-								code = str(response.getcode())
-								checkUrl = response.geturl() # just in case we want to check the 2
-								message = 'no error'
-
-							except urllib2.HTTPError as httpErr:
-								badUrl  = True
-								code    = str(httpErr.code)								
-								# message = TODO
-								# if more info needed then potentially strip from response
-								# error_message = httpErr.read()
-								# print(error_message)
-										
-							except urllib2.URLError as urlErr:
-							 	badUrl  = True
-							 	code    = re.sub("\D", "",str(urlErr.args)) #strips out string leaves only error code
-							 	message = urlErr.reason	
-
-							if badUrl or verbose :
-								urlCount += 1
-								if newUrlFile : 
-									urlFileCount += 1
-									newUrlFile = False
-								urlError = [str(urlCount), str(urlFileCount), currentFile, str(lineNumber), url, code, message]
-								urlErrorsList.append(urlError)
-
-			searchfile.close
-
+								badUrl, code, message = checkUrl(url)
+		
+								if badUrl or verbose :
+									urlCount += 1
+									if newUrlFile : 
+										urlFileCount += 1
+										newUrlFile = False
+									urlError = [str(urlCount), str(urlFileCount), currentFile, str(lineNumber), url, code, message]
+									urlErrorsList.append(urlError)
+		
+				searchfile.close
+			except Exception as loopErr:
+				print("Unknown exception while processing file: " + currentFile)
+				print(traceback.format_exception_only(type(loopErr), loopErr)[0].rstrip())
+				
 		if verbose: 
-			print(str(urlCount) + ' URLs found in ' + str(fileCount) + ' files checked.')			
-		else : 						
-			if urlCount == 0 :			
+			print(str(urlCount) + ' URLs found in ' + str(fileCount) + ' files checked.')
+		else : 
+			if urlCount == 0 :
 				print('No Bad URLs found - Good Work!')
 				return
 			else : 
