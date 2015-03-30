@@ -63,7 +63,7 @@ def checkUrl(url):
 
 	except Exception as generalErr:
 		badUrl = True
-		message = 'Unknown Error: ' + generalErr
+		message = 'Unknown Error: ' + str(generalErr)
 
 	return badUrl, code, message
 
@@ -84,7 +84,7 @@ def main():
 		# "a href="http://localhost/military/land-operations/templates/"
 		# NOTE: Setting this value to None disables this link expansion capability
 		# TODO: Set this URL if desired:
-		DEFAULT_SERVER_URL_FOR_LOCAL_LINKS = "http://localhost:4567" # = None to disable
+		DEFAULT_SERVER_URL_FOR_LOCAL_LINKS = None # "http://localhost:4567" # = None to disable
 		#######################################################
 
 		# if this verbose flag is set - it will list all URLs found (not just failing ones)
@@ -130,7 +130,7 @@ def main():
 			badUrl, code, message = checkUrl(serverUrlForLocalLinks)
 			if badUrl:
 				print('*****WARNING: Server Host Unreachable*****')
-				print('Bad Local Host: ' + serverUrlForLocalLinks)
+				print('Is server running at: ' + serverUrlForLocalLinks + '?')
 				print('*****All local links will fail*******')
 
 		if not os.path.exists(path):
