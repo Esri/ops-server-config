@@ -201,7 +201,7 @@ def main():
 									if newUrlFile:
 										urlFileCount += 1
 										newUrlFile = False
-									urlError = [str(urlCount), str(urlFileCount), currentFile, currentFile, str(lineNumber), url, code, message]
+									urlError = [str(urlCount), str(urlFileCount), currentFile, str(lineNumber), url, code, message]
 									urlErrorsList.append(urlError)
 
 				searchfile.close
