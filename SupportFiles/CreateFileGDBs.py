@@ -40,7 +40,7 @@ def getfolders(path, patterns):
 
 if len(sys.argv) < 3:
     usage()
-    sys.exit(-1)
+    sys.exit(1)
 
 source_folder = sys.argv[1]
 destination_folder = sys.argv[2]
@@ -69,4 +69,4 @@ for database in destination_dblist:
         arcpy.CreateFileGDB_management(destination_folder, tempdb)
 
     except arcpy.ExecuteError as arcpy_error:
-        pass
+        print(arcpy.GetMessages())
