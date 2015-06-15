@@ -138,9 +138,6 @@ def main():
         sys.exit(exit_err_code)
     portal_address, adminuser, password, id_mapping_file_path, search_query = results
     
-    print 'file path: ' + str(id_mapping_file_path)
-    print 'searh query: ' + str(search_query)
-    
     total_success = True
     title_break_count = 100
     section_break_count = 75

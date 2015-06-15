@@ -91,10 +91,15 @@ def print_args():
 
         return portal_address, adminuser, password, delete_option
 
-def get_hosted_service_items(portal):
-    ''' Return all hosted service items '''
+def get_hosted_service_items(portal, items=None):
+    '''
+    Return all hosted service items.
+    If "items" is specified, function will return
+    subset of "items" that are hosted service items.
+    '''
     hosted_service_items = []
-    items = portal.search()
+    if items is None:
+        items = portal.search()
     for item in items:
         if 'Hosted Service' in item['typeKeywords']:
             hosted_service_items.append(item)
@@ -107,7 +112,9 @@ def get_orphaned_hosted_service_items(portal):
     for item in items:
         url = item.get('url')
         if url:
-            if url.find('/Hosted/') > -1 and 'Hosted Service' not in item['typeKeywords']:
+            if url.find('/Hosted/') > -1 and \
+                    'Hosted Service' not in item['typeKeywords'] and \
+                                            'Hosted Service' in item['tags']:
                 p_hosted_service_items.append(item)
     return p_hosted_service_items
 
