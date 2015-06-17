@@ -23,6 +23,7 @@ import os
 import traceback
 import json
 import logging
+import time
 
 sys.path.append(os.path.join(os.path.dirname(os.path.dirname(
     sys.argv[0])), 'SupportFiles'))
@@ -162,9 +163,19 @@ def main():
             
             f = open(file_path, 'w')
             
+            print 'Writing information to file...\n'
+            
             for service in services:
                 folder, servicename_type = parseService(service)
                 service_info = getServiceInfo(server, port, adminuser, password, folder, servicename_type, use_ssl)
+                
+                # Don't write service info if service is associated
+                # with gp service. Service is edited through gp service.
+                parent_name = service_info['properties'].get('parentName')
+                if parent_name:
+                    if parent_name.find('.GPServer') > -1:
+                        continue
+
                 write_str = '{{"service": "{}", "properties": {{"clusterName": "{}", "minInstancesPerNode": {}, "maxInstancesPerNode": {}}}}}\n'
                 write_str = write_str.format(
                         service,
@@ -198,6 +209,14 @@ def main():
                 # Get the current service properties
                 folder, servicename_type = parseService(mod_service)
                 service_info = getServiceInfo(server, port, adminuser, password, folder, servicename_type, use_ssl)
+
+                # Don't write service info if service is associated
+                # with gp service. Service is edited through gp service.
+                parent_name = service_info['properties'].get('parentName')
+                if parent_name:
+                    if parent_name.find('.GPServer') > -1:
+                        '\n\tWARNING: Can not edit service associated with GP service. Skipping update.\n'
+                        continue
                 
                 # Print the original and new service property values.
                 # Also check if properties have actually changed.
@@ -243,6 +262,8 @@ def main():
                     print '**** ERROR: Update of service was not successful.'
                     print 'status: ' + str(status)
             
+                time.sleep(15)
+                
     except:
         total_success = False
         
