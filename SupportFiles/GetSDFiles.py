@@ -132,8 +132,11 @@ def extractFromSDFile(sdFile, extractFolder, fileToExtract=None):
     
     # 'Build' 7zip command line arguments
     # -y switch suppresses the overwrite user query if the file already exists.
-    exeArgs = sevenZipExePath + ' e ' + sdFile + ' -o' + extractFolder + ' ' + fileToExtract + ' -y'
-    print sectionBreak1
+    exeArgs = '{} e {} -o{}'.format(sevenZipExePath, sdFile, extractFolder)
+    if fileToExtract:
+        exeArgs += ' {}'.format(fileToExtract)
+    exeArgs += ' -y'
+    #print sectionBreak1
     exitCode = subprocess.call(exeArgs)
     return exitCode
 
