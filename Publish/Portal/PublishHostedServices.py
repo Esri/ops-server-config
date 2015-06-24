@@ -155,6 +155,9 @@ def transfer_item_info(portal, src_item_id, target_item_id):
 
 def transfer_item_data(portal, src_item_id, target_item_id):
     """ Transfer item data from source item to target item """
+    
+    resp = None
+    
     src_item = portal.item(src_item_id)
     if src_item['type'] in TEXT_BASED_ITEM_TYPES:
         try:
