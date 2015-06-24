@@ -45,10 +45,11 @@ def main():
         sys.exit(exitErrCode)
     
     # Get parameter values
-    portal_url, user, password, output_file, access_mode = results
+    portal_url, user, password, output_file, output_per_user = results
     
     try:
-       
+        access_mode = 'w'
+        
         # Create portal object
         portal = Portal(portal_url, user, password)
         
@@ -63,17 +64,34 @@ def main():
         
         out_file = open(output_file, access_mode)
         out_file_dir = os.path.dirname(output_file)
-    
-        for portal_user in portal_users:
-            user_name = portal_user['username']
-            if user_name not in username_exclude:
-                service_list_outfile = os.path.join(out_file_dir, '{}_servicelist.txt'.format(user_name))
-                service_list_qc_outfile = os.path.join(out_file_dir, '{}_qc_servicelist.txt'.format(user_name))
-                script_parameters = '{} {} {} {} {} {} {} > {}'.format(os.path.join(script_path, 'CreateServiceList.py'),
-                        portal_url, user, password, service_list_outfile, 'OVERWRITE', user_name, service_list_qc_outfile)
-                out_file.write(script_parameters + '\n')
         
-        print '\nDone. Output written to: {}\n'.format(output_file)
+        for portal_user in portal_users:
+            
+            user_name = portal_user['username']
+            
+            if user_name in username_exclude:
+                continue
+            
+            if output_per_user:
+                service_list_outfile = os.path.join(out_file_dir, '{}_ServiceList.txt'.format(user_name))
+                service_list_qc_outfile = os.path.join(out_file_dir, '{}_CreateServiceList_output.txt'.format(user_name))
+                access_mode = 'OVERWRITE'
+                redirect = '>'
+            else:
+                service_list_outfile = os.path.join(out_file_dir, 'ServiceList.txt')
+                service_list_qc_outfile = os.path.join(out_file_dir, 'CreateServiceList_output.txt')
+                access_mode = 'APPEND'
+                redirect = '>>'
+                
+            script_parameters = '{} {} {} {} {} {} {} {} {}'.format(
+                    os.path.join(script_path, 'CreateServiceList.py'),
+                    portal_url, user, password, service_list_outfile,
+                    access_mode, user_name, redirect, service_list_qc_outfile)
+            
+            out_file.write(script_parameters + '\n')
+        
+        print '\nCreated output batch file: {}\n'.format(output_file)
+        print 'Done.'
         
     except:
         totalSuccess = False
@@ -111,8 +129,8 @@ def check_args():
         print '\n\t{:<20}: {}'.format('<PortalURL>', 'URL of Portal (i.e. https://fully_qualified_domain_name/arcgis).')
         print '\n\t{:<20}: {}'.format('<AdminUser>', 'Portal admin user.')
         print '\n\t{:<20}: {}'.format('<AdminUserPassword>', 'Password for portal admin user.')
-        print '\n\t{:<20}: {}'.format('<OutputFile>', 'Path and name of file to write service names.')
-        print '\n\t{:<20}: {}'.format('{OVERWRITE|APPEND}', 'Overwrite or append to existing file. Default is to overwrite.\n')
+        print '\n\t{:<20}: {}'.format('<OutputBatchFile>', 'Path and name of batch file to write call to CreateServiceList.py script.')
+        print '\n\t{:<20}: {}'.format('{FilePerUser: YES|NO}', 'CreateServiceList.py script will create a file per user.\n')
         return None
     
     else:
@@ -122,26 +140,27 @@ def check_args():
         user = sys.argv[2]
         password = sys.argv[3]
         output_file = sys.argv[4]
-        access_mode = 'OVERWRITE'
+        output_per_user = 'YES'
         
         if len(sys.argv) == 6:
-            access_mode = sys.argv[5]
+            output_per_user = sys.argv[5]
         
         if len(sys.argv) > 6:
             print '\nError: too many parameters.\n'
             return None
         
-        valid_access_modes = ['OVERWRITE', 'APPEND']
-        if not access_mode.upper() in valid_access_modes:
-            print '\nError: incorrect access mode "{}". Valid choices are {}\n'.format(access_mode, valid_access_modes)
+        valid_file_per_user = ['YES', 'NO']
+        if not output_per_user.upper() in valid_file_per_user:
+            print '\nError: incorrect {{FilePerUser}} value "{}". Valid choices are: {}\n'.format(
+                                output_per_user, ', '.join(valid_file_per_user))
             return None
         
-        if access_mode.upper() == 'OVERWRITE':
-            access_mode = 'w'
+        if output_per_user.upper() == 'YES':
+            output_per_user = True
         else:
-            access_mode = 'a'
-    
-    return portal_url, user, password, output_file, access_mode
+            output_per_user = False
+        
+    return portal_url, user, password, output_file, output_per_user
 
 if __name__ == "__main__":
     main()
