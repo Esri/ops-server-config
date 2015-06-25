@@ -123,7 +123,7 @@ def check_args():
 
     if len(sys.argv) < 5:
         
-        print '\n' + script_name + ' <PortalURL> <AdminUser> <AdminUserPassword> <OutputFile> {OVERWRITE|APPEND}'
+        print '\n' + script_name + ' <PortalURL> <AdminUser> <AdminUserPassword> <OutputFile> {FilePerUser: YES|NO}'
 
         print '\nWhere:'
         print '\n\t{:<20}: {}'.format('<PortalURL>', 'URL of Portal (i.e. https://fully_qualified_domain_name/arcgis).')
