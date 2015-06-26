@@ -389,9 +389,10 @@ def main():
             if all_urls:
                 for url in all_urls:
                     url = _remove_layer_number(url)
-                    for search_str, replace_str in type_mapping.iteritems():
-                        if url.find('/' + search_str) > 0:
-                            url = url.replace('/' + search_str, '/' + replace_str)
+                    if url.find('/Hosted/') == -1:
+                        for search_str, replace_str in type_mapping.iteritems():
+                            if url.find('/' + search_str) > 0:
+                                url = url.replace('/' + search_str, '/' + replace_str)
                     url = '.'.join(url.rsplit('/', 1))
                     #print 'url line 271: ' + url
                     if url.find('/rest/services/') > 0:
