@@ -357,6 +357,11 @@ if "%ops_install_portal%"=="YES" (
     Call %~dp0Portal\InstallPortal.bat
 )
 
+REM Install Esri Maps for Office Web Content
+if "%ops_install_em4o_webcontent%"=="YES" (
+    Call %~dp0EsriMapsForOffice\WebContent\InstallEM4OWebContent.bat
+)
+
 REM Create Operations Dashboard ClickOnce Application and deploy to portal folders
 if "%ops_create_opsdashboard_installer%"=="YES" (
     Call %~dp0OpsDashboardUtility\CreateOneClickInstaller.bat

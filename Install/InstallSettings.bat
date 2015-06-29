@@ -183,6 +183,9 @@ set ops_install_message_simulator=YES
 REM Install Portal for ArcGIS
 set ops_install_portal=YES
 
+REM Install Esri Maps for Office Web Content
+set ops_install_em4o_webcontent=YES
+
 REM Create Operations Dashboard ClickOnce Application and deploy to portal folders
 set ops_create_opsdashboard_installer=YES
 
