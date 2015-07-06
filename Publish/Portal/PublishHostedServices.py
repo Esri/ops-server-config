@@ -256,7 +256,7 @@ def main():
     portal_address, adminuser, password, item_ids = results
     
     total_success = True
-    total_pub_jobs_success = 0
+    #total_pub_jobs_success = 0
 
     file_type = 'serviceDefinition'
 
@@ -299,6 +299,7 @@ def main():
         print '\n- Publish the source items...'
         
         for item_id in item_ids:
+            total_pub_jobs_success = 0
             
             item = portal.item(item_id)
             
