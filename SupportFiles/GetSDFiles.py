@@ -69,7 +69,8 @@ def check_args():
         print '\t\t"owned" by these users *** [AND SHARED WITH "EVERYONE"] *** will be copied).'
         print '\n\t\t- List must be comma delimited list (spaces can be included after commas, but list must be enclosed by quotes).'
         print '\t\t- Owner names are case sensitive.'
-        print '\nNOTE: this script must be executed from the ArcGIS Server machine.\n'
+        print '\nNOTE: if not executed on the ArcGIS Server machine, the ArcGIS Server "Directories" (see Manager) have to be UNC paths'
+        print 'and given the appropriate OS permissions.'
         return None
     
     else:
