@@ -62,7 +62,8 @@ FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV',
                                    'Image', 'Visio Document', 'ArcPad Package', 'Web Scene',
                                    'Pro Map', 'CAD Drawing', 'iWork Keynote', 'iWork Pages', 'iWork Numbers',
                                    'Basemap Package', 'Project Package', 'Task File', 'Layout',
-                                   'Rule Package', 'Desktop Application']) #'KML'
+                                   'Rule Package', 'Desktop Application', 'Project Template',
+                                   'Mobile Basemap Package', 'Desktop style']) #'KML'
 
 RELATIONSHIP_TYPES = frozenset(['Map2Service', 'WMA2Code',
                                 'Map2FeatureCollection', 'MobileApp2Code', 'Service2Data',
