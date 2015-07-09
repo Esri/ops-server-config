@@ -92,9 +92,9 @@ for %%d in (%ops_SoftwareFolders%) do (
 REM ---------------------------------------
 REM Created web apps related folders
 REM ---------------------------------------
-set ops_webappsRootPath=%ops_rootInstallPath%\WebApps
+set ops_webappsRootPath=%ops_rootInstallPath%
 
-mkdir %ops_webappsRootPath%\Downloads
+mkdir %ops_webappsRootPath%\WebApps\Downloads
 
 @echo Done.
 
