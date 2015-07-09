@@ -94,7 +94,7 @@ REM Created web apps related folders
 REM ---------------------------------------
 set ops_webappsRootPath=%ops_rootInstallPath%
 
-mkdir %ops_webappsRootPath%\WebApps\Downloads
+mkdir %ops_webappsRootPath%\WebApps\wwwroot\Downloads
 
 @echo Done.
 
