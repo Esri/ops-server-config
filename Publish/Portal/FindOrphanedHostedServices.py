@@ -133,6 +133,8 @@ def create_search_replace_id_map(portal):
         for hosted_service_item in hosted_service_items:
             orig_new_info = {}
             o_service_item_id = find_orig_service_item_id(portal, hosted_service_item['id'])
+            if not o_service_item_id:
+                continue
             orig_new_info[search_key] = o_service_item_id
             orig_new_info[replace_key] = hosted_service_item['id']
             item_mapping.append(orig_new_info)
