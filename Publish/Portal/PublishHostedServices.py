@@ -274,9 +274,10 @@ def main():
         portal = Portal(portal_address, adminuser, password)
         
         # Get ids of the source items to publish
+        valid_items = True
+        
         if not item_ids:
             print '- Searching for valid source items to publish...'
-            valid_items = True
             item_ids = get_source_item_ids(portal)
         else:
             print '- Validating specified source item guids...'
