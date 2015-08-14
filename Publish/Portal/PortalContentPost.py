@@ -255,8 +255,12 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     print "\n" + titleBreak
     print "Creating groups ...\n"
     
+    oldGrpID_newGrpID = {}
     for username, userinfo in users.iteritems():
         newGroups = publish_user_groups(portaladmin, contentpath, userinfo, users)
+        
+        for key,val in newGroups.iteritems():
+            oldGrpID_newGrpID[key] = {'id': val}
     
     # ------------------------------------------------------------------------
     # Publish Items and Update their sharing info
@@ -293,6 +297,7 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     # Dump info about all items (old, new ids) into json
     os.chdir(portalLogPath)
     json.dump(origIDToNewID, open('oldID_newID.json','w'))
+    json.dump(oldGrpID_newGrpID, open('oldGrpID_newGrpID.json', 'w'))
 
     # ------------------------------------------------------------------------
     # Post publishing processing: Update URLs and item ids
@@ -300,6 +305,10 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     print "\n" + titleBreak
     print "Update URLs and Item IDs..."
     print titleBreak + "\n"
+    
+    # Add the group ids to the dictionary of old/new ids
+    origIDToNewID.update(oldGrpID_newGrpID)
+    
     update_post_publish(portaladmin, hostname_map, origIDToNewID)
 
     # ------------------------------------------------------------------------

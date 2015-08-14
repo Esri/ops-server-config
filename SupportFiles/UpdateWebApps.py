@@ -101,6 +101,11 @@ if id_map_file:
     for orig_id, item_info in id_map.iteritems():
         search_replace_map[orig_id] = item_info['id']
 
+    # for i in id_map:
+    #     search = i.get('search')
+    #     replace = i.get('replace')
+    #     search_replace_map[search] = replace
+        
 if is_debug:
     print '\n\n' + str(search_replace_map)
     
