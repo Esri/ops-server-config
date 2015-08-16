@@ -108,7 +108,7 @@ if userServiceStr is not None:
     if len(serviceList) <> str(serviceList).count("."):
         print "Error: There are missing '.' delimiters between service name and type.\n"
         sys.exit(1)
-        
+
     # Make sure each service element has a valid service "type"
     notValidTypes = []
     for x in [x.split(".")[1].lower() for x in serviceList]:
@@ -143,6 +143,10 @@ try:
     # ---------------------------------------------------------------------
     if not serviceList:
         serviceList = getServiceList(serverName, serverPort, userName, passWord, useSSL)
+
+    # Remove hosted services from list since these can't be started/stopped
+    print '\nRemoving "Hosted" services from service list; these services can not be started/stopped.'
+    serviceList = [x for x in serviceList if x.find('Hosted/') == -1]
     
     if len(serviceList) == 0:
         print "\t*ERROR: No services to " + serviceAction.title() + "."
