@@ -87,8 +87,7 @@ echo.
 echo    1. Click "Security" tab on side panel.
 echo.
 echo.
-echo    2. Make sure the "Allow access to the portal through SSL only" option is UNCHECKED.
-echo       ^(unchecked allows both http and https^)
+echo    2. Make sure the "Allow access to the portal through SSL only" option is CHECKED.
 echo.
 echo.
 echo    ^-^-^-^-^-^- Utility Services ^-^-^-^-^-^-
