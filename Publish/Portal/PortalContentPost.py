@@ -311,20 +311,21 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     
     update_post_publish(portaladmin, hostname_map, origIDToNewID)
 
-    # ------------------------------------------------------------------------
-    # Share items in default web apps template and default gallery
-    # ------------------------------------------------------------------------    
-    # Share the items in the default web apps template and
-    # default gallery template built-in group with the
-    # 'OpsServer' user 'AFMI Web Application Templates' and
-    # 'AFMI Gallery Templates'
-    print "\n" + sectionBreak
-    print "Share the items in the default web apps and gallery template groups..."
-    group_owner = 'OpsServer'
-    if users.get(group_owner):
-        share_templates(portaladdress, users[group_owner]['target_username'], users[group_owner]['target_password'])
-    else:
-        print "-Skipping...user {} was not created. Can perform same operation through portal 'Edit Settings'.".format(group_owner)
+    # Comment out: this functionality is now available out of the box
+    # # ------------------------------------------------------------------------
+    # # Share items in default web apps template and default gallery
+    # # ------------------------------------------------------------------------    
+    # # Share the items in the default web apps template and
+    # # default gallery template built-in group with the
+    # # 'OpsServer' user 'AFMI Web Application Templates' and
+    # # 'AFMI Gallery Templates'
+    # print "\n" + sectionBreak
+    # print "Share the items in the default web apps and gallery template groups..."
+    # group_owner = 'OpsServer'
+    # if users.get(group_owner):
+    #     share_templates(portaladdress, users[group_owner]['target_username'], users[group_owner]['target_password'])
+    # else:
+    #     print "-Skipping...user {} was not created. Can perform same operation through portal 'Edit Settings'.".format(group_owner)
 
     print "\nDONE: Finished posting content to portal."
     
