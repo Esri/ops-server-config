@@ -15,8 +15,19 @@
 #==============================================================================
 #Name:          ManageServiceProperties.py
 #
-#Purpose:       
+#Purpose:       Updates service properties based on values in Properties_File file.
 #
+#               1) Execute script using default REPORT option to create Properties_File
+#               2) Edit service property values in Properties_File
+#               3) Execute script using UPDATE option
+#
+#               Properties updated by script are:
+#                   clusterName
+#                   minInstancesPerNode
+#                   maxInstancesPerNode
+#
+#               NOTE: Hosted services are excluded from update since
+#                   properties of these services should not be updated.
 #==============================================================================
 import sys
 import os
@@ -156,6 +167,10 @@ def main():
         services = getServiceList(server, port, adminuser, password, use_ssl)
         services = [service.replace('//', '/') for service in services]
         
+        # Properties of hosted services should not be altered; remove hosted
+        # services from the services list
+        services = [x for x in services if x.find('Hosted/') == -1]
+    
         # ---------------------------------------------------------------------
         # Report service properties
         # ---------------------------------------------------------------------
@@ -163,7 +178,7 @@ def main():
             
             f = open(file_path, 'w')
             
-            print 'Writing information to file...\n'
+            print 'Writing service property information to file (excluding hosted services)...\n'
             
             for service in services:
                 folder, servicename_type = parseService(service)
@@ -175,7 +190,7 @@ def main():
                 if parent_name:
                     if parent_name.find('.GPServer') > -1:
                         continue
-
+        
                 write_str = '{{"service": "{}", "properties": {{"clusterName": "{}", "minInstancesPerNode": {}, "maxInstancesPerNode": {}}}}}\n'
                 write_str = write_str.format(
                         service,
@@ -185,7 +200,7 @@ def main():
                         )
                 f.write(write_str)
             f.close
-
+        
         # ---------------------------------------------------------------------
         # Update/Edit service properties
         # ---------------------------------------------------------------------
@@ -202,6 +217,10 @@ def main():
                 mod_service_props = line_json['properties']
                 print mod_service
                 
+                if mod_service.find('Hosted/') > -1:
+                    print '\n\tWARNING: Skipping update. Hosted service properties should not be updated.'
+                    continue
+                
                 if mod_service not in services:
                     print '\n\tWARNING: Can not find specified service: {}. Skipping update.\n'.format(mod_service)
                     continue
@@ -209,7 +228,7 @@ def main():
                 # Get the current service properties
                 folder, servicename_type = parseService(mod_service)
                 service_info = getServiceInfo(server, port, adminuser, password, folder, servicename_type, use_ssl)
-
+        
                 # Don't write service info if service is associated
                 # with gp service. Service is edited through gp service.
                 parent_name = service_info['properties'].get('parentName')
