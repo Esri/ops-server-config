@@ -94,17 +94,23 @@ search_replace_map[old_hostname] = new_hostname
 if id_map_file:
     os.chdir(os.path.dirname(id_map_file))
     id_map = json.load(open(os.path.basename(id_map_file)))
+    
     if is_debug:
         print str(id_map)
 
-    # Add the old/new IDs
-    for orig_id, item_info in id_map.iteritems():
-        search_replace_map[orig_id] = item_info['id']
+    for i in id_map:
+        try:
+            # Read in search/replace values from hosted service
+            # item mapping file
+            search = i['search']
+            replace = i['replace']
+        except Exception as err:
+            # Read in search/replace values from portal post script
+            # item mapping file
+            search = i
+            replace = id_map[search]['id']
 
-    # for i in id_map:
-    #     search = i.get('search')
-    #     replace = i.get('replace')
-    #     search_replace_map[search] = replace
+        search_replace_map[search] = replace
         
 if is_debug:
     print '\n\n' + str(search_replace_map)
