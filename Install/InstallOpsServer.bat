@@ -388,6 +388,11 @@ if "%ops_install_geoevent%"=="YES" (
     Call %~dp0GeoEvent\InstallGeoEvent.bat
 )
 
+REM Install Geoevent Extension for ArcGIS Server Patches
+if "%ops_install_geoevent_patches%"=="YES" (
+    Call %~dp0GeoEvent\InstallGeoEventPatches.bat
+)
+
 goto end
 
 :end

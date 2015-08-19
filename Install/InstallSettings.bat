@@ -206,6 +206,9 @@ set ops_federate_ags=YES
 REM Install Geoevent Extension for ArcGIS Server
 set ops_install_geoevent=YES
 
+REM Install Geoevent Extension for ArcGIS Server Patches
+set ops_install_geoevent_patches=YES
+
 REM ---------------------------------------------------------------------
 REM END Set User Editable Variables
 REM ---------------------------------------------------------------------
