@@ -209,6 +209,9 @@ set ops_install_geoevent=YES
 REM Install Geoevent Extension for ArcGIS Server Patches
 set ops_install_geoevent_patches=YES
 
+REM Install Predictive Analysis Web Services
+set ops_install_predictive_analysis=YES
+
 REM ---------------------------------------------------------------------
 REM END Set User Editable Variables
 REM ---------------------------------------------------------------------

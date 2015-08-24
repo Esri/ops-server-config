@@ -393,6 +393,11 @@ if "%ops_install_geoevent_patches%"=="YES" (
     Call %~dp0GeoEvent\InstallGeoEventPatches.bat
 )
 
+REM Install Predictive Analysis Web Services
+if "%ops_install_predictive_analysis%"=="YES" (
+    Call %~dp0PredictiveAnalysis\InstallPredictiveAnalysis.bat
+)
+
 goto end
 
 :end
