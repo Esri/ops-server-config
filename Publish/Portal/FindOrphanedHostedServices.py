@@ -81,9 +81,9 @@ def print_args():
         password = sys.argv[3]
         delete_option = False
         if len(sys.argv) >= 5:
-            delete_option = sys.argv[4].strip().upper()
-            if delete_option not in delete_option_values:
-                print '\nInvalid "delete_orphaned_items" parameter value "{}".'.format(delete_option)
+            user_delete_option = sys.argv[4].strip().upper()
+            if user_delete_option not in delete_option_values:
+                print '\nInvalid "delete_orphaned_items" parameter value "{}".'.format(user_delete_option)
                 print 'Must be one of the following values: {}'.format(', '.join(delete_option_values))
                 return None
             if delete_option == 'DELETE':
