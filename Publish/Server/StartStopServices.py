@@ -31,7 +31,8 @@ from AGSRestFunctions import getServiceList
 from AGSRestFunctions import stopStartServices
 from AGSRestFunctions import getServiceStatus
 
-validTypes = ["MapServer", "ImageServer", "GeometryServer", "GeocodeServer", "GPServer", "FeatureServer"]
+validTypes = ["MapServer", "ImageServer", "GeometryServer", "GeocodeServer",
+              "GPServer", "FeatureServer", "GlobeServer", "GeoDataServer"]
 userServiceStr = None
 serviceList = None
 scriptName = os.path.basename(sys.argv[0])
