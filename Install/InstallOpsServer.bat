@@ -36,7 +36,7 @@ REM NOTE: must have "\" at end of path
 set ops_agsDataStoreDIR=C:\arcgisdatastore\
 
 REM Define PostgreSQL paths
-set ops_postgresqlInstallDIR=C:\PostgreSQL\9.2
+set ops_postgresqlInstallDIR=C:\PostgreSQL\9.3
 set ops_postgresqlDataDIR=%ops_postgresqlInstallDIR%\data
 
 REM Define path to Esri SoftwareAuthorization.exe
