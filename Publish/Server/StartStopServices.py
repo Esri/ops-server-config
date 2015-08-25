@@ -90,6 +90,11 @@ if userServiceStr is not None:
     
     # Read in the user specified serivces
     if os.path.exists(userServiceStr):
+        # User has specified a path; make sure it's a file
+        if not os.path.isfile(userServiceStr):
+            print "Error: The specified Service_List_File " + userServiceStr + " is not a file.\n"
+            sys.exit(1)
+
         f = open(userServiceStr, 'r')
         for service in f:
             serviceList.append(service.strip())
