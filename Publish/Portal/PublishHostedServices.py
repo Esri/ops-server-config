@@ -22,7 +22,7 @@ import sys
 import os
 import time
 import traceback
-
+from datetime import datetime
 from portalpy import Portal
 from portalpy import TEXT_BASED_ITEM_TYPES
 
@@ -275,12 +275,11 @@ def main():
         
         # Get ids of the source items to publish
         valid_items = True
-        
         if not item_ids:
-            print '- Searching for valid source items to publish...'
+            print '\n- Searching for valid source items to publish...'
             item_ids = get_source_item_ids(portal)
         else:
-            print '- Validating specified source item guids...'
+            print '\n- Validating specified source item guids...'
             for item_id in item_ids:
                 if not is_valid_source_item(portal, item_id):
                     valid_items = False
@@ -290,7 +289,16 @@ def main():
             print 'ERROR: At least one specified GUID is invalid. Stopping script execution.'
             sys.exit(exit_err_code)
     
-        print '- Will attempt to publish the following {} source item(s)...'.format(len(item_ids))
+        num_src_items = len(item_ids)
+        startTime = datetime.now()
+        
+        # #temp during testing
+        # exclude_guids = []
+        # for exclude_guid in exclude_guids:
+        #     if exclude_guid in item_ids:
+        #         item_ids.remove(exclude_guid)
+        
+        print '\n- Will attempt to publish the following {} source item(s)...\n'.format(num_src_items)
         for item_id in item_ids:
             print_item_info(portal.item(item_id))
         
@@ -299,12 +307,19 @@ def main():
         
         print '\n- Publish the source items...'
         
+        i = 0
+        grand_total_pub_jobs = 0 #Total number of jobs needed to publish all source items
+        grand_total_pub_jobs_succeed = 0
+        grand_total_skipped_transfer = 0
+        
         for item_id in item_ids:
+            i += 1
             total_pub_jobs_success = 0
             
             item = portal.item(item_id)
             
             print '\n{}'.format('-' * 100)
+            print '{} out of {}\n'.format(i, num_src_items)
             print_item_info(item)
             
             # ---------------------------------------------------------------------
@@ -319,6 +334,7 @@ def main():
                                                     item_id=item_id)
             
             total_pub_jobs = len(services_pub_info)
+            grand_total_pub_jobs += total_pub_jobs
             print '\t- Publishing source item created {} publishing job(s).'.format(
                                                     total_pub_jobs)
             
@@ -332,7 +348,8 @@ def main():
                 print_publish_info(service_pub_info)
                 if service_pub_info['jobStatus'].lower() == 'completed':
                     total_pub_jobs_success += 1
-            
+                    grand_total_pub_jobs_succeed += 1
+                    
             # Report success status of publishig jobs
             print '\n\t- {:0>3} out of {:0>3} publishing job(s) were completed successfully.'.format(
                 total_pub_jobs_success,
@@ -396,26 +413,30 @@ def main():
                 # continue with the transfer information process
                 if not src_item_id:
                     print 'Warning: Original service item with matching URL does not exist. Skipping transfer.'
+                    grand_total_skipped_transfer += 1
                     break
                 
                 # ------------------------------------
                 # Transfer item information
                 # ------------------------------------
                 print '\t\t- Transferring item info...'
+                time.sleep(5)
                 resp = transfer_item_info(portal, src_item_id, target_item_id)
-                print '\t\t\t' + str(resp)
+                print '\t\t\t{}'.format(resp)
                 
                 # ------------------------------------
                 # Transfer item data
                 # ------------------------------------
                 print '\t\t- Transferring item data...'
+                time.sleep(5)
                 resp = transfer_item_data(portal, src_item_id, target_item_id)
-                print '\t\t\t' + str(resp)
+                print '\t\t\t{}'.format(resp)
                 
                 # ------------------------------------
                 # Transfer item sharing properties
                 # ------------------------------------
                 print '\t\t- Transferring item sharing properties...'
+                time.sleep(5)
                 resp = transfer_item_sharing(portal, src_item_id, target_item_id)
                 if resp:
                     if resp.get('notSharedWith'):
@@ -440,6 +461,21 @@ def main():
         print pymsg + "\n"
         
     finally:
+        endTime = datetime.now()
+        print
+        print '-' * 100
+        print 'Summary'
+        print '-' * 100
+        print 'Total number of...'
+        print 'Source items to publish: {}'.format(num_src_items)
+        print 'Publishing jobs: {}'.format(grand_total_pub_jobs)
+        print 'Publishing jobs completed: {}'.format(grand_total_pub_jobs_succeed)
+        print 'Publishing jobs that failed: {}'.format(grand_total_pub_jobs - grand_total_pub_jobs_succeed)
+        print 'Services where info transfer was skipped because "original" service item did not exist: {}'.format(grand_total_skipped_transfer)
+        
+        print '\nStart time: {}'.format(startTime)
+        print 'End time: {}'.format(endTime)
+    
         print '\nDone.'
         if total_success:
             sys.exit(0)
