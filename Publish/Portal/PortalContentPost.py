@@ -98,6 +98,7 @@ def main():
         print '\t\t-To post content for only specific users specify comma delimited list of users, i.e. user1,user2,...'
         print '\t\t-To post content for ALL users except specific users, specify comma delimited '
         print '\t\t   list of users to exclude with "-" prefix, i.e. -user1,user2,...'
+        print '\t\t-NOTE: Users names must match the "SourceUserName" values in the <ContentFolderPath>\userfile.txt file.'
  
         print '\n\t{GroupsToPost} (optional):'
         print '\t\t-To post content shared with specific portal groups specify a pipe "|" delimited list of groups using the syntax "GroupOwner:GroupTitle|GroupOwner:GroupTitle|...".'
