@@ -94,7 +94,7 @@ def main():
         print '\n\t{UsersToPost} (optional):'
         print '\t\t-By default, content for all users is posted'
         print '\t\t-Specify # placeholder character if you want to post content for all users and you are'
-        print '\t\t   specifying {OpsServerTypesToPost} values'
+        print '\t\t   specifying {GroupsToPost} values'
         print '\t\t-To post content for only specific users specify comma delimited list of users, i.e. user1,user2,...'
         print '\t\t-To post content for ALL users except specific users, specify comma delimited '
         print '\t\t   list of users to exclude with "-" prefix, i.e. -user1,user2,...'
