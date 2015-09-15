@@ -68,9 +68,11 @@ def print_args():
                     '(i.e. https://fully_qualified_domain_name/arcgis)'
         print '\n\t<AdminUser> (required): Primary portal administrator user.'
         print '\n\t<AdminUserPassword> (required): Password for AdminUser.'
-        print '\n\t<IdMappingFile> (required): file containing item id ' \
-                'mapping information in the following JSON form:'
-        print '\t\t[{"searchID": "GUID", "replaceID": "GUID"}, {"searchID": "GUID", "replaceID": "GUID"},...]'
+        print '\n\t<IdMappingFile> (required): file containing the item id ' \
+               'mapping information (i.e. output file from FindOrphanedHostedServices.py script)'
+        #print '\n\t<IdMappingFile> (required): file containing item id ' \
+        #        'mapping information in the following JSON form:'
+        #print '\t\t[{"searchID": "GUID", "replaceID": "GUID"}, {"searchID": "GUID", "replaceID": "GUID"},...]'
         print '\n\t{SearchQuery} (optional): Portal serach query.'
         return None
     else:
