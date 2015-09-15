@@ -35,8 +35,8 @@ scriptName = sys.argv[0]
 if len(sys.argv) <> 3:
     print "\n" + scriptName + " <SourceGeodatabase> <DestinationGeodatabase>"
     print "\nWhere:"
-    print "\n\t<SourceGeodatabase> (required parameter): path to the source geodatabase."
-    print "\n\t<DestinationGeodatabase> (required parameter): path to the destination geodatabase."
+    print "\n\t<SourceGeodatabase> (required): path to the source geodatabase."
+    print "\n\t<DestinationGeodatabase> (required): path to the destination geodatabase."
     print
     sys.exit(1)
 

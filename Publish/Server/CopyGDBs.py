@@ -37,8 +37,8 @@ scriptName = sys.argv[0]
 if len(sys.argv) <> 3:
     print "\n" + scriptName + " <SourceFolder> <DestinationFolder>"
     print "\nWhere:"
-    print "\n\t<SourceFolder> (required parameter): folder path of SDE connection files/file geodatabases."
-    print "\n\t<DestinationFolder> (required parameter): folder path of SDE connection files/file geodatabases."
+    print "\n\t<SourceFolder> (required): folder path of SDE connection files/file geodatabases."
+    print "\n\t<DestinationFolder> (required): folder path of SDE connection files/file geodatabases."
     print
     sys.exit(1)
 
