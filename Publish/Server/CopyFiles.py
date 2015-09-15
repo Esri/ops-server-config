@@ -43,8 +43,8 @@ scriptName = sys.argv[0]
 if len(sys.argv) < 3:
     print "\n" + scriptName + " <SourceFolder> <DestinationFolder>"
     print "\nWhere:"
-    print "\n\t<SourceFolder> (required parameter): path of source folder to copy."
-    print "\n\t<DestinationFolder> (required parameter): path of folder where source folder will be copied."
+    print "\n\t<SourceFolder> (required): path of source folder to copy."
+    print "\n\t<DestinationFolder> (required): path of folder where source folder will be copied."
     print
     sys.exit(1)
 
