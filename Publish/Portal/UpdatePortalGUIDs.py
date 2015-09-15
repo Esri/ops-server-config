@@ -73,7 +73,7 @@ def print_args():
         #print '\n\t<IdMappingFile> (required): file containing item id ' \
         #        'mapping information in the following JSON form:'
         #print '\t\t[{"searchID": "GUID", "replaceID": "GUID"}, {"searchID": "GUID", "replaceID": "GUID"},...]'
-        print '\n\t{SearchQuery} (optional): Portal serach query.'
+        print '\n\t{SearchQuery} (optional): Portal search query.'
         return None
     else:
         # Set variables from parameter values
