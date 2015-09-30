@@ -57,7 +57,9 @@ exclude_users = ['admin',
                 'ReleasedOpsServer',
                 'ReleasedParksGardens',
                 'ReleasedSGovt',
-                'ReleasedUtilities']
+                'ReleasedUtilities',
+                'TemplateIntelligence',
+                'TemplateMilitary']
 
 # Get currrent working directory
 start_dir = os.getcwd()
