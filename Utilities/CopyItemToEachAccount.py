@@ -41,8 +41,23 @@ import PortalContentExtract
 scriptName = sys.argv[0]
 
 # Create list of users to exclude
-exclude_users = ['admin', 'system_publisher', 'ReleasedEManagement',
-                'ReleasedIntel', 'ReleasedMilitary']
+exclude_users = ['admin', 
+                'system_publisher',
+                'DemoEManagement',
+                'DemoIntelligence',
+                'DemoLGovt',
+                'DemoMilitary',
+                'DemoParksGardens',
+                'DemoSGovt',
+                'DemoUtilities',
+                'ReleasedEManagement',
+                'ReleasedIntel',
+                'ReleasedLGovt',
+                'ReleasedMilitary',
+                'ReleasedOpsServer',
+                'ReleasedParksGardens',
+                'ReleasedSGovt',
+                'ReleasedUtilities']
 
 # Get currrent working directory
 start_dir = os.getcwd()
