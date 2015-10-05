@@ -59,7 +59,8 @@ databasesToCreate = {"tds":[False, "TDS"], \
                     "allsource":[False, "AllSource"], \
                     "intelassessments":[False, "IntelAssessments"], \
                     "currentoperations":[False, "CurrentOperations"], \
-                    "military":[False, "Military"]}
+                    "military":[False, "Military"], \
+                    "emergencymanagement":[False, "EmergencyManagement"]}
 
 # ----------------------------------------------------------------------------
 # Shared / Replicated Database Configuration
