@@ -195,37 +195,52 @@ def get_webapp_service_urls(portal, item, service_portal_ids):
 
     print_service_prefix = '\t\t\t\t{}'
     webmap_urls = []
-    url = item.get('url')
+    
+    if hasattr(item, 'get'):
+        url = item.get('url')
+    else:
+        url = None
+    
     if url:
             
         item_data = portal.item_data(item['id'], return_json=True)
         if item_data:
             if isinstance(item_data, dict):
-                values = item_data.get('values')
-
+                if hasattr(item_data, 'get'):
+                    values = item_data.get('values')
+                else:
+                    values = None
+                    print '\n**** WARNING: can''t determine what data sources are referenced in this item.\n'
+                    
                 if values:
                     # Note 'webmap' key is a comma-delimited string of webmap ids
-                    webmap = values.get('webmap')
+                    if hasattr(values, 'get'):
+                        webmap = values.get('webmap')
+                    else:
+                        webmap = None
+                        print '\n**** WARNING: can''t determine what data sources are referenced in this item.\n'
+                        
                     if webmap:
                         webmap = webmap.replace(' ', '')
                         webmap_ids = webmap.split(',')
                         for webmap_id in webmap_ids:
                             print '\n'
                             webmap_item = portal.item(webmap_id)
-                            #print_webmap_info(webmap_item)
-                            print_webmapapp_webmap_info(webmap_item)
-                            wm_urls = get_webmap_service_urls(portal, webmap_item)
-                            for wm_url in wm_urls:
-                                p_item_id = _get_item_id(wm_url, service_portal_ids)
-                                print '\n{:<30}{:<14}{:<32}   {:<101}{:<25}'.format('','Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
-                                print '{:<30}{:<14}{:>32}   {:<100}'.format('', '', 'URL:', wm_url)
-                                if do_url_checks:
-                                    _check_url(wm_url)
-                        
-                            webmap_urls.extend(wm_urls)
+                            if webmap_item:
+                                #print_webmap_info(webmap_item)
+                                print_webmapapp_webmap_info(webmap_item)
+                                wm_urls = get_webmap_service_urls(portal, webmap_item)
+                                for wm_url in wm_urls:
+                                    p_item_id = _get_item_id(wm_url, service_portal_ids)
+                                    print '\n{:<30}{:<14}{:<32}   {:<101}{:<25}'.format('','Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
+                                    print '{:<30}{:<14}{:>32}   {:<100}'.format('', '', 'URL:', wm_url)
+                                    if do_url_checks:
+                                        _check_url(wm_url)
+                            
+                                webmap_urls.extend(wm_urls)
             else:
                 print '\n**** WARNING: can''t determine what data sources are referenced in this item.\n'
-                
+ 
     return webmap_urls
 
 def _remove_layer_number(url):
@@ -346,7 +361,7 @@ def main():
             
             for item in items:
                 print '-' * 200
-                    
+                
                 if 'Service' in item.get('typeKeywords'):
                     if not 'Service Definition' in item.get('typeKeywords'):
                         print_item_info2(item)
