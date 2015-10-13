@@ -86,7 +86,7 @@ def print_args():
                 print '\nInvalid "delete_orphaned_items" parameter value "{}".'.format(user_delete_option)
                 print 'Must be one of the following values: {}'.format(', '.join(delete_option_values))
                 return None
-            if delete_option == 'DELETE':
+            if user_delete_option == 'DELETE':
                 delete_option = True
 
         return portal_address, adminuser, password, delete_option
