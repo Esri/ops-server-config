@@ -130,7 +130,9 @@ if is_edit:
             # when "line" is printed below an extra newline character
             # will be embedded.
             for find_string, replace_string in search_replace_map.iteritems():
-                line = line.replace(find_string.encode('ascii'), replace_string.encode('ascii')).rstrip('\n')
+                find_str_list = [find_string, find_string.lower(), find_string.upper()]
+                for find_str in find_str_list:
+                    line = line.replace(find_str.encode('ascii'), replace_string.encode('ascii')).rstrip('\n')
             #!!! NOTE: you must print line to screen for "inplace" option to work
             print line
         print '\tDone.' 

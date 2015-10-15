@@ -13,12 +13,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #==============================================================================
-#Name:          FindOrphanedHostedServices.py
+#Name:          UpdatePortalGUIDs.py
 #
-#Purpose:       Lists the hosted services, and "orphanded" hosted services,
-#               and if there are any "orphanced" hosted services determines
-#               the item mapping back to original. Writes this item mapping
-#               to a file in the following JSON form:
+#Purpose:       Performs search and replace on portal items based on the
+#               "searchID" and "replaceID" keys in the specified JSON file.
+#               File must have specified JSON keys:
 #               [{"searchID": "GUID", "replaceID": "GUID"}]
 #
 #==============================================================================
@@ -70,9 +69,6 @@ def print_args():
         print '\n\t<AdminUserPassword> (required): Password for AdminUser.'
         print '\n\t<IdMappingFile> (required): file containing the item id ' \
                'mapping information (i.e. output file from FindOrphanedHostedServices.py script)'
-        #print '\n\t<IdMappingFile> (required): file containing item id ' \
-        #        'mapping information in the following JSON form:'
-        #print '\t\t[{"searchID": "GUID", "replaceID": "GUID"}, {"searchID": "GUID", "replaceID": "GUID"},...]'
         print '\n\t{SearchQuery} (optional): Portal search query.'
         return None
     else:
@@ -100,9 +96,11 @@ def update_item_properties(portal, item, search, replace):
         is_updated = False
         propertyValue = item.get(jsonProp)
         if propertyValue:
-            if propertyValue.find(search) > -1:
-                propertyValue = propertyValue.replace(search, replace)
-                is_updated = True
+            search_str_list = [search, search.lower(), search.upper()]
+            for search_str in search_str_list:
+                if propertyValue.find(search_str) > -1:
+                    propertyValue = propertyValue.replace(search_str, replace)
+                    is_updated = True
             
             if is_updated:
                 portal.update_item(item['id'], {jsonProp: propertyValue}) 
@@ -122,9 +120,11 @@ def update_item_data(portal, item, search, replace):
             
             is_updated = False
         
-            if itemdata.find(search) > -1:
-                itemdata = itemdata.replace(search, replace)
-                is_updated = True
+            search_str_list = [search, search.lower(), search.upper()]
+            for search_str in search_str_list:
+                if itemdata.find(search_str) > -1:
+                    itemdata = itemdata.replace(search_str, replace)
+                    is_updated = True
             
             if is_updated:
                 portal.update_item(item['id'], {'text': itemdata})     

@@ -757,14 +757,18 @@ def update_item_properties(portal, item, hostname_map, id_map):
         propertyValue = item.get(jsonProp)
         if propertyValue:
             for host in hostname_map:
-                if propertyValue.find(host) > -1:
-                    propertyValue = propertyValue.replace(host, hostname_map[host])
-                    is_updated = True
+                search_str_list = [host, host.lower(), host.upper()]
+                for search_str in search_str_list:
+                    if propertyValue.find(search_str) > -1:
+                        propertyValue = propertyValue.replace(search_str, hostname_map[host])
+                        is_updated = True
     
             for item_id in id_map:
-                if propertyValue.find(item_id) > -1:
-                    propertyValue = propertyValue.replace(item_id, id_map[item_id]["id"])
-                    is_updated = True
+                search_str_list = [item_id, item_id.lower(), item_id.upper()]
+                for search_str in search_str_list:
+                    if propertyValue.find(search_str) > -1:
+                        propertyValue = propertyValue.replace(search_str, id_map[item_id]["id"])
+                        is_updated = True
             
             if is_updated:
                 portal.update_item(item['id'], {jsonProp: propertyValue}) 
@@ -785,14 +789,18 @@ def update_item_data(portal, item, hostname_map, id_map):
             is_updated = False
             
             for host in hostname_map:
-                if itemdata.find(host) > -1:
-                    itemdata = itemdata.replace(host, hostname_map[host])
-                    is_updated = True
-        
+                search_str_list = [host, host.lower(), host.upper()]
+                for search_str in search_str_list:
+                    if itemdata.find(search_str) > -1:
+                        itemdata = itemdata.replace(search_str, hostname_map[host])
+                        is_updated = True
+
             for item_id in id_map:
-                if itemdata.find(item_id) > -1:
-                    itemdata = itemdata.replace(item_id, id_map[item_id]["id"])
-                    is_updated = True
+                search_str_list = [item_id, item_id.lower(), item_id.upper()]
+                for search_str in search_str_list:
+                    if itemdata.find(search_str) > -1:
+                        itemdata = itemdata.replace(search_str, id_map[item_id]["id"])
+                        is_updated = True
             
             if is_updated:
                 portal.update_item(item['id'], {'text': itemdata})     
@@ -809,9 +817,11 @@ def update_csv_item(portal, item, hostname_map):
     # Determine if file has the search string and perform replace
     is_updated = False
     for host in hostname_map:
-        if findInFile(filePath, host):
-            editFiles([filePath], host, hostname_map[host])
-            is_updated = True
+        search_str_list = [host, host.lower(), host.upper()]
+        for search_str in search_str_list:
+            if findInFile(filePath, search_str):
+                editFiles([filePath], search_str, hostname_map[host])
+                is_updated = True
     
     # Upload the updated file back to the portal item
     if is_updated:
