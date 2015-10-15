@@ -48,7 +48,7 @@ URL_BASED_ITEM_TYPES = frozenset(['Feature Service', 'Map Service',
 TEXT_BASED_ITEM_TYPES = frozenset(['Web Map', 'Feature Service', 'Map Service',
                                    'Image Service', 'Feature Collection', 'Feature Collection Template',
                                    'Web Mapping Application', 'Mobile Application', 'Symbol Set', 'Color Set',
-                                   'Windows Viewer Configuration', 'Operation View'])
+                                   'Windows Viewer Configuration', 'Operation View', 'Web Scene'])
 
 FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV',
                                    'Service Definition', 'Map Document', 'Map Package', 'Tile Package',
@@ -59,7 +59,7 @@ FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV',
                                    'Desktop Application Template', 'Desktop Add In', 'Explorer Add In',
                                    'CityEngine Web Scene', 'Windows Viewer Add In', 'Operations Dashboard Add In',
                                    'Microsoft Word', 'Microsoft Powerpoint', 'Microsoft PowerPoint', 'Microsoft Excel', 'PDF',
-                                   'Image', 'Visio Document', 'ArcPad Package', 'Web Scene',
+                                   'Image', 'Visio Document', 'ArcPad Package',
                                    'Pro Map', 'CAD Drawing', 'iWork Keynote', 'iWork Pages', 'iWork Numbers',
                                    'Basemap Package', 'Project Package', 'Task File', 'Layout',
                                    'Rule Package', 'Desktop Application', 'Project Template',
