@@ -79,6 +79,7 @@ files_to_update.extend(findFilePath(root_path, '*.html', returnFirst=False))
 files_to_update.extend(findFilePath(root_path, '*.json', returnFirst=False))
 files_to_update.extend(findFilePath(root_path, '*.csv', returnFirst=False))
 files_to_update.extend(findFilePath(root_path, '*.erb', returnFirst=False))
+files_to_update.extend(findFilePath(root_path, '*.config', returnFirst=False))
 
 total_files = len(files_to_update)
 
