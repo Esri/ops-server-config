@@ -18,9 +18,12 @@
 #Purpose:   Various functions which utilize the ArcPy module.
 #
 #==============================================================================
-import sys, os, traceback
+import sys, os, traceback, time
 import arcpy
-     
+
+class LicenseError(Exception):
+    pass
+
 def uploadServiceDefinition(sdFilePath, agsPubConnectionFile, startService=True):
     success = True
     pymsg = ""
@@ -59,65 +62,95 @@ def copyData(sourcePath, destinationPath, dataType=""):
     finally:
         return [success, pymsg]
 
-
 def copyGDBData(sourceGDBPath, destinationGDBPath):
     success = True
     pymsg = ""
     printMsg = True
+    debug = False
     
     try:
-        arcpy.env.workspace = sourceGDBPath
-        allDatasetsList = []
-        featClassList = arcpy.ListFeatureClasses()
-        datasetList = arcpy.ListDatasets()
-        tableList = arcpy.ListTables()
-
-        # arcpy.ListFeatureClass has bug where it will return raster datasets;
-        # so the following code will add datasets to allDatasetsList if
-        # it does not already exist
-
-        # the following single line will merge lists; however, the ListFeatureClass
-        # and ListDatasets return the raster dataset name in different cases (i.e.
-        # ListFeatureClasses will return as original case, but ListDatasets
-        # will lowercase the complete name so the following single line of code
-        # views these items as unique and not the same
+        #startTime = datetime.now()
+        print '\n{:<14}{:<100}'.format("Source:", sourceGDBPath)
+        print '{:<14}{:<100}\n'.format("Destination:", destinationGDBPath)
         
-        #allDatasetsList = list(set(featClassList + datasetList + tableList))
-
-        # So explicitly search lists to see if item already exists in
-        # allDatasetList list.
-        listOfLists = [featClassList, datasetList, tableList]
-        for dsList in listOfLists:
-            for ds in dsList:
-                exists = False
-                for x in allDatasetsList:
-                    if ds.lower() == x.lower():
-                        exists = True
-                if not exists:
-                    allDatasetsList.append(ds)
+        # Verify input parameter types
         
-        if allDatasetsList != None:
-            for dataset in allDatasetsList:
+        # Check out extensions
+        print "- Check out network license..."
+        if arcpy.CheckExtension("Network") == "Available":
+            arcpy.CheckOutExtension("Network")
+        else:
+            # Raise a custom exception
+            raise LicenseError
+        
+        descGDB = arcpy.Describe(sourceGDBPath)
+        
+        if debug:
+            # Print some Describe Object properties
+            if hasattr(descGDB, "name"):
+                print "Name:        " + descGDB.name
+            if hasattr(descGDB, "dataType"):
+                print "DataType:    " + descGDB.dataType
+            if hasattr(descGDB, "catalogPath"):
+                print "CatalogPath: " + descGDB.catalogPath
+        
+        # Find children datasets
+        datasets = []
+        copyExcludeList = []
+        for child in descGDB.children:
+            if child.dataType != "RelationshipClass":
+                datasets.append(child.name)
+            else:
+                descRel = arcpy.Describe(sourceGDBPath + "/" + child.name)
+                for destClassName in descRel.destinationClassNames:
+                    copyExcludeList.append(destClassName)
+        
+        # Do not copy the datasets that are the destination datasets in
+        #   relationships since these datasets will automatically be
+        #   copied when the origin datasets are copied
+        copyList = [dataset for dataset in datasets if dataset not in copyExcludeList]
+        
+        if debug:
+            print "\nAll datasets (excluding relationship classes):"
+            print datasets
+            print "\nDestination tables involved in relationship classes:"
+            print copyExcludeList
+            print "\nCopy the following:"
+            print copyList
+            
+        if len(copyList) > 0:
+            n = 1
+            print "- Copying database data..."
+            for dataset in copyList:
                 srcPath = os.path.join(sourceGDBPath, dataset)
                 destPath = os.path.join(destinationGDBPath, dataset)
-                print "\tDataset: " + dataset
+                print "\tDataset: {} ({}/{})".format(dataset, n, len(copyList))
                 if arcpy.Exists(destPath):
                     print "\t\tWARNING: Will not copy dataset."
                     print "\t\tDataset already exists in destination: " + destPath
-                    print "\t\t(If dataset is participating in a relationship, then might have been copied when parent was copied)."
+                    print "\t\t(If dataset is participating in a relationship, then it was copied when origin dataset(s) was copied)."
                 else:
                     print "\tCopying..."
                     results = copyData(srcPath, destPath)
                     copySuccess = checkResults(results, printMsg)
                     if not copySuccess:
                         success = False
+                n = n + 1
+        else:
+            print "- No database data to copy."
+            
+    except LicenseError:
+        success = False
+        print "ERROR: Network license is unavailable"
     except:
         success = False
         pymsg = "\tError Info:\n\t" + str(sys.exc_info()[1])
         
     finally:
+        arcpy.CheckInExtension("Network")
+        # print '{:<14}{:%Y-%m-%d %H:%M:%S}'.format("Start time:", startTime)
+        # print '{:<14}{:%Y-%m-%d %H:%M:%S}'.format("End time:", datetime.now())
         return [success, pymsg]
-    
 
 def checkResults(results, printMsg):
     

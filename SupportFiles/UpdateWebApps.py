@@ -79,6 +79,7 @@ files_to_update.extend(findFilePath(root_path, '*.html', returnFirst=False))
 files_to_update.extend(findFilePath(root_path, '*.json', returnFirst=False))
 files_to_update.extend(findFilePath(root_path, '*.csv', returnFirst=False))
 files_to_update.extend(findFilePath(root_path, '*.erb', returnFirst=False))
+files_to_update.extend(findFilePath(root_path, '*.config', returnFirst=False))
 
 total_files = len(files_to_update)
 
@@ -94,13 +95,24 @@ search_replace_map[old_hostname] = new_hostname
 if id_map_file:
     os.chdir(os.path.dirname(id_map_file))
     id_map = json.load(open(os.path.basename(id_map_file)))
+    
     if is_debug:
         print str(id_map)
 
-    # Add the old/new IDs
-    for orig_id, item_info in id_map.iteritems():
-        search_replace_map[orig_id] = item_info['id']
+    for i in id_map:
+        try:
+            # Read in search/replace values from hosted service
+            # item mapping file
+            search = i['search']
+            replace = i['replace']
+        except Exception as err:
+            # Read in search/replace values from portal post script
+            # item mapping file
+            search = i
+            replace = id_map[search]['id']
 
+        search_replace_map[search] = replace
+        
 if is_debug:
     print '\n\n' + str(search_replace_map)
     
@@ -119,7 +131,9 @@ if is_edit:
             # when "line" is printed below an extra newline character
             # will be embedded.
             for find_string, replace_string in search_replace_map.iteritems():
-                line = line.replace(find_string.encode('ascii'), replace_string.encode('ascii')).rstrip('\n')
+                find_str_list = [find_string, find_string.lower(), find_string.upper()]
+                for find_str in find_str_list:
+                    line = line.replace(find_str.encode('ascii'), replace_string.encode('ascii')).rstrip('\n')
             #!!! NOTE: you must print line to screen for "inplace" option to work
             print line
         print '\tDone.' 

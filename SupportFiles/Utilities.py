@@ -206,4 +206,15 @@ def doesDriveExist(driveLetter):
     
     return exists
     
+def validate_user_repsonse_yesno(value):
+    ''' Evaluate user response to yes/no question and return True/False '''
+    response = False
+    valid_values = ['y', 'yes'] # specified values in lowercase
+    if not value:
+        value = ''
+    value = value.lower().strip().replace(" ","")
+    if value in valid_values:
+        response = True
+    return response
+
     

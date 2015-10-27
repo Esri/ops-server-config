@@ -69,7 +69,8 @@ def check_args():
         print '\t\t"owned" by these users *** [AND SHARED WITH "EVERYONE"] *** will be copied).'
         print '\n\t\t- List must be comma delimited list (spaces can be included after commas, but list must be enclosed by quotes).'
         print '\t\t- Owner names are case sensitive.'
-        print '\nNOTE: this script must be executed from the ArcGIS Server machine.\n'
+        print '\nNOTE: if not executed on the ArcGIS Server machine, the ArcGIS Server "Directories" (see Manager) have to be UNC paths'
+        print 'and given the appropriate OS permissions.'
         return None
     
     else:
@@ -89,9 +90,12 @@ def check_args():
             specified_users = sys.argv[7]
         
         # Process/validate variables
-        if getfqdn().lower() <> server.lower().strip():
-            print '\nThe specified "server" ' + server + ' is not the local machine ' + getfqdn().lower() + '. Exiting script.'
-            return None
+        
+        # 19 May 2015: Comment out requirement that script has to be executed on the
+        #   ArcGIS Server machine.
+        # if getfqdn().lower() <> server.lower().strip():
+        #     print '\nThe specified "server" ' + server + ' is not the local machine ' + getfqdn().lower() + '. Exiting script.'
+        #     return None
         
         if port.strip() == '#':
             port = None
@@ -129,8 +133,11 @@ def extractFromSDFile(sdFile, extractFolder, fileToExtract=None):
     
     # 'Build' 7zip command line arguments
     # -y switch suppresses the overwrite user query if the file already exists.
-    exeArgs = sevenZipExePath + ' e ' + sdFile + ' -o' + extractFolder + ' ' + fileToExtract + ' -y'
-    print sectionBreak1
+    exeArgs = '{} e {} -o{}'.format(sevenZipExePath, sdFile, extractFolder)
+    if fileToExtract:
+        exeArgs += ' {}'.format(fileToExtract)
+    exeArgs += ' -y'
+    #print sectionBreak1
     exitCode = subprocess.call(exeArgs)
     return exitCode
 
@@ -407,6 +414,8 @@ def getItemsIDs(portal, users):
 
 def main():
     
+    totalSuccess = True
+    
     # Before executing rest of script, lets check if 7-zip exe exists
     if not os.path.exists(sevenZipExePath):
         print 'ERROR: File path set by "sevenZipExePath" variable (' + \
@@ -417,47 +426,71 @@ def main():
     results = check_args()
     if not results:
         sys.exit(exitErrCode)
-    server, port, adminuser, password, doCopy, targetFolder, users = results
-    
-    if debug:
-        print server, port, adminuser, password, doCopy, targetFolder, users
-    
-    # Determine where admins upload folder is located on server
-    uploadsFolderInfo = getServerDirectory(server, port, adminuser, password, "UPLOADS")
-    sdRootFolder = os.path.join(uploadsFolderInfo['physicalPath'], 'admin')
-    print '\nNOTE: Uploads\admin folder is: ' + sdRootFolder + '\n'
-    if not os.path.exists(sdRootFolder):
-        print '\nERROR: the uploads\\admin folder ' + sdRootFolder + ' does not exist. Exiting script.'
-        sys.exit(exitErrCode)
         
-    # Get collection of .sd files
-    sdFiles = get_sd_files(sdRootFolder)
+    try:
+        server, port, adminuser, password, doCopy, targetFolder, users = results
+        
+        if debug:
+            print server, port, adminuser, password, doCopy, targetFolder, users
+        
+        # Determine where admins upload folder is located on server
+        uploadsFolderInfo = getServerDirectory(server, port, adminuser, password, "UPLOADS")
+        sdRootFolder = os.path.join(uploadsFolderInfo['physicalPath'], 'admin')
+        print '\nNOTE: Uploads\admin folder is: ' + sdRootFolder + '\n'
+        if not os.path.exists(sdRootFolder):
+            print '\nERROR: the uploads\\admin folder ' + sdRootFolder + ' does not exist. Exiting script.'
+            sys.exit(exitErrCode)
+            
+        # Get collection of .sd files
+        sdFiles = get_sd_files(sdRootFolder)
+        
+        # Get collection of ArcGIS Service services on server
+        agsServices = get_ags_services(server, port, adminuser, password)
+        
+        # Get the portal properties for each portal item referenced by the service
+        # according to the services' json info
+        
+        portal = Portal('https://' + server + ':7443/arcgis', adminuser, password)
+        
+        props = getPortalPropsForServices(portal, agsServices)
+        
+        # Get list of item ids for all specified users
+        userItemIDs = None
+        if users:
+            userItemIDs = getItemsIDs(portal, users)
+        
+        # Determine which sd files to copy
+        sdFilesToCopy = filesToCopy(sdFiles, agsServices, userItemIDs)
+        
+        # Copy sd files
+        if doCopy:
+            copySDFiles(sdFilesToCopy, targetFolder, agsServices, props)
+        
+        # Print report
+        report(sdFilesToCopy, agsServices)
+        
+        print '\nDone.'
+        
+    except:
+        totalSuccess = False
+        
+        # Get the traceback object
+        tb = sys.exc_info()[2]
+        tbinfo = traceback.format_tb(tb)[0]
+     
+        # Concatenate information together concerning the error into a message string
+        pymsg = "PYTHON ERRORS:\nTraceback info:\n" + tbinfo + "\nError Info:\n" + str(sys.exc_info()[1])
+     
+        # Print Python error messages for use in Python / Python Window
+        print
+        print "***** ERROR ENCOUNTERED *****"
+        print pymsg + "\n"
     
-    # Get collection of ArcGIS Service services on server
-    agsServices = get_ags_services(server, port, adminuser, password)
-    
-    # Get the portal properties for each portal item referenced by the service
-    # according to the services' json info
-    portal = Portal('https://' + server + ':7443/arcgis', adminuser, password)
-    
-    props = getPortalPropsForServices(portal, agsServices)
-    
-    # Get list of item ids for all specified users
-    userItemIDs = None
-    if users:
-        userItemIDs = getItemsIDs(portal, users)
-    
-    # Determine which sd files to copy
-    sdFilesToCopy = filesToCopy(sdFiles, agsServices, userItemIDs)
-    
-    # Copy sd files
-    if doCopy:
-        copySDFiles(sdFilesToCopy, targetFolder, agsServices, props)
-    
-    # Print report
-    report(sdFilesToCopy, agsServices)
-    
-    print '\nDone.'
+    finally:
+        if totalSuccess:
+            sys.exit(0)
+        else:
+            sys.exit(1)
     
 if __name__ == "__main__":
     main()

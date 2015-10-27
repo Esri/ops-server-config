@@ -36,7 +36,7 @@ REM NOTE: must have "\" at end of path
 set ops_agsDataStoreDIR=C:\arcgisdatastore\
 
 REM Define PostgreSQL paths
-set ops_postgresqlInstallDIR=C:\PostgreSQL\9.2
+set ops_postgresqlInstallDIR=C:\PostgreSQL\9.3
 set ops_postgresqlDataDIR=%ops_postgresqlInstallDIR%\data
 
 REM Define path to Esri SoftwareAuthorization.exe
@@ -357,6 +357,11 @@ if "%ops_install_portal%"=="YES" (
     Call %~dp0Portal\InstallPortal.bat
 )
 
+REM Install Esri Maps for Office Web Content
+if "%ops_install_em4o_webcontent%"=="YES" (
+    Call %~dp0EsriMapsForOffice\WebContent\InstallEM4OWebContent.bat
+)
+
 REM Create Operations Dashboard ClickOnce Application and deploy to portal folders
 if "%ops_create_opsdashboard_installer%"=="YES" (
     Call %~dp0OpsDashboardUtility\CreateOneClickInstaller.bat
@@ -381,6 +386,16 @@ if "%ops_federate_ags%"=="YES" (
 REM Install ArcGIS GeoEvent Extension for ArcGIS Server
 if "%ops_install_geoevent%"=="YES" (
     Call %~dp0GeoEvent\InstallGeoEvent.bat
+)
+
+REM Install Geoevent Extension for ArcGIS Server Patches
+if "%ops_install_geoevent_patches%"=="YES" (
+    Call %~dp0GeoEvent\InstallGeoEventPatches.bat
+)
+
+REM Install Predictive Analysis Web Services
+if "%ops_install_predictive_analysis%"=="YES" (
+    Call %~dp0PredictiveAnalysis\InstallPredictiveAnalysis.bat
 )
 
 goto end

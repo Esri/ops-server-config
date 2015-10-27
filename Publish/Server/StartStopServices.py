@@ -31,7 +31,8 @@ from AGSRestFunctions import getServiceList
 from AGSRestFunctions import stopStartServices
 from AGSRestFunctions import getServiceStatus
 
-validTypes = ["MapServer", "ImageServer", "GeometryServer", "GeocodeServer", "GPServer"]
+validTypes = ["MapServer", "ImageServer", "GeometryServer", "GeocodeServer",
+              "GPServer", "FeatureServer", "GlobeServer", "GeoDataServer"]
 userServiceStr = None
 serviceList = None
 scriptName = os.path.basename(sys.argv[0])
@@ -89,6 +90,11 @@ if userServiceStr is not None:
     
     # Read in the user specified serivces
     if os.path.exists(userServiceStr):
+        # User has specified a path; make sure it's a file
+        if not os.path.isfile(userServiceStr):
+            print "Error: The specified Service_List_File " + userServiceStr + " is not a file.\n"
+            sys.exit(1)
+
         f = open(userServiceStr, 'r')
         for service in f:
             serviceList.append(service.strip())
@@ -108,7 +114,7 @@ if userServiceStr is not None:
     if len(serviceList) <> str(serviceList).count("."):
         print "Error: There are missing '.' delimiters between service name and type.\n"
         sys.exit(1)
-        
+
     # Make sure each service element has a valid service "type"
     notValidTypes = []
     for x in [x.split(".")[1].lower() for x in serviceList]:
@@ -143,6 +149,10 @@ try:
     # ---------------------------------------------------------------------
     if not serviceList:
         serviceList = getServiceList(serverName, serverPort, userName, passWord, useSSL)
+
+    # Remove hosted services from list since these can't be started/stopped
+    print '\nRemoving "Hosted" services from service list; these services can not be started/stopped.'
+    serviceList = [x for x in serviceList if x.find('Hosted/') == -1]
     
     if len(serviceList) == 0:
         print "\t*ERROR: No services to " + serviceAction.title() + "."

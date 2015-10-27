@@ -128,6 +128,8 @@ REM NOTEs:
 REM    - Variable value must be enclosed by double-quotes ("value") if path contains
 REM      any spaces.
 REM    - Path can be a local path (i.e. with drive letter) or a UNC path.
+REM    - Specified ecp/prvc _MUST_ only contain licence information for
+REM      ArcGIS Server and ArcGIS Server extensions.
 set ops_AGSAuthFile="SET_PATH_TO_AGS_AUTHORIZATION_FILE"
 
 REM ---------------------------------------------------------------------
@@ -140,6 +142,8 @@ REM NOTEs:
 REM    - Variable value must be enclosed by double-quotes ("value") if path contains
 REM      any spaces.
 REM    - Path can be a local path (i.e. with drive letter) or a UNC path.
+REM    - Specified ecp/prvc _MUST_ only contain licence information for
+REM      Portal for ArcGIS.
 set ops_PortalAuthFile="SET_PATH_TO_PORTAL_AUTHORIZATION_FILE"
 
 REM ---------------------------------------------------------------------
@@ -183,6 +187,9 @@ set ops_install_message_simulator=YES
 REM Install Portal for ArcGIS
 set ops_install_portal=YES
 
+REM Install Esri Maps for Office Web Content
+set ops_install_em4o_webcontent=YES
+
 REM Create Operations Dashboard ClickOnce Application and deploy to portal folders
 set ops_create_opsdashboard_installer=YES
 
@@ -198,6 +205,12 @@ set ops_federate_ags=YES
 
 REM Install Geoevent Extension for ArcGIS Server
 set ops_install_geoevent=YES
+
+REM Install Geoevent Extension for ArcGIS Server Patches
+set ops_install_geoevent_patches=YES
+
+REM Install Predictive Analysis Web Services
+set ops_install_predictive_analysis=YES
 
 REM ---------------------------------------------------------------------
 REM END Set User Editable Variables

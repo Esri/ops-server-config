@@ -48,7 +48,7 @@ URL_BASED_ITEM_TYPES = frozenset(['Feature Service', 'Map Service',
 TEXT_BASED_ITEM_TYPES = frozenset(['Web Map', 'Feature Service', 'Map Service',
                                    'Image Service', 'Feature Collection', 'Feature Collection Template',
                                    'Web Mapping Application', 'Mobile Application', 'Symbol Set', 'Color Set',
-                                   'Windows Viewer Configuration', 'Operation View'])
+                                   'Windows Viewer Configuration', 'Operation View', 'Web Scene'])
 
 FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV',
                                    'Service Definition', 'Map Document', 'Map Package', 'Tile Package',
@@ -59,10 +59,11 @@ FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV',
                                    'Desktop Application Template', 'Desktop Add In', 'Explorer Add In',
                                    'CityEngine Web Scene', 'Windows Viewer Add In', 'Operations Dashboard Add In',
                                    'Microsoft Word', 'Microsoft Powerpoint', 'Microsoft PowerPoint', 'Microsoft Excel', 'PDF',
-                                   'Image', 'Visio Document', 'ArcPad Package', 'Web Scene',
+                                   'Image', 'Visio Document', 'ArcPad Package',
                                    'Pro Map', 'CAD Drawing', 'iWork Keynote', 'iWork Pages', 'iWork Numbers',
                                    'Basemap Package', 'Project Package', 'Task File', 'Layout',
-                                   'Rule Package', 'Desktop Application']) #'KML'
+                                   'Rule Package', 'Desktop Application', 'Project Template',
+                                   'Mobile Basemap Package', 'Desktop style']) #'KML'
 
 RELATIONSHIP_TYPES = frozenset(['Map2Service', 'WMA2Code',
                                 'Map2FeatureCollection', 'MobileApp2Code', 'Service2Data',
@@ -899,6 +900,106 @@ class Portal(object):
         resp = self.con.post(path, postdata, files)
         if resp:
             return resp.get('success')
+
+    def publish_item(self, file_type, item_id):
+        """
+        Publishes a hosted service based on an existing service definition item.
+        """
+        # FOR FUTURE USE - Information about future parameters
+        #
+        # Publishes a hosted service based on an existing source item.
+        # Publishers can create feature services as well as tiled map
+        # services.
+        # Feature services can be created using input files of type csv,
+        # shapefile, serviceDefinition, featureCollection, and
+        # fileGeodatabase.
+        # 
+        # Inputs:
+        #    file_type - Item type.
+        #               Values: serviceDefinition | shapefile | csv |
+        #               tilePackage | featureService | featureCollection |
+        #               fileGeodata
+        #    publish_parameters - object describing the service to be created
+        #                        as part of the publish operation. Only
+        #                        required for CSV, Shapefiles, feature
+        #                        collection, and file geodatabase.
+        #    item_id - The ID of the item to be published.
+        #    text - The text in the file to be published. This ONLY applies
+        #           to CSV files.
+        #    file_path - The file to be uploaded.
+        #    output_type - Only used when a feature service is published as a
+        #                 tile service.
+
+        # FOR FUTURE USE
+        # _allowed_types = ['serviceDefinition', 'shapefile', 'csv',
+        #                   'tilePackage', 'featureService',
+        #                   'featureCollection', 'fileGeodatabase']
+        #
+        _allowed_types = ['serviceDefinition']
+        
+        if file_type.lower() not in [t.lower() for t in _allowed_types]:
+            raise PortalError('Unsupported file type: {}'.format(file_type))
+       
+        # Setup the postdata
+        postdata = self._postdata()
+        
+        # Set parameters
+        # NOTE: request parameters are: itemId, file, text, fileType,
+        # publishParameters, outputType, and overwrite
+        params = {'fileType': file_type}
+        if item_id is not None:
+            params['itemId'] = item_id
+        else:
+            # TEMPORARY USE
+            raise PortalError('Parameter "item_id" must contain non-None value.')
+        
+        # FOR FUTURE USE
+        # if publish_parameters is not None:
+        #     params['publishParameters'] = publish_parameters            
+        # if text is not None and file_type.lower() == 'csv':
+        #     params['text'] = text
+        
+        postdata.update(unicode_to_ascii(params))
+
+        # Setup the REST path and post to it
+        owner = self.logged_in_user()['username']
+        path = 'content/users/' + owner
+        # if folder:
+        #     path += '/' + folder
+        path += '/publish'
+        resp = self.con.post(path, postdata)
+        if resp:
+            return resp.get('services')
+
+    def job_status(self, item_id, job_id=None, job_type=None):
+        """
+           Inquire about status when publishing an item, adding an item in
+           async mode, or adding with a multipart upload. "Partial" is
+           available for Add Item Multipart, when only a part is uploaded
+           and the item is not committed.
+
+           Input:
+              job_type The type of asynchronous job for which the status has
+                      to be checked. Default is none, which check the
+                      item's status.  This parameter is optional unless
+                      used with the operations listed below.
+                      Values: publish, generateFeatures, export,
+                              and createService
+              job_id - The job ID returned during publish, generateFeatures,
+                      export, and createService calls.
+        """
+        # Setup the postdata
+        postdata = self._postdata()
+        
+        params = {}
+        if job_type is not None:
+            params['jobType'] = job_type
+        if job_id is not None:
+            params["jobId"] = job_id
+            
+        postdata.update(unicode_to_ascii(params))
+        path = 'content/users/{}/items/{}/status'.format(self.item(item_id)['owner'], item_id)
+        return self.con.post(path, postdata)
 
     def update_webmap(self, webmap):
         """ Updates the specific webmap in the portal. """

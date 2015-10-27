@@ -44,7 +44,7 @@ REM ---------------------------------------------------------------------
 echo.
 echo --Copying geometry library to PostgreSQL lib folder...
 echo.
-set execute=START /WAIT robocopy "C:\Program Files\ArcGIS\Server\DatabaseSupport\PostgreSQL\9.2\Windows64" ^
+set execute=START /WAIT robocopy "C:\Program Files\ArcGIS\Server\DatabaseSupport\PostgreSQL\9.3\Windows64" ^
 %ops_postgresqlInstallDIR%\lib"
 
 echo %execute%

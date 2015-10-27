@@ -16,15 +16,24 @@
 #Name:          CreateServiceList.py
 #
 #Purpose:       Creates file containing list of services owned or shared by a group
-#               to use as service list file in StartStopServices.py script
+#               to use as service list file in StartStopServices.py script. Script
+#               output can be used to QC issues with items.
 #
 #Prerequisites: Portal items must have already been published.
 #
 #==============================================================================
-import sys, os, traceback, datetime, ast, copy, json
+import sys
+import os
+import traceback
+import datetime
+import ast
+import copy
+import json
 
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])), 'Publish' + os.path.sep + 'Portal'))
-sys.path.append(os.path.join(os.path.dirname(os.path.dirname(sys.argv[0])), 'SupportFiles'))
+sys.path.append(os.path.join(os.path.dirname(
+    os.path.dirname(sys.argv[0])), 'Publish' + os.path.sep + 'Portal'))
+sys.path.append(os.path.join(os.path.dirname(
+    os.path.dirname(sys.argv[0])), 'SupportFiles'))
 
 
 from portalpy import Portal
@@ -32,6 +41,7 @@ import logging
 import urlparse
 from AGSRestFunctions import getServicePortalProps
 from AGSRestFunctions import getServiceList
+from UrlChecker import checkUrl
 
 scriptName = sys.argv[0]
 exitErrCode = 1
@@ -42,6 +52,9 @@ print_prefix = '\t\t\t\t{}:{}'
 logging.basicConfig()
 
 service_portal_ids = None
+
+do_url_checks = True
+portal_netloc = None
 
 def check_args():
     # ---------------------------------------------------------------------
@@ -154,7 +167,9 @@ def get_opview_service_urls(portal, item, service_portal_ids):
         p_item_id = _get_item_id(url, service_portal_ids)
         print '\n{:<30}{:<14}{:<32}   {:<101}{:<25}'.format('','Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
         print '{:<30}{:<14}{:>32}   {:<100}'.format('','','URL:', url)
-        
+        if do_url_checks:
+            _check_url(url)
+         
     # Get URLs for services referenced in all web maps in the operations view
     mapwidgets = opview.map_widgets()
     for mapwidget in mapwidgets:
@@ -171,6 +186,8 @@ def get_opview_service_urls(portal, item, service_portal_ids):
             p_item_id = _get_item_id(url, service_portal_ids)
             print '\n{:<30}{:<14}{:<32}   {:<101}{:<25}'.format('','Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
             print '{:<30}{:<14}{:>32}   {:<101}'.format('','','URL:', url)
+            if do_url_checks:
+                _check_url(url)
                                 
     return urls
 
@@ -178,36 +195,153 @@ def get_webapp_service_urls(portal, item, service_portal_ids):
 
     print_service_prefix = '\t\t\t\t{}'
     webmap_urls = []
-    url = item.get('url')
+    
+    if hasattr(item, 'get'):
+        url = item.get('url')
+    else:
+        url = None
+    
     if url:
             
         item_data = portal.item_data(item['id'], return_json=True)
         if item_data:
             if isinstance(item_data, dict):
-                values = item_data.get('values')
-
+                if hasattr(item_data, 'get'):
+                    values = item_data.get('values')
+                else:
+                    values = None
+                    print '\n**** WARNING: can''t determine what data sources are referenced in this item.\n'
+                    
                 if values:
                     # Note 'webmap' key is a comma-delimited string of webmap ids
-                    webmap = values.get('webmap')
+                    if hasattr(values, 'get'):
+                        webmap = values.get('webmap')
+                    else:
+                        webmap = None
+                        print '\n**** WARNING: can''t determine what data sources are referenced in this item.\n'
+                        
                     if webmap:
                         webmap = webmap.replace(' ', '')
                         webmap_ids = webmap.split(',')
                         for webmap_id in webmap_ids:
                             print '\n'
                             webmap_item = portal.item(webmap_id)
-                            #print_webmap_info(webmap_item)
-                            print_webmapapp_webmap_info(webmap_item)
-                            wm_urls = get_webmap_service_urls(portal, webmap_item)
-                            for wm_url in wm_urls:
-                                p_item_id = _get_item_id(wm_url, service_portal_ids)
-                                print '\n{:<30}{:<14}{:<32}   {:<101}{:<25}'.format('','Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
-                                print '{:<30}{:<14}{:>32}   {:<100}'.format('','','URL:',wm_url)
-                        
-                            webmap_urls.extend(wm_urls)
+                            if webmap_item:
+                                #print_webmap_info(webmap_item)
+                                print_webmapapp_webmap_info(webmap_item)
+                                wm_urls = get_webmap_service_urls(portal, webmap_item)
+                                for wm_url in wm_urls:
+                                    p_item_id = _get_item_id(wm_url, service_portal_ids)
+                                    print '\n{:<30}{:<14}{:<32}   {:<101}{:<25}'.format('','Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
+                                    print '{:<30}{:<14}{:>32}   {:<100}'.format('', '', 'URL:', wm_url)
+                                    if do_url_checks:
+                                        _check_url(wm_url)
+                            
+                                webmap_urls.extend(wm_urls)
             else:
                 print '\n**** WARNING: can''t determine what data sources are referenced in this item.\n'
-                
+ 
     return webmap_urls
+
+
+
+
+
+
+
+
+
+def get_storymap_resources(portal, item, service_portal_ids):
+
+    print_service_prefix = '\t\t\t\t{}'
+    service_urls = []
+    
+    item_data = portal.item_data(item['id'], return_json=True)
+    
+    if item_data is None:
+        return None
+    
+    if hasattr(item_data, 'get'):
+        values = item_data.get('values')
+    else:
+        # values = None
+        # print '\n**** WARNING: can''t determine what data sources are referenced in this item.\n'
+        return None
+        
+
+    # ----------------------------
+    # Get Web map information
+    # ----------------------------
+    webmap = values.get('webmap')
+        
+    if webmap:
+        webmap = webmap.replace(' ', '')
+        webmap_ids = webmap.split(',')
+        for webmap_id in webmap_ids:
+            print '\n'
+            
+            webmap_item = portal.item(webmap_id)
+            if webmap_item:
+                #print_webmap_info(webmap_item)
+                print_webmapapp_webmap_info(webmap_item)
+                wm_urls = get_webmap_service_urls(portal, webmap_item)
+                for wm_url in wm_urls:
+                    p_item_id = _get_item_id(wm_url, service_portal_ids)
+                    print '\n{:<30}{:<14}{:<32}   {:<101}{:<25}'.format('','Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
+                    print '{:<30}{:<14}{:>32}   {:<100}'.format('', '', 'URL:', wm_url)
+                    if do_url_checks:
+                        _check_url(wm_url)
+            
+                service_urls.extend(wm_urls)
+            else:
+                print '\nERROR: References web map item that does not exist: {}\n'.format(webmap_id)
+                
+    # ----------------------------
+    # Get Story information
+    # ----------------------------
+    story_prop_keys = ['entries', 'sections']
+    story = values.get('story')
+    
+    for story_prop_key in story_prop_keys:
+        story_entries = story.get(story_prop_key)
+        if story_entries:
+            for story_entry in story_entries:
+                media = story_entry.get('media')
+                traverse_media_json(portal, media)
+                            
+    return service_urls
+
+def traverse_media_json(portal, media):
+    if media:
+        for media_key in media.keys():
+            media_resource = media[media_key]
+            if isinstance(media_resource, dict):
+                url = media_resource.get('url')
+                if url:
+                    guid = None
+                    if url.find('?appid=') > -1:
+                        guid = url.split('?appid=')[1]
+                    if url.find('?webmap=') > -1:
+                        guid = url.split('?webmap=')[1]
+                    if url.find('?3dWebScene=') > -1:
+                        guid = url.split('?3dWebScene=')[1]
+                    if url.find('index.html#/') > -1:   # Operations Dashboard
+                        guid = url.split('index.html#/')[1]
+                    if url.find('?webscene=') > -1:
+                        guid = url.split('?webscene=')[1]
+                    if url.find('index.html?id=') > -1: #web app builder apps
+                        guid = url.split('index.html?id=')[1]
+                    if url.find('?bookId=') > -1:       # Briefing books
+                        guid = url.split('?bookId=')[1]
+                        
+                    if guid:
+                        print '\n{:<30}{:<14}{:<32}   {:<101}{:<25}'.format('',media_resource.get('type'), str(guid), str(_get_item_title(portal, guid)), str(_get_item_owner(portal, guid)))
+                    else:
+                        print '\n{:<30}{:<14}{:<32}   {:<101}{:<25}'.format('',media_resource.get('type'), None, None, None)
+                        
+                    print '{:<30}{:<14}{:>32}   {:<100}'.format('', '', 'URL:', url)
+                    if do_url_checks:
+                        _check_url(url)
 
 def _remove_layer_number(url):
     ''' Remove layer number if exists at end of url '''
@@ -270,6 +404,17 @@ def _get_item(portal, item_id):
         item = portal.item(item_id)
         return item
 
+def _check_url(url):
+    badUrl, code, message = checkUrl(url)
+    if badUrl:
+        print 'ERROR: URL issue - code: {}; message: {}; url: {}'.format(code, message, url)
+    
+    url_netloc = urlparse.urlparse(url).netloc.split(':')[0].lower()
+    p_url_netloc = portal_netloc.split(':')[0].lower()
+    
+    if url_netloc != p_url_netloc:
+        print 'WARNING: URL is external to AGS site: {}'.format(url)
+        
 def main():
     
     totalSuccess = True
@@ -282,6 +427,8 @@ def main():
     
     # Get parameter values
     portal_url, user, password, output_file, access_mode, owner, group = results
+    global portal_netloc
+    portal_netloc = urlparse.urlparse(portal_url).netloc
     
     try:
         
@@ -313,8 +460,12 @@ def main():
         if items:
             
             for item in items:
+                
+                # if item['id'] <> 'faef542a74e141398c05c43379a67004':
+                #     continue
+                
                 print '-' * 200
-                    
+                
                 if 'Service' in item.get('typeKeywords'):
                     if not 'Service Definition' in item.get('typeKeywords'):
                         print_item_info2(item)
@@ -323,6 +474,8 @@ def main():
                         p_item_id = _get_item_id(url, service_portal_ids)
                         print '\n\t\t{:<14}{:<32}   {:<115}{:<25}'.format('Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
                         print '\t\t{:<14}{:>32}   {:<115}'.format('','URL:',url)
+                        if do_url_checks:
+                            _check_url(url)
                         
                 elif item.get('type') == 'Web Map':
                     print_item_info2(item)
@@ -332,6 +485,8 @@ def main():
                         p_item_id = _get_item_id(url, service_portal_ids)
                         print '\n\t\t{:<14}{:<32}   {:<115}{:<25}'.format('Service', str(p_item_id), str(_get_item_title(portal, p_item_id)), str(_get_item_owner(portal, p_item_id)))
                         print '\t\t{:<14}{:>32}   {:<115}'.format('','URL:',url)
+                        if do_url_checks:
+                            _check_url(url)
                         
                 elif item.get('type') == 'Operation View':
                     print_item_info2(item)
@@ -341,9 +496,17 @@ def main():
         
                 elif item.get('type') == 'Web Mapping Application':
                     print_item_info2(item)
-                    urls = get_webapp_service_urls(portal, item, service_portal_ids)
-                    for url in urls:
-                        all_urls.append(url)
+                    
+                    if 'Story Map' in item.get('typeKeywords'):
+                        print '(Story Map)'
+                        urls = get_storymap_resources(portal, item, service_portal_ids)
+                        for url in urls:
+                            all_urls.append(url)
+                            
+                    else:
+                        urls = get_webapp_service_urls(portal, item, service_portal_ids)
+                        for url in urls:
+                            all_urls.append(url)
                         
                 else:
                     print_item_info2(item)
@@ -353,9 +516,10 @@ def main():
             if all_urls:
                 for url in all_urls:
                     url = _remove_layer_number(url)
-                    for search_str, replace_str in type_mapping.iteritems():
-                        if url.find('/' + search_str) > 0:
-                            url = url.replace('/' + search_str, '/' + replace_str)
+                    if url.find('/Hosted/') == -1:
+                        for search_str, replace_str in type_mapping.iteritems():
+                            if url.find('/' + search_str) > 0:
+                                url = url.replace('/' + search_str, '/' + replace_str)
                     url = '.'.join(url.rsplit('/', 1))
                     #print 'url line 271: ' + url
                     if url.find('/rest/services/') > 0:

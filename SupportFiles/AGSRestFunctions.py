@@ -76,7 +76,7 @@ def gentoken(server, port, adminUser, adminPass, useSSL=True, expiration=60):
     url = "{}{}{}/arcgis/admin/generateToken".format(getProtocol(useSSL), server, getPort(port))
     
     token = json.loads(urllib.urlopen(url + "?f=json", query_string).read())
-        
+
     if "token" not in token:
         print token['messages']
         exit()
@@ -919,3 +919,104 @@ def _getDBConnectionString(server, port, adminUser, adminPass, in_param_dict, us
         results = out_connection_string['value'].encode('ascii')
     
     return success, results
+
+def getClusters(server, port, adminUser, adminPass, useSSL=True, token=None):
+    ''' Function to get clusters.
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    If a token exists, you can pass one in for use.
+    '''
+    
+    if token is None:
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
+    
+    services = []    
+    folder = ''    
+    URL = "{}{}{}/arcgis/admin/clusters?f=pjson&token={}".format(getProtocol(useSSL), server, getPort(port), token)    
+
+    clusters = json.loads(urllib2.urlopen(URL).read())
+
+    return clusters.get('clusters')
+
+def parseService(service):
+    # Parse folder and service nameType
+    folder = None
+    serviceNameType = None
+     
+    parsedService = service.split('//')
+    
+    if len(parsedService) == 1:
+        serviceNameType = parsedService[0]
+    else:
+        folder = parsedService[0]
+        serviceNameType = parsedService[1]
+        
+    return folder, serviceNameType
+
+def getHostedServiceDefinition(server, port, adminUser,  adminPass, folder, serviceNameAndType, useSSL=True, token=None):
+    ''' Function to get the json "definition" of the service
+    that can be passed to the updateHostedFeatureServiceDefintion function
+    for editing service properties, such as Sync, Tracking, Export and Editing.
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    If a token exists, you can pass one in for use.  
+    '''    
+    
+    definition = None
+    
+    if token is None:    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)    
+    
+    if folder is not None:
+        folderServerNameType = folder + "/" + serviceNameAndType
+    else:
+        folderServerNameType = serviceNameAndType
+    
+    serviceInfo = getServiceInfo(server, port, adminUser, adminPass, folder, serviceNameAndType)     
+    
+    definition = {}
+    definition['capabilities'] = serviceInfo['capabilities']
+    definition['allowGeometryUpdates'] = serviceInfo['jsonProperties']['allowGeometryUpdates']
+    #definition['hasStaticData'] = serviceInfo['jsonProperties']['hasStaticData']
+    definition['editorTrackingInfo'] = serviceInfo['jsonProperties']['editorTrackingInfo']
+    
+    jsonProperties = serviceInfo['jsonProperties']
+    definition['allowGeometryUpdates'] = jsonProperties['allowGeometryUpdates']
+    definition['editorTrackingInfo'] = jsonProperties['editorTrackingInfo']
+    
+    
+    # if jsonProperties.get('hasStaticData'):
+    #     definition['hasStaticData'] = jsonProperties['hasStaticData']
+    #     print '\thasStaticData: {}'.format(definition['hasStaticData'])
+    # else:
+    #     layers = jsonProperties['layers']
+    #     for i in layers.keys():
+    #         has_static_data = layers[i].get('hasStaticData')
+    #         print '\tlayer: {}, hasStaticData: {}'.format(i, has_static_data)
+            
+    
+    
+    return definition
+
+def updateHostedFeatureServiceDefinition(server, port, adminUser,  adminPass, service, definition, useSSL=True, token=None):
+    ''' Function to update hosted service properties,
+    such as Sync, Tracking, Export and Editing.
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    If a token exists, you can pass one in for use.  
+    '''
+
+    if token is None:
+        token = gentoken(server, port, adminUser, adminPass, useSSL)
+    
+    definitionJson = json.dumps(definition)
+    
+    prop_encode = urllib.urlencode({'updateDefinition': definitionJson})
+    print 'update function - service: {}'.format(service)
+    URL = "{}{}{}/arcgis/rest/admin/services/{}/updateDefinition?token={}&f=json".format(getProtocol(useSSL), server, getPort(port), service.replace('.', '/'), token)
+
+    status = json.loads(urllib2.urlopen(URL, prop_encode).read())
+
+    if status.get('success'):
+        success = True
+    else:
+        success = False
+        
+    return success, status

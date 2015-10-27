@@ -83,8 +83,8 @@ REM Create software related folders
 REM ---------------------------------------
 set ops_softwareRootPath=%ops_rootInstallPath%\Software
 
-set ops_SoftwareFolders=ArcGISDataStore ArcGISGeoEvent ArcGISServer Authorization_Files ChatServer\Openfire Database\PostgreSQL_9.2.2 Desktop ArcGISPro ^
-MessageSimulator\MessageSimulator OpsDashboardUtility\Certificate ops-server-config PortalForArcGIS WebAdaptorIIS
+set ops_SoftwareFolders=ArcGISDataStore ArcGISGeoEvent ArcGISServer Authorization_Files ChatServer\Openfire Database\PostgreSQL_9.3.5 Desktop ArcGISPro ^
+MessageSimulator\MessageSimulator OpsDashboardUtility\Certificate ops-server-config PortalForArcGIS WebAdaptorIIS EsriMapsForOffice PredictiveAnalysis
 for %%d in (%ops_SoftwareFolders%) do (
    mkdir %ops_softwareRootPath%\%%d
 )
@@ -92,9 +92,9 @@ for %%d in (%ops_SoftwareFolders%) do (
 REM ---------------------------------------
 REM Created web apps related folders
 REM ---------------------------------------
-set ops_webappsRootPath=%ops_rootInstallPath%\WebApps
+set ops_webappsRootPath=%ops_rootInstallPath%
 
-mkdir %ops_webappsRootPath%
+mkdir %ops_webappsRootPath%\WebApps\wwwroot\Downloads
 
 @echo Done.
 

@@ -50,16 +50,16 @@ serverDrive = 'c'       # Drive where software will be installed
 
 # Syntax: ["databasename": [Managed (True or False), AGS registration name]
 # 'AGS registration name' is "label" given to the data store.
-databasesToCreate = {"utds":[False, "UTDS"], \
-                    "economic":[False, "Economic"], \
-                    "infrastructure":[False, "Infrastructure"], \
-                    "political":[False, "Political"], \
-                    "social":[False, "Social"], \
-                    "rtds":[False, "RTDS"], \
+databasesToCreate = {"tds":[False, "TDS"], \
+                    "intelfoundation":[False, "IntelFoundation"], \
+                    "physicalnetworks":[False, "PhysicalNetworks"], \
+                    "humint":[False, "HUMINT"], \
+                    "imint":[False, "IMINT"], \
+                    "sigint":[False, "SIGINT"], \
+                    "allsource":[False, "AllSource"], \
+                    "intelassessments":[False, "IntelAssessments"], \
                     "currentoperations":[False, "CurrentOperations"], \
-                    "military":[False, "Military"], \
-                    "information":[False, "Information"], \
-                    "emergencymanagement":[False, "EmergencyManagement"]}
+                    "military":[False, "Military"]}
 
 # ----------------------------------------------------------------------------
 # Shared / Replicated Database Configuration

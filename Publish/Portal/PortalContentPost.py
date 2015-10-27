@@ -94,10 +94,11 @@ def main():
         print '\n\t{UsersToPost} (optional):'
         print '\t\t-By default, content for all users is posted'
         print '\t\t-Specify # placeholder character if you want to post content for all users and you are'
-        print '\t\t   specifying {OpsServerTypesToPost} values'
+        print '\t\t   specifying {GroupsToPost} values'
         print '\t\t-To post content for only specific users specify comma delimited list of users, i.e. user1,user2,...'
         print '\t\t-To post content for ALL users except specific users, specify comma delimited '
         print '\t\t   list of users to exclude with "-" prefix, i.e. -user1,user2,...'
+        print '\t\t-NOTE: Users names must match the "SourceUserName" values in the <ContentFolderPath>\userfile.txt file.'
  
         print '\n\t{GroupsToPost} (optional):'
         print '\t\t-To post content shared with specific portal groups specify a pipe "|" delimited list of groups using the syntax "GroupOwner:GroupTitle|GroupOwner:GroupTitle|...".'
@@ -255,8 +256,12 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     print "\n" + titleBreak
     print "Creating groups ...\n"
     
+    oldGrpID_newGrpID = {}
     for username, userinfo in users.iteritems():
         newGroups = publish_user_groups(portaladmin, contentpath, userinfo, users)
+        
+        for key,val in newGroups.iteritems():
+            oldGrpID_newGrpID[key] = {'id': val}
     
     # ------------------------------------------------------------------------
     # Publish Items and Update their sharing info
@@ -293,6 +298,7 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     # Dump info about all items (old, new ids) into json
     os.chdir(portalLogPath)
     json.dump(origIDToNewID, open('oldID_newID.json','w'))
+    json.dump(oldGrpID_newGrpID, open('oldGrpID_newGrpID.json', 'w'))
 
     # ------------------------------------------------------------------------
     # Post publishing processing: Update URLs and item ids
@@ -300,22 +306,27 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     print "\n" + titleBreak
     print "Update URLs and Item IDs..."
     print titleBreak + "\n"
+    
+    # Add the group ids to the dictionary of old/new ids
+    origIDToNewID.update(oldGrpID_newGrpID)
+    
     update_post_publish(portaladmin, hostname_map, origIDToNewID)
 
-    # ------------------------------------------------------------------------
-    # Share items in default web apps template and default gallery
-    # ------------------------------------------------------------------------    
-    # Share the items in the default web apps template and
-    # default gallery template built-in group with the
-    # 'OpsServer' user 'AFMI Web Application Templates' and
-    # 'AFMI Gallery Templates'
-    print "\n" + sectionBreak
-    print "Share the items in the default web apps and gallery template groups..."
-    group_owner = 'OpsServer'
-    if users.get(group_owner):
-        share_templates(portaladdress, users[group_owner]['target_username'], users[group_owner]['target_password'])
-    else:
-        print "-Skipping...user {} was not created. Can perform same operation through portal 'Edit Settings'.".format(group_owner)
+    # Comment out: this functionality is now available out of the box
+    # # ------------------------------------------------------------------------
+    # # Share items in default web apps template and default gallery
+    # # ------------------------------------------------------------------------    
+    # # Share the items in the default web apps template and
+    # # default gallery template built-in group with the
+    # # 'OpsServer' user 'AFMI Web Application Templates' and
+    # # 'AFMI Gallery Templates'
+    # print "\n" + sectionBreak
+    # print "Share the items in the default web apps and gallery template groups..."
+    # group_owner = 'OpsServer'
+    # if users.get(group_owner):
+    #     share_templates(portaladdress, users[group_owner]['target_username'], users[group_owner]['target_password'])
+    # else:
+    #     print "-Skipping...user {} was not created. Can perform same operation through portal 'Edit Settings'.".format(group_owner)
 
     print "\nDONE: Finished posting content to portal."
     
@@ -746,14 +757,18 @@ def update_item_properties(portal, item, hostname_map, id_map):
         propertyValue = item.get(jsonProp)
         if propertyValue:
             for host in hostname_map:
-                if propertyValue.find(host) > -1:
-                    propertyValue = propertyValue.replace(host, hostname_map[host])
-                    is_updated = True
+                search_str_list = [host, host.lower(), host.upper()]
+                for search_str in search_str_list:
+                    if propertyValue.find(search_str) > -1:
+                        propertyValue = propertyValue.replace(search_str, hostname_map[host])
+                        is_updated = True
     
             for item_id in id_map:
-                if propertyValue.find(item_id) > -1:
-                    propertyValue = propertyValue.replace(item_id, id_map[item_id]["id"])
-                    is_updated = True
+                search_str_list = [item_id, item_id.lower(), item_id.upper()]
+                for search_str in search_str_list:
+                    if propertyValue.find(search_str) > -1:
+                        propertyValue = propertyValue.replace(search_str, id_map[item_id]["id"])
+                        is_updated = True
             
             if is_updated:
                 portal.update_item(item['id'], {jsonProp: propertyValue}) 
@@ -774,14 +789,18 @@ def update_item_data(portal, item, hostname_map, id_map):
             is_updated = False
             
             for host in hostname_map:
-                if itemdata.find(host) > -1:
-                    itemdata = itemdata.replace(host, hostname_map[host])
-                    is_updated = True
-        
+                search_str_list = [host, host.lower(), host.upper()]
+                for search_str in search_str_list:
+                    if itemdata.find(search_str) > -1:
+                        itemdata = itemdata.replace(search_str, hostname_map[host])
+                        is_updated = True
+
             for item_id in id_map:
-                if itemdata.find(item_id) > -1:
-                    itemdata = itemdata.replace(item_id, id_map[item_id]["id"])
-                    is_updated = True
+                search_str_list = [item_id, item_id.lower(), item_id.upper()]
+                for search_str in search_str_list:
+                    if itemdata.find(search_str) > -1:
+                        itemdata = itemdata.replace(search_str, id_map[item_id]["id"])
+                        is_updated = True
             
             if is_updated:
                 portal.update_item(item['id'], {'text': itemdata})     
@@ -798,9 +817,11 @@ def update_csv_item(portal, item, hostname_map):
     # Determine if file has the search string and perform replace
     is_updated = False
     for host in hostname_map:
-        if findInFile(filePath, host):
-            editFiles([filePath], host, hostname_map[host])
-            is_updated = True
+        search_str_list = [host, host.lower(), host.upper()]
+        for search_str in search_str_list:
+            if findInFile(filePath, search_str):
+                editFiles([filePath], search_str, hostname_map[host])
+                is_updated = True
     
     # Upload the updated file back to the portal item
     if is_updated:

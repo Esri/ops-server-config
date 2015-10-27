@@ -24,7 +24,7 @@ set ops_ChkErrLevelFile=%~dp0..\..\..\SupportFiles\BatchFiles\CheckErrorLevel.ba
 echo.
 echo.
 echo %sectionBreak%
-echo Change the ArcGIS Server security configuration to "HTTP and HTTPS"...
+echo Change the ArcGIS Server security configuration to "HTTPS Only"...
 echo.
 echo ^- When the web browser opens ^(a 2 minute delay has been added^)...
 echo.
@@ -40,7 +40,7 @@ echo.
 echo    2. On the "Security/Config" page, click the "update" link.
 echo.
 echo.
-echo    4. In the "Protocol" dropdown, select "HTTP and HTTPS".
+echo    4. In the "Protocol" dropdown, select "HTTPS Only".
 echo.
 echo.
 echo    5. Click "Update".

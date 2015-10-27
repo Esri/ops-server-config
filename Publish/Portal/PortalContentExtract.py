@@ -275,9 +275,9 @@ def extract_items(portal,extractpath, username):
     if len(root_items) > 0:
         print "   - Root items:"
         for item in root_items:
-            print "...... item '" + str(item['title']) + "' to folder '" + str(item['id']) + "'"
+            print "...... item '{}' [type: {}] to folder '{}'".format(item['title'], item['type'], item['id'])
             if not do_extract_item(portal, item['id']):
-                print "WARNING: Skipping extract of this item '" + str(item['title']) + "'"
+                print "WARNING: Skipping extract of this item '{}' [type: {}]".format(item['title'], item['type'])
                 continue
             extract_item(portal,item["id"],username,folder='')
             os.chdir(itempath)
@@ -294,9 +294,9 @@ def extract_items(portal,extractpath, username):
             if len(items) > 0:
                 print "       Folder '" + folder_title + "'..."
                 for item in items:
-                    print "........ item '" + str(item['title']) + "' to folder '" + str(item['id']) + "'"
+                    print "........ item '{}' [type: {}] to folder '{}'".format(item['title'], item['type'], item['id'])
                     if not do_extract_item(portal, item['id']):
-                        print "WARNING: Skipping extract of this item '" + str(item['title']) + "'"
+                        print "WARNING: Skipping extract of this item '{}' [type: {}]".format(item['title'], item['type'])
                         continue
                     extract_item(portal,item["id"],username,folder=folder_id)
                     os.chdir(itempath)
