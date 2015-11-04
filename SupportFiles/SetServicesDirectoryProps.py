@@ -63,8 +63,8 @@ def main():
         
         arcgis_com_map = 'https://{}/arcgis/home/webmap/viewer.html'.format(server_fqdn)
         jsapi_arcgis = 'https://{}/arcgis/jsapi/jsapi/'.format(server_fqdn)
-        jsapi_arcgis_css = 'https://{}/arcgis/home/js/dojo/dijit/themes/tundra/tundra.css'.format(server_fqdn)
-        jsapi_arcgis_css2 = 'https://{}/arcgis/home/js/esri/css/esri.css'.format(server_fqdn)
+        jsapi_arcgis_css = 'https://{}/arcgis/jsapi/jsapi/dijit/themes/tundra/tundra.css'.format(server_fqdn)
+        jsapi_arcgis_css2 = 'https://{}/arcgis/jsapi/jsapi/esri/css/esri.css'.format(server_fqdn)
         
         # NOTE: Because key for the services directory enabled/disabled is incorrectly
         # returned as 'enabled' instead of 'servicesDirEnabled', let's check for
