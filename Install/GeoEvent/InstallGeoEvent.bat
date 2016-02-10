@@ -36,7 +36,8 @@ echo.
 echo Waiting 8 minutes before installing Geoevent...
 PING 127.0.0.1 -n 480 > nul
 
-set execute=msiexec /I %ops_softwareRoot%\ArcGISGeoEvent\SetupFiles\setup.msi PASSWORD=%ops_passWord% /qb
+set execute=%ops_softwareRoot%\ArcGISGeoEvent\setup.exe /qb ^
+PASSWORD=%ops_agsServiceAccountPassword%
 echo %execute%
 echo.
 %execute%

@@ -47,19 +47,44 @@ REM
 set ops_softwareRoot=SET_PATH_TO_SOFTWARE_FOLDER
 
 REM ---------------------------------------------------------------------
-REM This variable defines the account that will run the ArcGIS
-REM Server service. It can be a local user account or a domain account.
+REM WINDOWS SERVICE ACCOUNTS
+REM
+REM These variables define the accounts that will run the following
+REM windows service accounts:
+REM    PostgreSQL
+REM    ArcGIS Server
+REM    ArcGIS Data Store
+REM    Portal for ArcGIS
+REM
+REM These can be local user accounts or domain accounts.
 REM If using a local account and the account does not exist it will be created
-REM using the password set by the variable "ops_passWord".
+REM using the password set by the associated variable.
+REM
 REM If using a domain account, the account must already exist.
 REM Specify domain account using the syntax "domain\user". If the local/domain
-REM account already exists, then the variable "ops_passWord" must be set
+REM account already exists, then the associated password variable must be set
 REM to the accounts' password.
 REM
-REM   NOTE: the ArcGIS Server account user name must also meet the requirements
+REM   NOTE: these account passwords must also meet the requirements
 REM         set by your organizations' group policies (if applicable).
 REM
+
+REM PostgreSQL windows account name and password
+set ops_rdbmsServiceAccount=postgres
+set ops_rdbmsServiceAccountPassword=SET_PASSWORD
+
+REM ArcGIS Server windows account name and password
 set ops_agsServiceAccount=AFMAGS
+set ops_agsServiceAccountPassword=SET_PASSWORD
+
+REM ArcGIS Data Store windows account name and password
+set ops_dsServiceAccount=AFMDataStore
+set ops_dsServiceAccountPassword=SET_PASSWORD
+
+REM Portal for ArcGIS windows account name and password
+set ops_portalServiceAccount=AFMPortal
+set ops_portalServiceAccountPassword=SET_PASSWORD
+
 
 REM ---------------------------------------------------------------------
 REM This variable defines the user name for the ArcGIS Server
@@ -82,8 +107,8 @@ set ops_userName=admin
 
 REM ---------------------------------------------------------------------
 REM This varaible is used for the following passwords: PostgreSQL superuser,
-REM PostgreSQL service account, ArcGIS Server service account, ArcGIS Server
-REM site administrator, Portal for ArcGIS initial administrator account, and the
+REM PostgreSQL service account, ArcGIS Server site administrator,
+REM Portal for ArcGIS initial administrator account, and the
 REM "sde" user password that owns the ops server geodatabases.
 REM
 REM   ***** WARNING ***** WARNING ***** WARNING ***** WARNING *****
@@ -207,7 +232,8 @@ REM Install Geoevent Extension for ArcGIS Server
 set ops_install_geoevent=YES
 
 REM Install Geoevent Extension for ArcGIS Server Patches
-set ops_install_geoevent_patches=YES
+REM NOTE: Not needed for 10.4
+REM set ops_install_geoevent_patches=YES
 
 REM Install Predictive Analysis Web Services
 set ops_install_predictive_analysis=YES

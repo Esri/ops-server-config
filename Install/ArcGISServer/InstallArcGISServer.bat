@@ -31,7 +31,8 @@ echo.
 echo --Installing ArcGIS Server...
 echo.
 set execute=%ops_softwareRoot%\ArcGISServer\setup.exe /qb ^
-USER_NAME=%ops_agsServiceAccount% PASSWORD=%ops_passWord% INSTALLDIR1=C:\Python27
+USER_NAME=%ops_agsServiceAccount% PASSWORD=%ops_agsServiceAccountPassword% ^
+INSTALLDIR1=C:\Python27
 
 echo %execute%
 echo.

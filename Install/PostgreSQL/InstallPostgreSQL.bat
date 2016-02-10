@@ -32,7 +32,8 @@ echo.
 
 set execute=%ops_softwareRoot%\Database\PostgreSQL_9.3.5\Postgres_Installation\postgresql-9.3.5-1-windows-x64.exe ^
 --unattendedmodeui minimal --mode unattended --superaccount postgres ^
---servicename postgreSQL --serviceaccount postgres --servicepassword %ops_passWord% ^
+--servicename postgreSQL --serviceaccount %ops_rdbmsServiceAccount% ^
+--servicepassword %ops_rdbmsServiceAccountPassword% ^
 --superpassword %ops_passWord% --serverport 5432 ^
 --prefix %ops_postgresqlInstallDIR% --datadir %ops_postgresqlDataDIR%
 

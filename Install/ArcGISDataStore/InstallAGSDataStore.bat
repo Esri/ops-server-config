@@ -28,9 +28,10 @@ echo Install ArcGIS Data Store
 echo.
 echo --Installing ArcGIS Data Store...
 echo.
-REM Issue with Data Store, running windows service by any other account except for LOCALSYSTEM is not supported yet.
-REM set execute=%ops_softwareRoot%\ArcGISDataStore\setup.exe /qb USER_NAME=%ops_agsServiceAccount% PASSWORD=%ops_passWord%
-set execute=%ops_softwareRoot%\ArcGISDataStore\setup.exe /qb
+REM Issue with Data Store, running windows service by any other account
+REM except for LOCALSYSTEM is not supported yet.
+set execute=%ops_softwareRoot%\ArcGISDataStore\setup.exe /qb ^
+USER_NAME=%ops_dsServiceAccount% PASSWORD=%ops_dsServiceAccountPassword%
 
 echo %execute%
 echo.
