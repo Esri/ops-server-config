@@ -28,8 +28,8 @@ Call InstallSettings.bat
 REM ---------------------------------------------------------------------
 REM Set other variables
 REM ---------------------------------------------------------------------
-set ops_AGSVersion=10.3
-set ops_PortalVersion=10.3
+set ops_AGSVersion=10.4
+set ops_PortalVersion=10.4
 
 REM Define ArcGIS Data Store Path
 REM NOTE: must have "\" at end of path
