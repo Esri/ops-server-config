@@ -232,10 +232,6 @@ set ops_federate_ags=YES
 REM Install Geoevent Extension for ArcGIS Server
 set ops_install_geoevent=YES
 
-REM Install Geoevent Extension for ArcGIS Server Patches
-REM NOTE: Not needed for 10.4
-REM set ops_install_geoevent_patches=YES
-
 REM Install Predictive Analysis Web Services
 set ops_install_predictive_analysis=YES
 
