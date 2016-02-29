@@ -62,7 +62,21 @@ import urllib
 import urllib2
 import json
 import time
-    
+
+# Version of Python installed with 10.4 now validates SSL
+# certificate. The try/except/else block was added to ignore
+# certificate validation errors.
+import ssl
+
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    # Legacy Python that doesn't verify HTTPS certificates by default
+    pass
+else:
+    # Handle target environment that doesn't support HTTPS verification
+    ssl._create_default_https_context = _create_unverified_https_context
+
 def gentoken(server, port, adminUser, adminPass, useSSL=True, expiration=60):
     #Re-usable function to get a token required for Admin changes
     
