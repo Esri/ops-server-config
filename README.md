@@ -17,12 +17,12 @@ The goals of the scripts are to:
 ## Features
 
 * Automates the installation of the following software:
-  * ArcGIS for Server (Windows) 10.3.1
-  * Portal for ArcGIS (Windows) 10.3.1
-  * ArcGIS Web Adaptor (IIS) 10.3.1
-  * ArcGIS Data Store (Windows) 10.3.1 
-  * ArcGIS GeoEvent Extension for Server (Windows) 10.3.1
-  * Portal 10.3 Resources for Esri Maps for Office 3.1
+  * ArcGIS for Server (Windows) 10.4
+  * Portal for ArcGIS (Windows) 10.4
+  * ArcGIS Web Adaptor (IIS) 10.4
+  * ArcGIS Data Store (Windows) 10.4
+  * ArcGIS GeoEvent Extension for Server (Windows) 10.4
+  * Portal Resources for Esri Maps for Office 3.1
   * Deployment of Operations Dashboard configured for Portal for ArcGIS
   * PostgreSQL 9.3.5
   * IIS and .NET Framework 3.5
