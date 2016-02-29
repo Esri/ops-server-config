@@ -37,6 +37,7 @@ _infopathkey            = 'path'
 _hostnamekey            = 'hostName'
 _managedkey             = 'isManaged'
 _unregpathkey           = 'itemPath'
+_unregforcekey          = 'force'
 _serverdbconnstrkey     = 'connectionString'
 _clientdbconnstrkey     = 'clientConnectionString'
 
@@ -171,7 +172,7 @@ def unregister(server, port, user, password, itempath, useSSL=True, token=None):
     'Returns tuple: success(True|False) and response.
     '''
     
-    item = {_unregpathkey: itempath}
+    item = {_unregpathkey: itempath, _unregforcekey: 'true'}
     return _unregister(server, port, user, password, item, useSSL, token)
 
 def validateitem(server, port, user, password, item, useSSL=True, token=None):
