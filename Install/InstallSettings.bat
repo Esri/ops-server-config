@@ -106,11 +106,18 @@ REM
 set ops_userName=admin
 
 REM ---------------------------------------------------------------------
+<<<<<<< HEAD
 REM This variable is used for the following passwords:
 REM     PostgreSQL superuser
 REM     ArcGIS Server site administrator
 REM     Portal for ArcGIS initial administrator account
 REM     "sde" user password that owns the ops server geodatabases.
+=======
+REM This variable is used for the following passwords: PostgreSQL superuser,
+REM PostgreSQL service account, ArcGIS Server service account, ArcGIS Server
+REM site administrator, Portal for ArcGIS initial administrator account, and the
+REM "sde" user password that owns the ops server geodatabases.
+>>>>>>> 366985a7f2fa46aeae3fb815c348e36ed5c20f35
 REM
 REM   ***** WARNING ***** WARNING ***** WARNING ***** WARNING *****
 REM
