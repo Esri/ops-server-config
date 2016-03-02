@@ -33,7 +33,8 @@ echo Install Portal for ArcGIS
 echo.
 echo --Installing Portal for ArcGIS...
 echo.
-set execute=%ops_softwareRoot%\PortalForArcGIS\setup.exe /qb CONTENTDIR=C:\arcgisportal
+set execute=%ops_softwareRoot%\PortalForArcGIS\setup.exe /qb CONTENTDIR=C:\arcgisportal ^
+USER_NAME=%ops_portalServiceAccount% PASSWORD=%ops_portalServiceAccountPassword%
 
 echo %execute%
 echo.

@@ -87,6 +87,20 @@ OPVIEW_ITEM_FILTER = 'type:"Operation View"' #EL, added 6/10/2013
 
 _log = logging.getLogger(__name__)
 
+# Version of Python installed with 10.4 now validates SSL
+# certificate. The try/except/else block was added to ignore
+# certificate validation errors.
+import ssl
+
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    # Legacy Python that doesn't verify HTTPS certificates by default
+    pass
+else:
+    # Handle target environment that doesn't support HTTPS verification
+    ssl._create_default_https_context = _create_unverified_https_context
+    
 class Portal(object):
     """ An object representing a connection to a single portal (via URL)."""
 
