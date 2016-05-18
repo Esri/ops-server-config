@@ -65,6 +65,13 @@ def val_arg_users(portal, specified_users):
     # get a list of all portal users
     all_users = portal.users()
 
+    # don't delete any of the esri_ users
+    all_users_modified = []
+    for user in all_users:
+        if not user['username'].startswith('esri_'):
+            all_users_modified.append(user)
+    all_users = all_users_modified
+    
     # if there are no specified users then return all users
     if specified_users is None:
         return all_users
