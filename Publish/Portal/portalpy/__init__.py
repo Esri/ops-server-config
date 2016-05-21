@@ -43,19 +43,22 @@ URL_BASED_ITEM_TYPES = frozenset(['Feature Service', 'Map Service',
                                   'Image Service', 'Web Mapping Application','WMS','WMTS', 'Geodata Service',
                                   'Globe Service','Geometry Service', 'Geocoding Service',
                                   'Network Analysis Service', 'Geoprocessing Service','Mobile Application',
-                                  'Document Link', 'KML', 'Workflow Manager Service'])
+                                  'Document Link', 'KML', 'Workflow Manager Service', 'Scene Service',
+                                  'Operations Dashboard Extension'])
 
 TEXT_BASED_ITEM_TYPES = frozenset(['Web Map', 'Feature Service', 'Map Service',
                                    'Image Service', 'Feature Collection', 'Feature Collection Template',
                                    'Web Mapping Application', 'Mobile Application', 'Symbol Set', 'Color Set',
-                                   'Windows Viewer Configuration', 'Operation View', 'Web Scene'])
+                                   'Windows Viewer Configuration', 'Operation View', 'Web Scene', 'Scene Service',
+                                   'Workforce Project'])
 
-FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV',
+FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV', 'File Geodatabase',
                                    'Service Definition', 'Map Document', 'Map Package', 'Tile Package',
                                    'Explorer Map', 'Globe Document', 'Scene Document', 'Published Map',
                                    'Map Template', 'Windows Mobile Package', 'Layer', 'Layer Package',
-                                   'Explorer Layer', 'Geoprocessing Package', 'Geoprocessing Sample',
-                                   'Locator Package', 'Workflow Manager Package', 'Code Sample',
+                                   'Explorer Layer', 'Geoprocessing Package',
+                                   'Geoprocessing Package (Pro version)', 'Geoprocessing Package (Pro Version)',
+                                   'Geoprocessing Sample', 'Locator Package', 'Workflow Manager Package', 'Code Sample',
                                    'Desktop Application Template', 'Desktop Add In', 'Explorer Add In',
                                    'CityEngine Web Scene', 'Windows Viewer Add In', 'Operations Dashboard Add In',
                                    'Microsoft Word', 'Microsoft Powerpoint', 'Microsoft PowerPoint', 'Microsoft Excel', 'PDF',
@@ -63,7 +66,9 @@ FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV',
                                    'Pro Map', 'CAD Drawing', 'iWork Keynote', 'iWork Pages', 'iWork Numbers',
                                    'Basemap Package', 'Project Package', 'Task File', 'Layout',
                                    'Rule Package', 'Desktop Application', 'Project Template',
-                                   'Mobile Basemap Package', 'Desktop style']) #'KML'
+                                   'Mobile Basemap Package', 'Desktop Style', 'Native Application',
+                                   'Native Application Template', 'Native Application Installer',
+                                   'Raster function template']) #'KML'
 
 RELATIONSHIP_TYPES = frozenset(['Map2Service', 'WMA2Code',
                                 'Map2FeatureCollection', 'MobileApp2Code', 'Service2Data',
@@ -915,7 +920,7 @@ class Portal(object):
         if resp:
             return resp.get('success')
 
-    def publish_item(self, file_type, item_id):
+    def publish_item(self, file_type, item_id, publish_parameters=None, output_type=None):
         """
         Publishes a hosted service based on an existing service definition item.
         """
@@ -949,11 +954,15 @@ class Portal(object):
         #                   'tilePackage', 'featureService',
         #                   'featureCollection', 'fileGeodatabase']
         #
-        _allowed_types = ['serviceDefinition']
+        _allowed_file_types = ['serviceDefinition', 'featureService']
+        _allowed_output_types = [None, 'Tiles', 'sceneService']
         
-        if file_type.lower() not in [t.lower() for t in _allowed_types]:
+        if file_type not in _allowed_file_types:
             raise PortalError('Unsupported file type: {}'.format(file_type))
        
+        if output_type not in _allowed_output_types:
+            raise PortalError('Unsupported output type: {}'.format(output_type))
+        
         # Setup the postdata
         postdata = self._postdata()
         
@@ -967,12 +976,16 @@ class Portal(object):
             # TEMPORARY USE
             raise PortalError('Parameter "item_id" must contain non-None value.')
         
+        if publish_parameters is not None:
+            params['publishParameters'] = publish_parameters
+        
         # FOR FUTURE USE
-        # if publish_parameters is not None:
-        #     params['publishParameters'] = publish_parameters            
         # if text is not None and file_type.lower() == 'csv':
         #     params['text'] = text
         
+        if output_type is not None:
+            params['outputType'] = output_type
+
         postdata.update(unicode_to_ascii(params))
 
         # Setup the REST path and post to it

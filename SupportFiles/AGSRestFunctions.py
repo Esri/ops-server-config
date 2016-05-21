@@ -955,8 +955,9 @@ def parseService(service):
     # Parse folder and service nameType
     folder = None
     serviceNameType = None
-     
-    parsedService = service.split('//')
+    
+    service = service.replace('//', '/')
+    parsedService = service.split('/')
     
     if len(parsedService) == 1:
         serviceNameType = parsedService[0]
@@ -1034,3 +1035,27 @@ def updateHostedFeatureServiceDefinition(server, port, adminUser,  adminPass, se
         success = False
         
     return success, status
+
+def getServiceJSON(server, port, adminUser,  adminPass, folder, serviceNameAndType, useSSL=True, token=None):
+    ''' Function to get the json service rest endpoint (i.e. /rest/services/folder/service)
+    Requires Admin user/password, as well as server and port (necessary to construct token if one does not exist).
+    If a token exists, you can pass one in for use.  
+    '''    
+    
+    definition = None
+    
+    if token is None:    
+        token = gentoken(server, port, adminUser, adminPass, useSSL)
+        
+    serviceNameAndType = serviceNameAndType.replace('.', '/')
+    
+    if folder is not None:
+        folderServerNameType = folder + '/' + serviceNameAndType
+    else:
+        folderServerNameType = serviceNameAndType
+    
+    URL = "{}{}{}/arcgis/rest/services/{}?f=pjson".format(getProtocol(useSSL), server, getPort(port), folderServerNameType)
+
+    service_json = json.loads(urllib2.urlopen(URL, '').read())
+    
+    return service_json
