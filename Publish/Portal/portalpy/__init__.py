@@ -43,8 +43,8 @@ URL_BASED_ITEM_TYPES = frozenset(['Feature Service', 'Map Service',
                                   'Image Service', 'Web Mapping Application','WMS','WMTS', 'Geodata Service',
                                   'Globe Service','Geometry Service', 'Geocoding Service',
                                   'Network Analysis Service', 'Geoprocessing Service','Mobile Application',
-                                  'Document Link', 'KML', 'Workflow Manager Service', 'Scene Service',
-                                  'Operations Dashboard Extension'])
+                                  'Document Link', 'Workflow Manager Service', 'Scene Service',
+                                  'Operations Dashboard Extension']) # 'KML'
 
 TEXT_BASED_ITEM_TYPES = frozenset(['Web Map', 'Feature Service', 'Map Service',
                                    'Image Service', 'Feature Collection', 'Feature Collection Template',
@@ -68,7 +68,7 @@ FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV', 'File 
                                    'Rule Package', 'Desktop Application', 'Project Template',
                                    'Mobile Basemap Package', 'Desktop Style', 'Native Application',
                                    'Native Application Template', 'Native Application Installer',
-                                   'Raster function template']) #'KML'
+                                   'Raster function template', 'KML', 'KML Collection'])
 
 RELATIONSHIP_TYPES = frozenset(['Map2Service', 'WMA2Code',
                                 'Map2FeatureCollection', 'MobileApp2Code', 'Service2Data',
