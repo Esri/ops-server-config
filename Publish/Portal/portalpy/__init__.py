@@ -68,7 +68,7 @@ FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV', 'File 
                                    'Rule Package', 'Desktop Application', 'Project Template',
                                    'Mobile Basemap Package', 'Desktop Style', 'Native Application',
                                    'Native Application Template', 'Native Application Installer',
-                                   'Raster function template', 'KML'])
+                                   'Raster function template', 'KML', 'KML Collection'])
 
 RELATIONSHIP_TYPES = frozenset(['Map2Service', 'WMA2Code',
                                 'Map2FeatureCollection', 'MobileApp2Code', 'Service2Data',
