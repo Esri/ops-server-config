@@ -635,10 +635,15 @@ def publish_user_groups(portal,contentpath, userinfo, users):
         
         # Create group if it doesn't exist
         if not groupId:
-            print "... group '" + str(group['title']) + "'"
+            print "... group '" + str(group['title']) + "' (" + str(group['id']) + ")"
             groupId = portal.create_group(group,group['thumbfile'])
+            
             # Reassign group
-            portal.reassign_group(groupId, username)
+            if groupId:
+                print "... reassigning group to user '" + str(username) + "'"
+                portal.reassign_group(groupId, username)
+            else:
+                print "ERROR: Can't create group '" + str(group['title']) + "'"
         else:
             print "... group '" + str(group['title']) + "' already exists."
             
