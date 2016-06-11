@@ -44,13 +44,17 @@ URL_BASED_ITEM_TYPES = frozenset(['Feature Service', 'Map Service',
                                   'Globe Service','Geometry Service', 'Geocoding Service',
                                   'Network Analysis Service', 'Geoprocessing Service','Mobile Application',
                                   'Document Link', 'Workflow Manager Service', 'Scene Service',
-                                  'Operations Dashboard Extension']) # 'KML'
+                                  'Operations Dashboard Extension', 'Stream Service',
+                                  'Geoenrichment Service', 'Server']) # 'KML'
 
 TEXT_BASED_ITEM_TYPES = frozenset(['Web Map', 'Feature Service', 'Map Service',
                                    'Image Service', 'Feature Collection', 'Feature Collection Template',
                                    'Web Mapping Application', 'Mobile Application', 'Symbol Set', 'Color Set',
                                    'Windows Viewer Configuration', 'Operation View', 'Web Scene', 'Scene Service',
-                                   'Workforce Project'])
+                                   'Workforce Project', 'Featured Items', 'Legend', 'Application Configuration',
+                                   'Style', 'Layer Template', 'Activity', 'Vector Tile Service',
+                                   'Data Package Collection', 'Workflow Manager Service', 'Application',
+                                   'WMS', 'WMTS', 'Vector Tile Service', 'Geoenrichment Service', 'Server'])
 
 FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV', 'File Geodatabase',
                                    'Service Definition', 'Map Document', 'Map Package', 'Tile Package',
@@ -68,7 +72,10 @@ FILE_BASED_ITEM_TYPES = frozenset(['Code Attachment', 'Shapefile', 'CSV', 'File 
                                    'Rule Package', 'Desktop Application', 'Project Template',
                                    'Mobile Basemap Package', 'Desktop Style', 'Native Application',
                                    'Native Application Template', 'Native Application Installer',
-                                   'Raster function template', 'KML', 'KML Collection'])
+                                   'Raster function template', 'KML', 'KML Collection', 'Scene Package',
+                                   'Addin Package', 'CSV Collection', 'SQLite Geodatabase',
+                                   'Map Area', 'GeoJson', 'Mobile Map Package', 'Vector Tile Package',
+                                   'Form'])
 
 RELATIONSHIP_TYPES = frozenset(['Map2Service', 'WMA2Code',
                                 'Map2FeatureCollection', 'MobileApp2Code', 'Service2Data',
