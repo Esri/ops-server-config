@@ -309,8 +309,17 @@ def publish_portal(portaladdress,contentpath,adminuser,adminpassword, users, hos
     
     # Add the group ids to the dictionary of old/new ids
     origIDToNewID.update(oldGrpID_newGrpID)
+
+    # Create list of items to update
+    # (exclude any items owned by esri_ accounts)
+    items_all = portaladmin.search()
+    items_to_update = []
+    for item in items_all:
+        if not item["owner"].startswith("esri_"):
+            items_to_update.append(item)
     
-    update_post_publish(portaladmin, hostname_map, origIDToNewID)
+    # Update
+    update_post_publish(portaladmin, hostname_map, origIDToNewID, items_to_update)
 
     # Comment out: this functionality is now available out of the box
     # # ------------------------------------------------------------------------
@@ -737,12 +746,9 @@ def publish_get_folder_name_for_item(item, folders):
             
     return folderName
 
-def update_post_publish(portal, hostname_map, id_map):
+def update_post_publish(portal, hostname_map, id_map, items):
     '''Replace server name and update item IDs referenced in items'''
 
-    # Return all portal items
-    items = portal.search()
-    
     for item in items:
         
         print_item_info(item)
