@@ -139,9 +139,16 @@ def extract_portal(portaladdress,contentpath,adminuser,adminpassword, specifiedU
     # ------------------------------------------------------------------------       
     print "\n- Extracting users, groups and items ..."
     
-    # Get list of users on the source portal
     usersList = []
-    usersListAllNames = portaladmin.users()
+    usersListAllNames = []
+    
+    # Get list of users on the source portal
+    usersListAllNames_temp = portaladmin.users()
+    
+    # Remove any esri_ accounts from the list
+    for u in usersListAllNames_temp:
+        if not u["username"].startswith("esri_"):
+            usersListAllNames.append(u)
     
     # Create list of users that we don't want to extract content for.
     # NOTE: specify user names in lowercase.
