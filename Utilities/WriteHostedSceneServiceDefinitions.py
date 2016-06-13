@@ -185,7 +185,7 @@ def main():
                                     service_json = getServiceJSON(server, port, adminuser, password, folder, serviceNameType)
                                     
                                     definition = {}
-                                    definition['name'] = item_title
+                                    definition['name'] = serviceNameType.split('.')[0]
                                     definition['serviceDescription'] = service_json
                                     
                                     output_file = os.path.join(output_folder, serviceNameType.replace('.SceneServer', '') + '_sceneserver.json')
