@@ -532,7 +532,7 @@ class Portal(object):
                 raise e
 
     def search(self, properties=None, q=None, bbox=None, group_fields=None,
-               sort_field='', sort_order='asc', num=1000, scope='default'):
+               sort_field='', sort_order='asc', num=100000, scope='default'):
         """ Searches portal items. Supports sorting, aggregation, and auto-paging. """
         return self._search(self._search_page, properties, q, bbox, group_fields,
                             sort_field, sort_order, num, scope)
@@ -708,7 +708,7 @@ class Portal(object):
         return WebMap(id, self.item_data(id), self.con.ensure_ascii)
 
     def webmaps(self, q=None, bbox=None, sort_field='', sort_order='asc',
-                num=1000, scope='default', include_basemaps=False,
+                num=100000, scope='default', include_basemaps=False,
                 ignore_errors=True):
         """ Search portal items for webmaps, returning WebMap objects """
 
@@ -1182,7 +1182,7 @@ class Portal(object):
         return self.con.post('community/groups/' + id, self._postdata())
 
     def groups(self, properties=None, q=None, group_fields=None, sort_field='',
-               sort_order='asc', num=1000, scope='default'):
+               sort_order='asc', num=5000, scope='default'):
         """ Searches portal groups. Supports sorting, aggregation, and auto-paging. """
         return self._search(self._groups_page, properties, q, None, group_fields,
                             sort_field, sort_order, num, scope)
@@ -1378,7 +1378,7 @@ class Portal(object):
                 return link + folder_id + '/items/' + id
             
     def org_users(self, properties=None, group_fields=None, sort_field='',
-                  sort_order='asc', num=1000):
+                  sort_order='asc', num=5000):
         """ Returns all users within the portal organization. """
 
         # Parse the properties into the property names and aggregate functions.
@@ -1422,7 +1422,7 @@ class Portal(object):
         return self.con.post('portals/self/users', postdata)
 
     def users(self, properties=None, q=None, group_fields=None, sort_field='',
-              sort_order='asc', num=1000, scope='default'):
+              sort_order='asc', num=5000, scope='default'):
         """ Searches portal users. Supports sorting, aggregation, and auto-paging. """
 
         # If user is attempting to search public and hasn't specified a query
@@ -1656,7 +1656,7 @@ class Portal(object):
         return OperationView(id, self.item_data(id), self.con.ensure_ascii)
 
     def operationviews(self, q=None, bbox=None, sort_field='', sort_order='asc',
-                num=1000, scope='default', ignore_errors=True):
+                num=100000, scope='default', ignore_errors=True):
         """ Search portal items for operation views, returning OperationView objects """
         
         # Build the search query
