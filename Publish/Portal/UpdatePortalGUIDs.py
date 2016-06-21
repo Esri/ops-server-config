@@ -91,44 +91,58 @@ def print_args():
 def update_item_properties(portal, item, search, replace):
     ''' Search/replace values in the item json properties '''
     
-    jsonPropsToUpdate = ['description', 'snippet', 'accessInformation', 'licenseInfo', 'url']
-    for jsonProp in jsonPropsToUpdate:
-        is_updated = False
-        propertyValue = item.get(jsonProp)
-        if propertyValue:
-            search_str_list = [search, search.lower(), search.upper()]
-            for search_str in search_str_list:
-                if propertyValue.find(search_str) > -1:
-                    propertyValue = propertyValue.replace(search_str, replace)
-                    is_updated = True
-            
-            if is_updated:
-                portal.update_item(item['id'], {jsonProp: propertyValue}) 
+    if item is not None:
+        
+        try:
+            jsonPropsToUpdate = ['description', 'snippet', 'accessInformation', 'licenseInfo', 'url']
+            for jsonProp in jsonPropsToUpdate:
+                is_updated = False
+                propertyValue = item.get(jsonProp)
+                if propertyValue:
+                    search_str_list = [search, search.lower(), search.upper()]
+                    for search_str in search_str_list:
+                        if propertyValue.find(search_str) > -1:
+                            propertyValue = propertyValue.replace(search_str, replace)
+                            is_updated = True
+                    
+                    if is_updated:
+                        portal.update_item(item['id'], {jsonProp: propertyValue})
+                        
+        except Exception as err:
+            print('ERROR: Exception: error occured while executing update_item_properties for item: "{}"'.format(str(item.get('id'))))
 
 def update_item_data(portal, item, search, replace):
     ''' Search/replace values in the item data '''
 
-    if item['type'] in TEXT_BASED_ITEM_TYPES:
+    if item is not None:
         
-        try:
-            itemdata = portal.item_data(item['id'])
-        except Exception as err:
-            print('ERROR: Exception: update_item_data function could not get item data for item: "{}"'.format(str(item.get('title'))))
-            itemdata = None
-        
-        if itemdata:
+        if item['type'] in TEXT_BASED_ITEM_TYPES:
             
-            is_updated = False
-        
-            search_str_list = [search, search.lower(), search.upper()]
-            for search_str in search_str_list:
-                if itemdata.find(search_str) > -1:
-                    itemdata = itemdata.replace(search_str, replace)
-                    is_updated = True
+            try:
+                itemdata = portal.item_data(item['id'])
+            except Exception as err:
+                print('ERROR: Exception: update_item_data function could not get item data for item: "{}"'.format(str(item.get('id'))))
+                itemdata = None
             
-            if is_updated:
-                portal.update_item(item['id'], {'text': itemdata})     
-
+            if itemdata:
+                
+                is_updated = False
+            
+                search_str_list = [search, search.lower(), search.upper()]
+                
+                for search_str in search_str_list:
+                    try:
+                        if itemdata.find(search_str) > -1:
+                            itemdata = itemdata.replace(search_str, replace)
+                            is_updated = True
+                    except Exception as err:
+                        print('ERROR: Exception: update_item_data function encountered error during search/replace for item: "{}"'.format(str(item.get('id'))))
+                
+                if is_updated:
+                    try:
+                        portal.update_item(item['id'], {'text': itemdata})
+                    except Exception as err:
+                        print('ERROR: Exception: update_item_data function encountered error during update of item: "{}"'.format(str(item.get('id'))))
 
 def main():
     exit_err_code = 1
@@ -158,11 +172,16 @@ def main():
         
         print '\n{}'.format('-' * section_break_count)
         print '- Searching for portal items...\n'
-        items = portal.search(q=search_query, sort_field='owner')
+        items_temp = portal.search(q=search_query, sort_field='owner')
         
+        items = []
+        for item in items_temp:
+            if not item['owner'].startswith('esri_'):
+                items.append(item)
+                
         for item in items:
             print format_item_info(item)
-            
+        
         print '\nFound {} items.'.format(len(items))
 
         if len(items) > 0:
