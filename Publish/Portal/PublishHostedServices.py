@@ -140,6 +140,8 @@ def find_orig_service_item_ids(portal, services_pub_info):
 def transfer_item_info(portal, src_item_id, target_item_id):
     """ Transfer item information from source item to target item """
     
+    resp = None
+    
     src_item = portal.item(src_item_id)
     src_item_metadata_path = portal.item_metadatad(src_item_id)
     src_item_thumbnail_path = portal.item_thumbnaild(src_item_id)
@@ -147,11 +149,14 @@ def transfer_item_info(portal, src_item_id, target_item_id):
     # URL can't be updated on hosted service so remove the url key
     if 'url' in src_item:
         del src_item['url']
-    
-    resp = portal.update_item(target_item_id,
-                              item=src_item,
-                              metadata=src_item_metadata_path,
-                              thumbnail=src_item_thumbnail_path)
+    try:
+        resp = portal.update_item(target_item_id,
+                                item=src_item,
+                                metadata=src_item_metadata_path,
+                                thumbnail=src_item_thumbnail_path)
+    except Exception as err:
+        print('ERROR: Exception: encountered error calling update_item in transfer_item_info function.')
+
     return resp
 
 def transfer_item_data(portal, src_item_id, target_item_id):
@@ -170,13 +175,17 @@ def transfer_item_data(portal, src_item_id, target_item_id):
                                 str(src_item.get('title'))))
             src_item_data = None
         if src_item_data:
-            resp = portal.update_item(target_item_id, {'text': src_item_data})
-        return resp
+            try:
+                resp = portal.update_item(target_item_id, {'text': src_item_data})
+            except Exception as err:
+                print('ERROR: Exception: encountered error calling update_item in transfer_item_data function.')
+    return resp
             
 def transfer_item_sharing(portal, src_item_id, target_item_id):
     """ Transfer item sharing information from source item to target item """
     everyone = False
     org = False
+    resp = None
     
     src_item_props, src_item_sharing, src_folder_id = portal.user_item(
                                     src_item_id,
@@ -189,11 +198,14 @@ def transfer_item_sharing(portal, src_item_id, target_item_id):
          everyone = False
          org = True
      
-    resp = portal.share_item(target_item_id,
-                             src_item_sharing.get('groups'),
-                             org,
-                             everyone)
-            
+    try:
+        resp = portal.share_item(target_item_id,
+                                src_item_sharing.get('groups'),
+                                org,
+                                everyone)
+    except Exception as err:
+        print('ERROR: Exception: encountered error calling share_item in transfer_item_sharing function.')
+
     return resp
 
 def is_valid_source_item(portal, item_id):
@@ -222,6 +234,7 @@ def publish_source_item(portal, item_id, file_type, publish_parameters=None, out
     # ---------------------------------------------------------------------
     total_pub_jobs_success = 0
     total_skipped_transfer = 0
+    total_pub_jobs = 0
     
     print '\t{}'.format('-' * 50)
     print '\t Publish source item'
@@ -229,7 +242,14 @@ def publish_source_item(portal, item_id, file_type, publish_parameters=None, out
     print '\t- Publishing source item {} ({})...'.format(item_id,
                                                          portal.item(item_id)['type'])
     
-    services_pub_info = portal.publish_item(file_type, item_id, publish_parameters, output_type)
+    try:
+        services_pub_info = portal.publish_item(file_type, item_id, publish_parameters, output_type)
+    except Exception as err:
+        print('ERROR: Exception: error encountered calling publish_item function.')
+        total_pub_jobs_success = -1
+        total_skipped_transfer = -1
+        total_pub_jobs = -1
+        return total_pub_jobs, total_pub_jobs_success, total_skipped_transfer
     
     total_pub_jobs = len(services_pub_info)
 
