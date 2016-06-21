@@ -65,7 +65,7 @@ def get_source_item_ids(portal, q=None):
     
     items = portal.search(q=q)
     for item in items:
-        if item['type'] in 'Feature Service':
+        if item['type'] == 'Feature Service':
             if '/Hosted/' in item['url']:
                 if 'Hosted Service' in item['typeKeywords']:
                     # if the service has been published the item
@@ -251,8 +251,10 @@ def main():
                                     file_type,
                                     publish_parameters=publish_parameters,
                                     output_type=output_type)
+            
             grand_total_pub_jobs += total_pub_jobs
             grand_total_pub_jobs_succeed += total_pub_jobs_success
+            grand_total_skipped_transfer += total_skipped_transfer
 
         endTime = datetime.now()
         print
