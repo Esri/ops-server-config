@@ -1235,7 +1235,8 @@ class Portal(object):
         postdata.update(unicode_to_ascii(group))
         
         # createGroup accepts form-data, so convert lists to strings
-        postdata['capabilities'] = ','.join(postdata['capabilities'])
+        if 'capabilities' in postdata:
+            postdata['capabilities'] = ','.join(postdata['capabilities'])
         postdata['tags'] = ','.join(postdata['tags'])
         
         # Build the files list (tuples)
