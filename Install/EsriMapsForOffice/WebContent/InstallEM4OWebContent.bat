@@ -29,7 +29,7 @@ REM ---------------------------------------------------------------------
 echo.
 echo --Installing Esri Maps for Office Web Content...
 echo.
-set execute=%ops_softwareRoot%\EsriMapsForOffice\WebContent\Portal_103_Resources_for_EM4O_3.1_en.exe /passive
+set execute=%ops_softwareRoot%\EsriMapsForOffice\WebContent\Portal_Resources_for_AM4O_4.1_Beta_en.exe /passive
 
 echo %execute%
 echo.
