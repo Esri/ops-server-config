@@ -23,6 +23,7 @@ echo.
 echo JSON - .json, application/json
 echo.
 %windir%\system32\inetsrv\appcmd set config /section:staticContent /+"[fileExtension='.json',mimeType='application/json']"
+%windir%\system32\inetsrv\appcmd set config /section:staticContent /+"[fileExtension='.mp4',mimeType='video/mp4']"
 
 
 
