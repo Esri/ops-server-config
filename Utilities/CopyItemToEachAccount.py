@@ -43,6 +43,8 @@ scriptName = sys.argv[0]
 # Create list of users to exclude
 exclude_users = ['admin', 
                 'system_publisher',
+                'ArcGISforDefense',
+                'Demonstration',
                 'DemoEManagement',
                 'DemoIntelligence',
                 'DemoLGovt',
