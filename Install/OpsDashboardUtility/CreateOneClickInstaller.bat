@@ -94,7 +94,7 @@ Call %ops_ChkErrLevelFile% %ERRORLEVEL% ROBOCOPY
 REM -----------------------------------
 REM Copy help files
 REM -----------------------------------
-set ops_destPath="C:\Program Files\ArcGIS\Portal\webapps\docroot\help\en\operations-dashboard"
+set ops_destPath="C:\Program Files\ArcGIS\Portal\apps\dashboard-win"
 echo.
 echo.
 echo --Copying Ops Dashboard help files to %ops_destPath%...
